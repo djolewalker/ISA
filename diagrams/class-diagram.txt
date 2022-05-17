@@ -1,0 +1,172 @@
+@startuml class-diagram
+skinparam groupInheritance 3
+
+enum EntityState {
+    CREATED
+    APPROVED
+    CANCELED
+}
+
+enum UserRole {
+    HOUSE_OWNER
+    BOAT_OWNER
+    INSTRUCTOR
+    ADMIN
+    DEFAULT
+}
+
+enum ResourceType {
+    HOUSE
+    BOAT
+    ADVENTURE
+}
+
+
+class User {
+    email: string
+    password: string
+    state: UserState
+    role: UserRole
+    cancelationMessage: string
+}
+
+class DeleteAccountRequest {
+    message: string
+    response: string
+    state: EntityState
+}
+
+class Profile {
+    name: string
+    surname: string
+    adress: string
+    city: string
+    country: string
+    phoneNumber: string
+}
+
+class Resource {
+    name: string
+    address: string
+    description: string
+    capacity: number
+    rules: string
+    cancelationRules: string
+}
+
+class Period {
+    from: Date
+    to: Date
+}
+
+class Property {
+    price: number
+}
+
+class House {
+}
+
+class Boat {
+    kind: string
+    length: number
+    vehicleId: string
+    power: number
+    maxSpeed: number
+}
+
+class Equipment {
+    name: string
+}
+
+class Adventure {
+
+}
+
+class Review {
+    stars: number
+    description: string
+    state: EntityState
+}
+
+class Room {
+    bedCount: number
+}
+
+class File {
+
+}
+
+class Appointment {
+    startDate: Date
+    endDate: Date
+    fee: number
+    canceled: boolean
+    penalty: boolean
+}
+
+class AppointmentCompletition {
+    description: string
+    badExperience: boolean
+    incompleted: boolean
+    state: EntityState
+}
+
+class SpecialOffer {
+    startDate: Date
+    duration: Number
+    persons: Number
+    price: Number
+}
+
+class Service {
+    name: string
+    kind: ResourceType
+}
+
+class Discount {
+    amount: number
+}
+
+class Complaint {
+    description: string
+    response: string
+}
+
+class LoyaltyValues {
+    role: UserRole
+    resource: ResourceType
+    value: number
+}
+
+class LoyaltyCategories {
+    name: string
+    count: number
+    discount: number
+}
+
+User                <-->            Profile
+Property            -- "0..*"       User
+Property            --|>            Resource
+Property            -- "0..*"       Period
+Adventure           --|>            Resource
+Boat                --|>            Property
+House               --|>            Property
+Review              -->             Resource
+Review              -->             User
+Room                --*             House
+File                -- "0..*"       Resource
+SpecialOffer        -->             Discount
+Service             -- "0..*"       SpecialOffer
+Resource            -- "0..*"       Appointment
+Appointment         --              SpecialOffer
+Appointment         --              User
+Boat                -- "0..*"       Equipment
+Adventure           -- "0..*"       Equipment
+Appointment         --              AppointmentCompletition
+User                -- "0..* follow" Resource
+User                --              Complaint
+Complaint           --              Resource
+DeleteAccountRequest -->            User
+DeleteAccountRequest -->            User
+
+@enduml
