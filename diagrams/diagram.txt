@@ -1,6 +1,0 @@
-@startuml ISA
-skinparam groupInheritance 3
-
-
-
-@enduml
