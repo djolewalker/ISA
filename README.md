@@ -1,6 +1,8 @@
 # ISA
 
-Student project on Internet Software Architecture course at University of Novi Sad, Faculty of Technical Science
+Student project on Internet Software Architecture course at University of Novi Sad, Faculty of Technical Science.
+
+Booking like application written in Java Spring Boot + React.JS.
 
 ## Team 31
 
