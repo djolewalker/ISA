@@ -1,15 +1,11 @@
-package com.ftnisa.isa.dto.user;
+package com.ftnisa.isa.dto.auth;
 
-public class UserRegister {
+public class RegisterRequest {
     private String username;
-
     private String password;
-
-    private String firstname;
-
-    private String lastname;
-
     private String email;
+    private String firstname;
+    private String lastname;
 
     public String getUsername() {
         return username;

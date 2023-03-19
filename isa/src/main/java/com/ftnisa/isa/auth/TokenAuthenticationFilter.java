@@ -16,11 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
-
     private TokenUtils tokenUtils;
-
     private UserDetailsService userDetailsService;
-
     protected final Log LOGGER = LogFactory.getLog(getClass());
 
     public TokenAuthenticationFilter(TokenUtils tokenUtils, UserDetailsService userDetailsService) {
@@ -33,18 +30,18 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         String username;
         String authToken = tokenUtils.getToken(request);
         try {
-            if (authToken != null){
+            if (authToken != null) {
                 username = this.tokenUtils.getUsernameFromToken(authToken);
-                if (username != null){
+                if (username != null) {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                    if (tokenUtils.validateToken(authToken, userDetails)){
+                    if (tokenUtils.validateToken(authToken, userDetails)) {
                         TokenBasedAuthentication authentication = new TokenBasedAuthentication(userDetails);
                         authentication.setToken(authToken);
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     }
                 }
             }
-        }catch (ExpiredJwtException ex) {
+        } catch (ExpiredJwtException ex) {
             LOGGER.debug("Token expired!");
         }
 

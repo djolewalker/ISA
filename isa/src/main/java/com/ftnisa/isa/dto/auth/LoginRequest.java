@@ -1,17 +1,8 @@
-package com.ftnisa.isa.dto.user;
+package com.ftnisa.isa.dto.auth;
 
-public class UserLogin {
-
+public class LoginRequest {
     public String username;
     public String password;
-
-    public UserLogin() {
-    }
-
-    public UserLogin(String username, String password) {
-        this.username = username;
-        this.password = password;
-    }
 
     public String getUsername() {
         return username;

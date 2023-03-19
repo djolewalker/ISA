@@ -1,27 +1,17 @@
 package com.ftnisa.isa.controller;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
+import com.ftnisa.isa.dto.auth.*;
+import com.ftnisa.isa.dto.user.UserResponse;
+import com.ftnisa.isa.mapper.UserMapper;
+import com.ftnisa.isa.model.user.Role;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.bind.annotation.*;
 
-import com.ftnisa.isa.dto.user.UserJwt;
-import com.ftnisa.isa.dto.user.UserLogin;
-import com.ftnisa.isa.dto.user.UserRegister;
-import com.ftnisa.isa.exception.ResourceConflictException;
 import com.ftnisa.isa.model.user.User;
 import com.ftnisa.isa.service.UserService;
 import com.ftnisa.isa.util.TokenUtils;
@@ -29,38 +19,61 @@ import com.ftnisa.isa.util.TokenUtils;
 @RestController
 @RequestMapping(value = "/auth", produces = MediaType.APPLICATION_JSON_VALUE)
 public class AuthController {
+    private final TokenUtils tokenUtils;
+    private final AuthenticationManager authenticationManager;
+    private final UserService userService;
+    private final UserMapper mapper;
 
-    @Autowired
-    private TokenUtils tokenUtils;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private UserService userService;
-
-    @PostMapping("/login")
-    public ResponseEntity<UserJwt> createAuthenticationToken(@RequestBody UserLogin authenticationRequest)
-    {
-        UsernamePasswordAuthenticationToken credentials = new UsernamePasswordAuthenticationToken(
-                authenticationRequest.getUsername(), authenticationRequest.getPassword());
-        Authentication authentication = authenticationManager.authenticate(credentials);
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        User user = (User) authentication.getPrincipal();
-        String jwt = tokenUtils.generateToken(user.getUsername());
-        int expTime = tokenUtils.getExpiredIn();
-
-        return ResponseEntity.ok(new UserJwt(jwt, expTime));
+    public AuthController(TokenUtils tokenUtils, AuthenticationManager authenticationManager, UserService userService, UserMapper mapper) {
+        this.tokenUtils = tokenUtils;
+        this.authenticationManager = authenticationManager;
+        this.userService = userService;
+        this.mapper = mapper;
     }
 
-    @PostMapping("/signup")
-    public ResponseEntity<User> createUser(@RequestBody UserRegister userRegister) {
-        User userCheck = this.userService.findByUsername(userRegister.getUsername());
-        if ( userCheck != null) {
-            throw new ResourceConflictException(userCheck.getId(), "Username already exists!");
-        }
-        User user = userService.register(userRegister);
-        return new ResponseEntity(user, HttpStatus.CREATED);
+    @PostMapping("/signing")
+    public ResponseEntity<JwtResponse> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest) {
+        var credentials = new UsernamePasswordAuthenticationToken(
+                authenticationRequest.getUsername(), authenticationRequest.getPassword());
+        var authentication = authenticationManager.authenticate(credentials);
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        var user = (User) authentication.getPrincipal();
+        var roles = user.getRoles().stream().map(role -> role.getName()).toList();
+        var jwt = tokenUtils.generateAccessToken(user.getUsername(), roles);
+        var expTime = tokenUtils.getExpiredIn();
+
+        return ResponseEntity.ok(new JwtResponse(jwt, expTime));
+    }
+
+    @PostMapping("/signup/user")
+    public ResponseEntity<UserResponse> createUser(@RequestBody RegisterRequest registerRequest) {
+        var user = userService.registerUser(registerRequest, Role.USER);
+        return new ResponseEntity<>(mapper.toUserResponse(user), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/signup/driver")
+    public ResponseEntity<UserResponse> createDriver(@RequestBody RegisterRequest registerRequest) {
+        var user = userService.registerUser(registerRequest, Role.DRIVER);
+        return new ResponseEntity<>(mapper.toUserResponse(user), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/verify-email")
+    public ResponseEntity verifyUser(@RequestParam String verificationToken) {
+        userService.verify(verificationToken);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest){
+        userService.forgotPassword(forgotPasswordRequest.getEmail());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest, @RequestParam String resetPasswordToken){
+        userService.resetPassword(resetPasswordRequest.getPassword(), resetPasswordToken);
+        return ResponseEntity.ok().build();
     }
 }
