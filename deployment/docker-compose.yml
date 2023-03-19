@@ -1,0 +1,56 @@
+services:
+  init:
+    image: djolewalker/heroku-terraform:latest
+    networks:
+      - deployment
+    env_file:
+      - .env
+    volumes:
+      - ./scripts:/deployment/scripts
+    working_dir: /deployment
+    entrypoint: sh
+    command: [ "scripts/init.sh" ]
+
+  deploy:
+    image: djolewalker/heroku-terraform:latest
+    networks:
+      - deployment
+    env_file:
+      - .env
+    volumes:
+      - ./scripts:/deployment/scripts
+      - ./terraform:/deployment/terraform
+    working_dir: /deployment
+    entrypoint: sh
+    command: [ "scripts/deploy.sh" ]
+
+  destroy:
+    image: djolewalker/heroku-terraform:latest
+    networks:
+      - deployment
+    env_file:
+      - .env
+    volumes:
+      - ./scripts:/deployment/scripts
+      - ./terraform:/deployment/terraform
+    working_dir: /deployment
+    entrypoint: sh
+    command: [ "scripts/destroy.sh" ]
+
+  cleanup:
+    image: djolewalker/heroku-terraform:latest
+    networks:
+      - deployment
+    env_file:
+      - .env
+    volumes:
+      - ./scripts:/deployment/scripts
+      - ./terraform:/deployment/terraform
+    working_dir: /deployment
+    entrypoint: sh
+    command: [ "scripts/cleanup.sh" ]
+
+
+networks:
+  deployment:
+    name: deployment

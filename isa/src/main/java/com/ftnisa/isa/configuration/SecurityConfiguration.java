@@ -31,7 +31,8 @@ public class SecurityConfiguration {
     private final UserDetailsService userDetailsService;
     private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
-    public SecurityConfiguration(RestAuthenticationEntryPoint restAuthenticationEntryPoint, TokenUtils tokenUtils, UserDetailsService userDetailsService) {
+    public SecurityConfiguration(RestAuthenticationEntryPoint restAuthenticationEntryPoint, TokenUtils tokenUtils,
+            UserDetailsService userDetailsService) {
         this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
         this.userDetailsService = userDetailsService;
         this.tokenUtils = tokenUtils;
@@ -43,7 +44,8 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -61,15 +63,19 @@ public class SecurityConfiguration {
                 .antMatchers("/auth/**").permitAll()
                 .antMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/", "/webjars/**", "/*.html", "favicon.ico", "/**/*.html",
-                        "/**/*.css", "/**/*.js").permitAll()
+                        "/**/*.css", "/**/*.js")
+                .permitAll()
                 .anyRequest().authenticated().and()
 
                 // za development svrhe ukljuci konfiguraciju za CORS i CSRF
                 .cors().and()
                 .csrf().disable()
 
-                // umetni custom filter TokenAuthenticationFilter kako bi se vrsila provera JWT tokena umesto cistih korisnickog imena i lozinke (koje radi BasicAuthenticationFilter)
-                .addFilterBefore(new TokenAuthenticationFilter(tokenUtils, userDetailsService), BasicAuthenticationFilter.class);
+                // umetni custom filter TokenAuthenticationFilter kako bi se vrsila provera JWT
+                // tokena umesto cistih korisnickog imena i lozinke (koje radi
+                // BasicAuthenticationFilter)
+                .addFilterBefore(new TokenAuthenticationFilter(tokenUtils, userDetailsService),
+                        BasicAuthenticationFilter.class);
 
         return http.build();
     }
