@@ -24,7 +24,8 @@ public class AuthController {
     private final UserService userService;
     private final UserMapper mapper;
 
-    public AuthController(TokenUtils tokenUtils, AuthenticationManager authenticationManager, UserService userService, UserMapper mapper) {
+    public AuthController(TokenUtils tokenUtils, AuthenticationManager authenticationManager, UserService userService,
+            UserMapper mapper) {
         this.tokenUtils = tokenUtils;
         this.authenticationManager = authenticationManager;
         this.userService = userService;
@@ -60,19 +61,20 @@ public class AuthController {
     }
 
     @GetMapping("/verify-email")
-    public ResponseEntity verifyUser(@RequestParam String verificationToken) {
+    public ResponseEntity<Void> verifyUser(@RequestParam String verificationToken) {
         userService.verify(verificationToken);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest){
+    public ResponseEntity<Void> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) {
         userService.forgotPassword(forgotPasswordRequest.getEmail());
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest, @RequestParam String resetPasswordToken){
+    public ResponseEntity<Void> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest,
+            @RequestParam String resetPasswordToken) {
         userService.resetPassword(resetPasswordRequest.getPassword(), resetPasswordToken);
         return ResponseEntity.ok().build();
     }

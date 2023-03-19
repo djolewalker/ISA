@@ -3,20 +3,16 @@ package com.ftnisa.isa.service;
 import com.ftnisa.isa.dto.auth.RegisterRequest;
 import com.ftnisa.isa.event.resetPasswordRequested.OnResetPasswordRequestedEvent;
 import com.ftnisa.isa.event.verificationRequested.OnVerificationRequestedEvent;
-import com.ftnisa.isa.exception.HandledException;
 import com.ftnisa.isa.exception.ResourceConflictException;
 import com.ftnisa.isa.model.token.TokenType;
 import com.ftnisa.isa.model.user.Role;
 import com.ftnisa.isa.model.user.User;
-import com.ftnisa.isa.repository.TokenRepository;
 import com.ftnisa.isa.repository.UserRepository;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 
-import java.util.Calendar;
 import java.util.List;
 
 @Service
@@ -29,8 +25,8 @@ public class UserServiceImpl implements UserService {
     private final ApplicationEventPublisher eventPublisher;
 
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                           RoleService roleService, TokenService tokenService,
-                           ApplicationEventPublisher eventPublisher) {
+            RoleService roleService, TokenService tokenService,
+            ApplicationEventPublisher eventPublisher) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleService = roleService;
@@ -47,7 +43,6 @@ public class UserServiceImpl implements UserService {
     public User findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
-
 
     @Override
     public List<User> findAll() {
