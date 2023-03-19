@@ -15,41 +15,41 @@ import javax.naming.AuthenticationException;
 
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
-    @ExceptionHandler({AuthenticationException.class})
-    public ResponseEntity<ApiError> handleAuthenticationException(AuthenticationException ex, WebRequest request){
+    @ExceptionHandler({ AuthenticationException.class })
+    public ResponseEntity<ApiError> handleAuthenticationException(AuthenticationException ex, WebRequest request) {
         var apiError = new ApiError(HttpStatus.UNAUTHORIZED, "Not in this universe!");
-        return new ResponseEntity(apiError, apiError.getStatus());
+        return new ResponseEntity<ApiError>(apiError, apiError.getStatus());
     }
 
-    @ExceptionHandler({AccessDeniedException.class})
+    @ExceptionHandler({ AccessDeniedException.class })
     public ResponseEntity<ApiError> handleDenied(Exception ex, WebRequest request) {
         var apiError = new ApiError(HttpStatus.FORBIDDEN, "Not in this universe!");
-        return new ResponseEntity(apiError, apiError.getStatus());
+        return new ResponseEntity<ApiError>(apiError, apiError.getStatus());
     }
 
-    @ExceptionHandler({HttpClientErrorException.class})
+    @ExceptionHandler({ HttpClientErrorException.class })
     public ResponseEntity<ApiError> handleClient(HttpClientErrorException ex, WebRequest request) {
         var apiError = new ApiError(ex.getStatusCode(), ex.getLocalizedMessage());
-        return new ResponseEntity(apiError, apiError.getStatus());
+        return new ResponseEntity<ApiError>(apiError, apiError.getStatus());
     }
 
-    @ExceptionHandler({HttpServerErrorException.class})
+    @ExceptionHandler({ HttpServerErrorException.class })
     public ResponseEntity<ApiError> handleServer(HttpServerErrorException ex, WebRequest request) {
         var apiError = new ApiError(ex.getStatusCode(), ex.getLocalizedMessage());
-        return new ResponseEntity(apiError, apiError.getStatus());
+        return new ResponseEntity<ApiError>(apiError, apiError.getStatus());
     }
 
-    @ExceptionHandler({HandledException.class})
+    @ExceptionHandler({ HandledException.class })
     public ResponseEntity<ApiError> handleAllHandled(HandledException ex, WebRequest request) {
         var apiError = new ApiError(ex.getStatus(), ex.getLocalizedMessage());
-        return new ResponseEntity(apiError, apiError.getStatus());
+        return new ResponseEntity<ApiError>(apiError, apiError.getStatus());
     }
 
-    @ExceptionHandler({ResourceConflictException.class})
+    @ExceptionHandler({ ResourceConflictException.class })
     public ResponseEntity<ApiError> handleMethodArgumentTypeMismatch(
             ResourceConflictException ex,
             WebRequest request) {
         var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage());
-        return new ResponseEntity(apiError, apiError.getStatus());
+        return new ResponseEntity<ApiError>(apiError, apiError.getStatus());
     }
 }

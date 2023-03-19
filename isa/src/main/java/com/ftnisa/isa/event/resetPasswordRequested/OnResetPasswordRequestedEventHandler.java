@@ -1,17 +1,14 @@
 package com.ftnisa.isa.event.resetPasswordRequested;
 
-import com.ftnisa.isa.configuration.AppConfiguration;
 import com.ftnisa.isa.email.EmailService;
 import com.ftnisa.isa.service.TokenService;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-
 @Component
 public class OnResetPasswordRequestedEventHandler implements ApplicationListener<OnResetPasswordRequestedEvent> {
     private final EmailService emailService;
     private final TokenService tokenService;
-
 
     public OnResetPasswordRequestedEventHandler(EmailService emailService, TokenService tokenService) {
         this.tokenService = tokenService;

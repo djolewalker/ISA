@@ -1,0 +1,71 @@
+services:
+  portal:
+    build:
+      context: ./isa-spa
+      dockerfile: Dockerfile
+    restart: on-failure
+    networks:
+      - isa-net
+    ports:
+      - 8000:80
+    depends_on:
+      - isa-uber-app
+
+  isa-uber-app:
+    build:
+      context: ./isa
+      dockerfile: Dockerfile
+    restart: on-failure
+    networks:
+      - isa-net
+    environment:
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      STAGE: ${STAGE}
+      spring_datasource_url: jdbc:postgresql://database:5432/isa
+    ports:
+      - 8080:8080
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    image: postgres:${POSTGRES_VERSION}
+    restart: always
+    networks:
+      - isa-net
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+    healthcheck:
+      test: pg_isready -U postgres -d isa
+      retries: 3
+      interval: 5s
+      timeout: 5s
+    volumes:
+      - database-data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:5.3
+    networks:
+      - isa-net
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_ROOT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_ROOT_PASSWORD}
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    ports:
+      - 5050:80
+    depends_on:
+      - database
+
+volumes:
+  database-data:
+    name: server-database
+  pgadmin:
+    name: pgadmin
+
+networks:
+  isa-net:
+    name: isa-net
+    driver: bridge

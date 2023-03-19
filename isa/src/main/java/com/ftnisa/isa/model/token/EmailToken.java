@@ -3,7 +3,6 @@ package com.ftnisa.isa.model.token;
 import com.ftnisa.isa.model.user.User;
 
 import javax.persistence.*;
-import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
