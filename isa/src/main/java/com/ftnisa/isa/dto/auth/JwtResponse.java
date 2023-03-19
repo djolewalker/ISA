@@ -1,15 +1,15 @@
-package com.ftnisa.isa.dto.user;
+package com.ftnisa.isa.dto.auth;
 
-public class UserJwt {
+public class JwtResponse {
     private String accessToken;
     private Long expiresIn;
 
-    public UserJwt() {
+    public JwtResponse() {
         this.accessToken = null;
         this.expiresIn = null;
     }
 
-    public UserJwt(String accessToken, long expiresIn) {
+    public JwtResponse(String accessToken, long expiresIn) {
         this.accessToken = accessToken;
         this.expiresIn = expiresIn;
     }

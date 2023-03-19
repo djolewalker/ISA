@@ -1,7 +1,7 @@
 package com.ftnisa.isa.util;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,34 +29,28 @@ public class TokenUtils {
     private String AUTH_HEADER;
 
     private static final String AUDIENCE_WEB = "web";
+    private static final String ROLES_CLAIM = "roles";
 
-    private SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS512;
+    private final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS512;
 
-    public String generateToken(String username) {
+    public String generateAccessToken(String username, List<String> roles) {
         return Jwts.builder()
                 .setIssuer(APP_NAME)
                 .setSubject(username)
                 .setAudience(generateAudience())
                 .setIssuedAt(new Date())
-                .setExpiration(generateExpirationDate())
+                .setExpiration(generateExpirationDate(EXPIRES_IN))
+                .claim(ROLES_CLAIM, roles)
                 .signWith(SIGNATURE_ALGORITHM, SECRET).compact();
     }
 
     private String generateAudience() {
         return AUDIENCE_WEB;
     }
-    private Date generateExpirationDate() {
-        return new Date(new Date().getTime() + EXPIRES_IN);
+
+    private Date generateExpirationDate(int exp) {
+        return new Date(new Date().getTime() + exp);
     }
-
-
-//    public HttpCookie createAccessTokenCookie(String token) {);
-//        return ResponseCookie.from(accessTokenCookieName, encryptedToken)
-//                .maxAge(duration)
-//                .httpOnly(true)
-//                .path("/")
-//                .build();
-//    }
 
     /**
      * Funkcija za preuzimanje JWT tokena iz zahteva.
@@ -76,6 +70,7 @@ public class TokenUtils {
 
     /**
      * Funkcija za preuzimanje vlasnika tokena (korisničko ime).
+     *
      * @param token JWT token.
      * @return Korisničko ime iz tokena ili null ukoliko ne postoji.
      */
@@ -96,6 +91,7 @@ public class TokenUtils {
 
     /**
      * Funkcija za preuzimanje datuma kreiranja tokena.
+     *
      * @param token JWT token.
      * @return Datum kada je token kreiran.
      */
@@ -176,7 +172,7 @@ public class TokenUtils {
     /**
      * Funkcija za validaciju JWT tokena.
      *
-     * @param token JWT token.
+     * @param token       JWT token.
      * @param userDetails Informacije o korisniku koji je vlasnik JWT tokena.
      * @return Informacija da li je token validan ili ne.
      */
@@ -194,7 +190,7 @@ public class TokenUtils {
     /**
      * Funkcija proverava da li je lozinka korisnika izmenjena nakon izdavanja tokena.
      *
-     * @param created Datum kreiranja tokena.
+     * @param created           Datum kreiranja tokena.
      * @param lastPasswordReset Datum poslednje izmene lozinke.
      * @return Informacija da li je token kreiran pre poslednje izmene lozinke ili ne.
      */
@@ -217,7 +213,6 @@ public class TokenUtils {
      * Funkcija za preuzimanje sadržaja AUTH_HEADER-a iz zahteva.
      *
      * @param request HTTP zahtev.
-     *
      * @return Sadrzaj iz AUTH_HEADER-a.
      */
     public String getAuthHeaderFromHeader(HttpServletRequest request) {
