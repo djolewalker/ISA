@@ -1,17 +1,23 @@
 services:
-  portal:
+  isa-spa:
     build:
       context: ./isa-spa
       dockerfile: Dockerfile
+      target: execute
+      args:
+        API_URL: "http://localhost:8000/api"
     restart: on-failure
     networks:
       - isa-net
     ports:
       - 8000:80
+    volumes:
+      - ./isa-spa/nginx.conf:/etc/nginx/nginx.conf
+      - ./isa-spa/gateway.conf:/etc/nginx/gateway.conf
     depends_on:
-      - isa-uber-app
+      - isa
 
-  isa-uber-app:
+  isa:
     build:
       context: ./isa
       dockerfile: Dockerfile
@@ -19,8 +25,11 @@ services:
     networks:
       - isa-net
     environment:
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_DOMAIN: ${DATABASE_DOMAIN}
+      DATABASE_SCHEMA: ${DATABASE_SCHEMA}
       CORS_ORIGIN: ${CORS_ORIGIN}
-      STAGE: ${STAGE}
       spring_datasource_url: jdbc:postgresql://database:5432/isa
     ports:
       - 8080:8080
@@ -38,7 +47,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_DB: ${POSTGRES_DB}
     healthcheck:
-      test: pg_isready -U postgres -d isa
+      test: pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
       retries: 3
       interval: 5s
       timeout: 5s
