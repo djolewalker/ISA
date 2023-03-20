@@ -6,8 +6,8 @@ ARG API_URL="'http://localhost:8080/api'"
 WORKDIR /app
 COPY . .
 RUN npm install && \
-  sed -i -e "/REACT_APP_API_URL:/c\\${API_URL}" .env && \
-  npm run build --prod
+  sed -i -e "/REACT_APP_API_URL = /c\\REACT_APP_API_URL = ${API_URL}" .env && \
+  npm run build --production
 
 FROM nginx:1.21-alpine as execute
 COPY ./conf/nginx.conf /etc/nginx/nginx.conf

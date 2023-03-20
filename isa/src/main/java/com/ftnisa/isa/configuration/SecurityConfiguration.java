@@ -58,7 +58,7 @@ public class SecurityConfiguration {
                 .userDetailsService(userDetailsService)
 
                 .authorizeRequests()
-                .antMatchers("/auth/**").permitAll()
+                .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/", "/webjars/**", "/*.html", "favicon.ico", "/**/*.html",
                         "/**/*.css", "/**/*.js")

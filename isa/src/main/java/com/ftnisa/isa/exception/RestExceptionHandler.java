@@ -18,31 +18,31 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({ AuthenticationException.class })
     public ResponseEntity<ApiError> handleAuthenticationException(AuthenticationException ex, WebRequest request) {
         var apiError = new ApiError(HttpStatus.UNAUTHORIZED, "Not in this universe!");
-        return new ResponseEntity<ApiError>(apiError, apiError.getStatus());
+        return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
     @ExceptionHandler({ AccessDeniedException.class })
     public ResponseEntity<ApiError> handleDenied(Exception ex, WebRequest request) {
         var apiError = new ApiError(HttpStatus.FORBIDDEN, "Not in this universe!");
-        return new ResponseEntity<ApiError>(apiError, apiError.getStatus());
+        return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
     @ExceptionHandler({ HttpClientErrorException.class })
     public ResponseEntity<ApiError> handleClient(HttpClientErrorException ex, WebRequest request) {
         var apiError = new ApiError(ex.getStatusCode(), ex.getLocalizedMessage());
-        return new ResponseEntity<ApiError>(apiError, apiError.getStatus());
+        return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
     @ExceptionHandler({ HttpServerErrorException.class })
     public ResponseEntity<ApiError> handleServer(HttpServerErrorException ex, WebRequest request) {
         var apiError = new ApiError(ex.getStatusCode(), ex.getLocalizedMessage());
-        return new ResponseEntity<ApiError>(apiError, apiError.getStatus());
+        return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
     @ExceptionHandler({ HandledException.class })
     public ResponseEntity<ApiError> handleAllHandled(HandledException ex, WebRequest request) {
         var apiError = new ApiError(ex.getStatus(), ex.getLocalizedMessage());
-        return new ResponseEntity<ApiError>(apiError, apiError.getStatus());
+        return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
     @ExceptionHandler({ ResourceConflictException.class })
@@ -50,6 +50,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
             ResourceConflictException ex,
             WebRequest request) {
         var apiError = new ApiError(HttpStatus.CONFLICT, ex.getLocalizedMessage());
-        return new ResponseEntity<ApiError>(apiError, apiError.getStatus());
+        return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 }
