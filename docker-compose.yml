@@ -2,12 +2,15 @@ services:
   isa-spa:
     build:
       context: ./isa-spa
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     restart: on-failure
+    environment:
+      API_URL: isa:8080
+      PORT: 80
     networks:
       - isa-net
     ports:
-      - 8000:80
+      - 8001:80
     depends_on:
       - isa
 
@@ -25,6 +28,8 @@ services:
       DATABASE_SCHEMA: ${DATABASE_SCHEMA}
       CORS_ORIGIN: ${CORS_ORIGIN}
       spring_datasource_url: jdbc:postgresql://database:5432/isa
+    expose:
+      - 8080
     ports:
       - 8080:8080
     depends_on:
