@@ -105,11 +105,11 @@ jobs:
         if: github.event_name == 'push' && github.ref_name == 'dev'
         run: |
           cd ./deployment
-          echo "TERRAFORM_BACKEND=isa-terraform-test" > env.conf
-          echo "APP_NAME=isa-backend-test" >> env.conf
-          echo "GATEWAY_NAME=isa-frontend-test" >> env.conf
-          printf "HEROKU_EMAIL=%s\n" ${{ secrets.HEROKU_TEST_EMAIL }} >> env.conf
-          printf "HEROKU_API_KEY=%s" ${{ secrets.HEROKU_TEST_API_KEY }} >> env.conf
+          echo "TERRAFORM_BACKEND=isa-terraform-test" > .env
+          echo "APP_NAME=isa-backend-test" >> .env
+          echo "GATEWAY_NAME=isa-frontend-test" >> .env
+          printf "HEROKU_EMAIL=%s\n" ${{ secrets.HEROKU_TEST_EMAIL }} >> .env
+          printf "HEROKU_API_KEY=%s" ${{ secrets.HEROKU_TEST_API_KEY }} >> .env
           docker compose up destroy
           docker compose up deploy
           docker compose up deploy
