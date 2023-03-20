@@ -63,7 +63,7 @@ public class SecurityConfiguration {
                 .antMatchers(HttpMethod.GET, "/", "/webjars/**", "/*.html", "favicon.ico", "/**/*.html",
                         "/**/*.css", "/**/*.js")
                 .permitAll()
-                .anyRequest().permitAll().and()
+                .anyRequest().authenticated().and()
 
                 .cors().and()
                 .csrf().disable()
