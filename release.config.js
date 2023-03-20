@@ -1,5 +1,5 @@
 module.exports = {
-  branches: ["main", { name: "develop", prerelease: true }],
+  branches: ["main", { name: "dev", prerelease: true }],
   repositoryUrl: "https://github.com/djolewalker/ISA",
   plugins: [
     "@semantic-release/commit-analyzer",
