@@ -6,8 +6,7 @@
     "registry": "https://npm.pkg.github.com/"
   },
   "repository": {
-    "type": "git",
-    "url": "git://github.com/djolewalker/ISA.git"
+    "url": "https://github.com/djolewalker/ISA.git"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.3",
