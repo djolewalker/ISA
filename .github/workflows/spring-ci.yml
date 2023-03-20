@@ -50,8 +50,8 @@ jobs:
         id: version
         if: github.event_name == 'push'
         run: |
-          npm install semantic-release
-          npm install semantic-release-export-data
+          npm install semantic-release@19.0.5
+          npm install semantic-release-export-data@1.0.1
           npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

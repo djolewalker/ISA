@@ -61,7 +61,7 @@ public class IsaApplicationTests {
         tokenRepository.deleteAll();
         userRepository.deleteAll();
         roleRepository.deleteAll();
-        
+
         var role = new Role();
         role.setId(1);
         role.setName("ROLE_USER");
