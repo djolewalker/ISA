@@ -1,2 +1,2 @@
 FROM djolewalker/isa:latest
-CMD java -jar -server isa-0.1.jar --server.port=$PORT
+CMD java -jar -server /app/isa.jar --server.port=$PORT
