@@ -17,7 +17,7 @@ import com.ftnisa.isa.service.UserService;
 import com.ftnisa.isa.util.TokenUtils;
 
 @RestController
-@RequestMapping(value = "/auth", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/auth", produces = MediaType.APPLICATION_JSON_VALUE)
 public class AuthController {
     private final TokenUtils tokenUtils;
     private final AuthenticationManager authenticationManager;
@@ -32,7 +32,7 @@ public class AuthController {
         this.mapper = mapper;
     }
 
-    @PostMapping("/signing")
+    @PostMapping("/signin")
     public ResponseEntity<JwtResponse> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest) {
         var credentials = new UsernamePasswordAuthenticationToken(
                 authenticationRequest.getUsername(), authenticationRequest.getPassword());

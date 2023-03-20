@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AppConfiguration {
-    @Value("${spring.app.url}")
+    @Value("${isa.app.url}")
     private String appUrl;
 
     public String getAppUrl() {

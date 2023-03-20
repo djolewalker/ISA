@@ -5,13 +5,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class EmailConfiguration {
-    @Value("${spring.mail.host}")
+    @Value("${isa.mail.host}")
     private String host;
-    @Value("${spring.mail.port}")
+    @Value("${isa.mail.port}")
     private Integer port;
-    @Value("${spring.mail.username}")
+    @Value("${isa.mail.username}")
     private String username;
-    @Value("${spring.mail.password}")
+    @Value("${isa.mail.password}")
     private String password;
 
     public String getHost() {

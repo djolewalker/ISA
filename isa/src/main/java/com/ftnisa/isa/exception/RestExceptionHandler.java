@@ -49,7 +49,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ApiError> handleMethodArgumentTypeMismatch(
             ResourceConflictException ex,
             WebRequest request) {
-        var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage());
+        var apiError = new ApiError(HttpStatus.CONFLICT, ex.getLocalizedMessage());
         return new ResponseEntity<ApiError>(apiError, apiError.getStatus());
     }
 }

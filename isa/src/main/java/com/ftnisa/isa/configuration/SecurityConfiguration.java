@@ -32,7 +32,7 @@ public class SecurityConfiguration {
     private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
     public SecurityConfiguration(RestAuthenticationEntryPoint restAuthenticationEntryPoint, TokenUtils tokenUtils,
-            UserDetailsService userDetailsService) {
+                                 UserDetailsService userDetailsService) {
         this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
         this.userDetailsService = userDetailsService;
         this.tokenUtils = tokenUtils;
@@ -53,8 +53,6 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-
-                // sve neautentifikovane zahteve obradi uniformno i posalji 401 gresku
                 .exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint).and()
 
                 .userDetailsService(userDetailsService)
@@ -65,15 +63,11 @@ public class SecurityConfiguration {
                 .antMatchers(HttpMethod.GET, "/", "/webjars/**", "/*.html", "favicon.ico", "/**/*.html",
                         "/**/*.css", "/**/*.js")
                 .permitAll()
-                .anyRequest().authenticated().and()
+                .anyRequest().permitAll().and()
 
-                // za development svrhe ukljuci konfiguraciju za CORS i CSRF
                 .cors().and()
                 .csrf().disable()
 
-                // umetni custom filter TokenAuthenticationFilter kako bi se vrsila provera JWT
-                // tokena umesto cistih korisnickog imena i lozinke (koje radi
-                // BasicAuthenticationFilter)
                 .addFilterBefore(new TokenAuthenticationFilter(tokenUtils, userDetailsService),
                         BasicAuthenticationFilter.class);
 
