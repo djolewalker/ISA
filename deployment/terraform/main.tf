@@ -16,7 +16,6 @@ variable "frontend_isa_name" {
 
 resource "heroku_config" "isa_app" {
   vars = {
-    STAGE = "test"
     CORS_ORIGIN = "https://${heroku_app.gateway.name}.herokuapp.com"
   }
 }
@@ -31,7 +30,7 @@ resource "heroku_build" "isa_app" {
   app_id = heroku_app.isa_app.id
 
   source {
-    path = "isa_app"
+    path = "isa"
   }
 }
 
@@ -43,7 +42,7 @@ resource "heroku_app_config_association" "isa_app" {
 
 resource "heroku_addon" "database" {
   app_id  = heroku_app.isa_app.id
-  plan = "heroku-postgresql:hobby-dev"
+  plan = "heroku-postgresql:mini"
 }
 
 resource "heroku_config" "gateway" {
@@ -68,7 +67,7 @@ resource "heroku_build" "gateway" {
   app_id = heroku_app.gateway.id
 
   source {
-    path = "isa_app_front"
+    path = "isa_spa"
   }
   depends_on = [
     null_resource.gateway_build
@@ -76,7 +75,7 @@ resource "heroku_build" "gateway" {
 }
 
 data "template_file" "gateway_build" {
-  template = file("${path.module}/isa_app_front/heroku.tpl")
+  template = file("${path.module}/isa_spa/heroku.tpl")
   vars = {
     api_url = "\\\"'https://${heroku_app.isa_app.name}.herokuapp.com/api'\\\""
   }
@@ -88,7 +87,7 @@ resource "null_resource" "gateway_build" {
   }
 
   provisioner "local-exec" {
-    command = "echo \"${data.template_file.gateway_build.rendered}\" > ${path.module}/isa_app_front/heroku.yml"
+    command = "echo \"${data.template_file.gateway_build.rendered}\" > ${path.module}/isa_spa/heroku.yml"
   }
 }
 
