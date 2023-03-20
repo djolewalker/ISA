@@ -1,4 +1,4 @@
-FROM node:16-alpine AS builder
+FROM node:16-alpine AS build
 
 LABEL maintainer="dimitrije24000@gmail.com"
 ARG API_URL="'http://localhost:8080/api'"
