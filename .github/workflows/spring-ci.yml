@@ -102,7 +102,7 @@ jobs:
           cp -R "${{ env.PROJ_DIR_FE }}" "./deployment/terraform/isa_spa/source"
 
       - name: Deploy app to TEST env
-        if: github.event_name == 'push' && github.ref_name == 'develop'
+        if: github.event_name == 'push' && github.ref_name == 'dev'
         run: |
           cd ./deployment
           echo "TERRAFORM_BACKEND=isa-terraform-test" > env.conf
