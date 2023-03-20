@@ -12,7 +12,7 @@ RUN npm install && \
 FROM nginx:1.21-alpine as execute
 COPY ./conf/nginx.conf /etc/nginx/nginx.conf
 COPY ./conf/gateway.conf /etc/nginx/gateway.conf
-COPY --from=build /app /usr/share/nginx/html/app
+COPY --from=build /app/build /usr/share/nginx/html/app
 CMD sed -i \
   -e 's/PORT/'$PORT'/g' \
   -e 's/API_URL/'$API_URL'/g' \

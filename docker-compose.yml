@@ -2,19 +2,12 @@ services:
   isa-spa:
     build:
       context: ./isa-spa
-      dockerfile: Dockerfile
-      target: execute
-      args:
-        API_URL: "http://localhost:8000/api"
-        PORT: 8000
+      dockerfile: Dockerfile.dev
     restart: on-failure
     networks:
       - isa-net
     ports:
       - 8000:80
-    volumes:
-      - ./isa-spa/nginx.conf:/etc/nginx/nginx.conf
-      - ./isa-spa/gateway.conf:/etc/nginx/gateway.conf
     depends_on:
       - isa
 
