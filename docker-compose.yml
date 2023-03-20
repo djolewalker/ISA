@@ -6,6 +6,7 @@ services:
       target: execute
       args:
         API_URL: "http://localhost:8000/api"
+        PORT: 8000
     restart: on-failure
     networks:
       - isa-net

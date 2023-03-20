@@ -94,6 +94,6 @@ resource "null_resource" "gateway_build" {
 output "isa_url" {
   value = "https://${heroku_app.isa_app.name}.herokuapp.com"
 }
-output "isa_front_url" {
-  value = "https://${heroku_app.isa_app_front.name}.herokuapp.com"
+output "gateway_url" {
+  value = "https://${heroku_app.gateway.name}.herokuapp.com"
 }
