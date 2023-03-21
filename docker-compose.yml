@@ -2,7 +2,7 @@ services:
   isa-spa:
     build:
       context: ./isa-spa
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     restart: on-failure
     environment:
       API_URL: isa:8080
