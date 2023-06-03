@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/ISA/static/css/main.4bb7b705.css",
+    "main.js": "/ISA/static/js/main.9b54cbb9.js",
+    "static/js/787.6e2edb05.chunk.js": "/ISA/static/js/787.6e2edb05.chunk.js",
+    "index.html": "/ISA/index.html",
+    "main.4bb7b705.css.map": "/ISA/static/css/main.4bb7b705.css.map",
+    "main.9b54cbb9.js.map": "/ISA/static/js/main.9b54cbb9.js.map",
+    "787.6e2edb05.chunk.js.map": "/ISA/static/js/787.6e2edb05.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.4bb7b705.css",
+    "static/js/main.9b54cbb9.js"
+  ]
+}
