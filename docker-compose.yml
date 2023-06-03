@@ -1,19 +1,4 @@
 services:
-  isa-spa:
-    build:
-      context: ./isa-spa
-      dockerfile: Dockerfile.dev
-    restart: on-failure
-    environment:
-      API_URL: isa:8080
-      PORT: 80
-    networks:
-      - isa-net
-    ports:
-      - 8001:80
-    depends_on:
-      - isa
-
   isa:
     build:
       context: ./isa

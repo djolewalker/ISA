@@ -2,6 +2,7 @@
   "name": "@djolewalker/isa-spa",
   "version": "0.1.0",
   "private": false,
+  "homepage": "https://djolewalker.github.io/ISA",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
@@ -35,6 +36,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "lint": "eslint . --cache --quiet --fix --ext .ts,.tsx"
   },
   "eslintConfig": {
@@ -61,6 +64,7 @@
     "eslint": "^8.36.0",
     "eslint-config-prettier": "^8.7.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-react": "^7.32.2"
+    "eslint-plugin-react": "^7.32.2",
+    "gh-pages": "^5.0.0"
   }
 }
