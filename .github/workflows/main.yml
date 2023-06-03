@@ -86,13 +86,13 @@ jobs:
           images: '[
               {
                 "name": "djolewalker/isa",
-                 "image": {
+                "image": {
                   "registry_type": "DOCKER_HUB",
                   "registry": "djolewalker",
                   "repository": "isa",
                   "tag": "latest"
-                },
-              },
+                }
+              }
             ]'
 
       - name: Deploy client application to the GitHub Pages
