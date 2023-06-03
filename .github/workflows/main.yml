@@ -85,7 +85,7 @@ jobs:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
           images: '[
               {
-                "name": "djolewalker/isa",
+                "name": "server",
                 "image": {
                   "registry_type": "DOCKER_HUB",
                   "registry": "djolewalker",
