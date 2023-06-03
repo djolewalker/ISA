@@ -11,6 +11,13 @@ Uber like application written in Java Spring Boot + React.JS.
 | [erosdavid](https://github.com/erosdavid)     | David Ereš               | R2 36/2021 |
 | [djolewalker](https://github.com/djolewalker) | Dimitrije Žarković Đolai | R2 17/2021 |
 
+
+## Development environments:
+
+- Server application: [DigitalOcean](https://isa-server-bf2b5.ondigitalocean.app/swagger-ui/index.html)
+- Client application: [GitHub Pages](https://djolewalker.github.io/ISA)
+
+
 ## Requirements
 
 - PostgreSQL 12+
