@@ -96,7 +96,6 @@ jobs:
             ]'
 
       - name: Deploy 🚀
-        working-directory: ${{ env.PROJ_DIR_FE }}
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: build
+          folder: ${{ env.PROJ_DIR_FE }}/build
