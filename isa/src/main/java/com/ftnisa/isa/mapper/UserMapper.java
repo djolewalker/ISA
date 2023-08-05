@@ -14,8 +14,10 @@ public interface UserMapper {
     @Mapping(target = "roles", source = "roles", qualifiedByName = "rolesToString")
     UserResponse toUserResponse(User user);
 
+
     @Named("rolesToString")
     default List<String> rolesToString(List<Role> roles) {
         return roles.stream().map(Role::getName).toList();
     }
+
 }
