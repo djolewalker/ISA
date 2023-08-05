@@ -1,6 +1,8 @@
 package com.ftnisa.isa.model.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ftnisa.isa.model.vehicle.Vehicle;
+import com.ftnisa.isa.model.user.UserType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -60,6 +62,13 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private List<Role> roles;
+
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_type")
+    private UserType userType;
+
+
 
     public Integer getId() {
         return id;
@@ -190,5 +199,13 @@ public class User implements UserDetails {
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
+    }
+
+    public UserType getUserType() {
+        return userType;
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
     }
 }
