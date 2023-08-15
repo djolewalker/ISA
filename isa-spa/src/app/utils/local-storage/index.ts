@@ -1,14 +1,22 @@
 import { useEffect } from 'react';
 
-interface LocalStorageProps {
+type LocalStorageUpdateParams = {
   key: string;
-  value: string;
   silent?: boolean;
   eventName?: string;
-}
+};
 
-export const setLocalStorage = ({ key, value, silent = true, eventName = '' }: LocalStorageProps) => {
+type LocalStorageAddParams = LocalStorageUpdateParams & {
+  value: string;
+};
+
+export const setLocalStorage = ({ key, value, silent = true, eventName = '' }: LocalStorageAddParams) => {
   localStorage.setItem(key, value);
+  if (!silent && eventName) dispatchEvent(new Event(eventName));
+};
+
+export const removeLocalStorage = ({ key, silent = true, eventName = '' }: LocalStorageUpdateParams) => {
+  localStorage.removeItem(key);
   if (!silent && eventName) dispatchEvent(new Event(eventName));
 };
 

@@ -2,11 +2,15 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import axios from 'axios';
 
 import { User, UserRole } from 'app/model/User';
-import { LOCAL_STORAGE_EVENTS, useListenLocalStorage } from 'app/utils/local-storage';
+import {
+  LOCAL_STORAGE_EVENTS,
+  removeLocalStorage,
+  setLocalStorage,
+  useListenLocalStorage
+} from 'app/utils/local-storage';
 import { getUser } from 'app/service/user-service';
-import { useNotifications } from '../notifications/notifications-provider';
-import { useNavigate } from 'react-router-dom';
 import { setAccessToken } from 'app/service/base-service';
+import { useLoader } from 'app/contexts/loader/loader-context-provider';
 
 export const ACCESS_TOKEN_CACHE = 'access_token';
 
@@ -14,18 +18,17 @@ type AuthContextType = {
   isAuthorized: boolean;
   user: User | null;
   hasRole: (role: UserRole) => boolean;
+  logOut: () => void;
 };
 
-const AuthContext = createContext<AuthContextType>({
-  isAuthorized: false,
-  user: null,
-  hasRole: (_: UserRole) => false
-});
+const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 type AuthContextProviderProps = {
   children: React.ReactNode;
 };
 const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
+  const { activateLoader, deactivateLoader } = useLoader();
+
   const [accessToken, setToken] = useState(localStorage.getItem(ACCESS_TOKEN_CACHE));
   const [user, setUser] = useState<User | null>(null);
 
@@ -46,15 +49,25 @@ const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
         .catch(() => {
           setToken(null);
           setUser(null);
-        });
+        })
+        .finally(deactivateLoader);
+    } else {
+      deactivateLoader();
     }
-  }, [accessToken, setUser]);
+  }, [accessToken, setUser, activateLoader, deactivateLoader]);
+
+  const logOut = () => {
+    setToken(null);
+    setUser(null);
+    removeLocalStorage({ key: ACCESS_TOKEN_CACHE });
+  };
 
   const contextValue = useMemo<AuthContextType>(
     () => ({
       user,
       isAuthorized: Boolean(user),
-      hasRole: (role: UserRole) => Boolean(user?.roles?.includes(role))
+      hasRole: (role: UserRole) => Boolean(user?.roles?.includes(role)),
+      logOut
     }),
     [user]
   );
