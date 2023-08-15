@@ -6,6 +6,7 @@ import AuthContextProvider from './contexts/auth/auth-context-provider';
 import NotificationsProvider, { useNotifications } from './contexts/notifications/notifications-provider';
 
 import './App.scss';
+import LoaderProvider from 'app/contexts/loader/loader-context-provider';
 
 const App = () => {
   const notifications = useNotifications();
@@ -32,11 +33,13 @@ const App = () => {
   }, []);
 
   return (
-    <AuthContextProvider>
-      <NotificationsProvider>
-        <Routes />
-      </NotificationsProvider>
-    </AuthContextProvider>
+    <LoaderProvider>
+      <AuthContextProvider>
+        <NotificationsProvider>
+          <Routes />
+        </NotificationsProvider>
+      </AuthContextProvider>
+    </LoaderProvider>
   );
 };
 

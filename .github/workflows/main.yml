@@ -13,7 +13,7 @@ env:
   DOCKERHUB_REPO_FE: ${{ secrets.DOCKERHUB_USERNAME }}/isa-front
 
 jobs:
-  ci-pipe:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -78,7 +78,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       
-      - name: Deploy server application to the DigitalOcean Platform
+      - name: 🚀 Deploy server application to the DigitalOcean Platform
         uses: digitalocean/app_action@v1.1.5
         with:
           app_name: isa-server
@@ -95,7 +95,7 @@ jobs:
               }
             ]'
 
-      - name: Deploy 🚀
+      - name: 🚀 Deploy client application to the GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: ${{ env.PROJ_DIR_FE }}/build

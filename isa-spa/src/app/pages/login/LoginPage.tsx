@@ -9,6 +9,7 @@ import { LOCAL_STORAGE_EVENTS, setLocalStorage } from 'app/utils/local-storage';
 import { ACCESS_TOKEN_CACHE } from 'app/contexts/auth/auth-context-provider';
 import { useEffect, useState } from 'react';
 import { useNotifications } from 'app/contexts/notifications/notifications-provider';
+import { useLoader } from 'app/contexts/loader/loader-context-provider';
 
 type LoginFormFields = {
   username: string;
@@ -21,7 +22,7 @@ export const LoginPage = () => {
 
   const handleRegisterClicked = () => navigate('/register');
 
-  const handleOnFinish = async (value: LoginFormFields) =>
+  const handleOnFinish = async (value: LoginFormFields) => {
     signIn(value.username, value.password)
       .then((accessTokenEntity) => {
         setLocalStorage({
@@ -36,6 +37,7 @@ export const LoginPage = () => {
           notifications.error({ message: 'Invalid credentials' });
         }
       });
+  };
 
   return (
     <div className="d-flex flex-column flex-grow-1">

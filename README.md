@@ -33,10 +33,10 @@ Please **follow the connvention**. Package versions are build on commit messages
 Example:
 - Feature like "home page" thet affect only spa application:
   ```
-  feat(spa): hope page implemented
+  feat(isa-spa): home page implemented
   ```
 
-- Bugfix about filed validation - affects both spa and server application:
+- Bugfix about field validation - affects both spa and server application:
   ```
-  fix: filed validation has wrong messages
+  fix: field validation has wrong messages
   ```
