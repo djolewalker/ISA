@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { AxiosError } from 'axios';
 
-import { Routes } from './routes/Routes';
+import { Routes } from 'app/routes/Routes';
 import { useNotifications } from 'app/contexts/notifications/notifications-provider';
 import { useAuthContext } from 'app/contexts/auth/auth-context-provider';
-import { registerInterceptor, removeInterceptor } from './service/base-service';
+import { registerInterceptor, removeInterceptor } from 'app/service/base-service';
 
 import './App.scss';
 

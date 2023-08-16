@@ -9,6 +9,7 @@ import { RegisterPage } from 'app/pages/register/RegisterPage';
 import { VerifyEmailPage } from 'app/pages/verify-email/VerifyEmailPage';
 import { ForgotPasswordPage } from 'app/pages/forgot-password/ForgotPasswordPage';
 import { ResetPasswordPage } from 'app/pages/reset-password/RestPasswordPage';
+import { RoutesPage } from 'app/pages/routes/RoutesPage';
 
 export const useMapLayoutRoutes = () => {
   const { isAuthorized } = useAuthContext();
@@ -17,6 +18,10 @@ export const useMapLayoutRoutes = () => {
     {
       path: '/',
       element: <SearchPage />
+    },
+    {
+      path: '/route',
+      element: <RoutesPage />
     }
   ];
 

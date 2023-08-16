@@ -1,18 +1,9 @@
+import { KeyValue, buildUrl } from 'app/utils/query-string.utils';
 import axios from 'axios';
-import { encode } from 'querystring';
-
-type KeyValue = { [key: string]: string | number };
 
 const client = axios.create({
   baseURL: process.env.REACT_APP_API_URL
 });
-
-const buildUrl = (endpoint: string, queryParameters?: KeyValue) => {
-  if (queryParameters) {
-    return `${endpoint}?${encode(queryParameters)}`;
-  }
-  return endpoint;
-};
 
 export const registerInterceptor = (
   onFulfilled?: (<V>(value: V) => V | Promise<V>) | null,
@@ -29,10 +20,10 @@ export const setAccessToken = (accessToken: string | null) => {
   }
 };
 
-export const getRequest = async (endpoint: string, queryParameters?: KeyValue) => {
+export const getRequest = async (endpoint: string, queryParameters?: KeyValue<string>) => {
   return client.get(buildUrl(endpoint, queryParameters));
 };
 
-export const postRequest = async <T>(endpoint: string, data: T, queryParameters?: KeyValue) => {
+export const postRequest = async <T>(endpoint: string, data: T, queryParameters?: KeyValue<string>) => {
   return client.post(buildUrl(endpoint, queryParameters), data);
 };

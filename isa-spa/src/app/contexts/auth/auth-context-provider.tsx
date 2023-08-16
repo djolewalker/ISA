@@ -7,7 +7,7 @@ import {
   removeLocalStorage,
   setLocalStorage,
   useListenLocalStorage
-} from 'app/utils/local-storage';
+} from 'app/utils/local-storage.utils';
 import { getUser } from 'app/service/user-service';
 import { setAccessToken } from 'app/service/base-service';
 import { useLoader } from 'app/contexts/loader/loader-context-provider';
