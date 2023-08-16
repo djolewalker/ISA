@@ -1,4 +1,4 @@
-﻿import { User } from 'app/model/User';
+import { User } from 'app/model/User';
 import { getRequest } from './base-service';
 
 const CONTROLLER = 'user';

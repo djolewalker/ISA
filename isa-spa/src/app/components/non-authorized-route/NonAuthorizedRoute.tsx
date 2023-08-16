@@ -1,4 +1,4 @@
-﻿import { useAuthContext } from 'app/contexts/auth/auth-context-provider';
+import { useAuthContext } from 'app/contexts/auth/auth-context-provider';
 import { Navigate, Outlet } from 'react-router-dom';
 
 export const NonAuthorizedRoute = () => {

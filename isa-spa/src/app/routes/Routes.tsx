@@ -1,4 +1,4 @@
-﻿import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 import { useMapLayoutRoutes } from 'app/layouts/map-layout/useMapLayoutRoutes';
 
