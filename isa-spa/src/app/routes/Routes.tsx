@@ -1,11 +1,11 @@
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { RouterProvider, createHashRouter } from 'react-router-dom';
 
 import { useMapLayoutRoutes } from 'app/layouts/map-layout/useMapLayoutRoutes';
 
 export const Routes = () => {
   const mapLayoutRoutes = useMapLayoutRoutes();
 
-  const router = createBrowserRouter([...mapLayoutRoutes]);
+  const router = createHashRouter([...mapLayoutRoutes]);
 
   return <RouterProvider router={router} />;
 };
