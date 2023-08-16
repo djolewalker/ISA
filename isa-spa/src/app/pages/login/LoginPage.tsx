@@ -5,7 +5,7 @@ import { IsaButton } from 'app/components/isa-button/IsaButton';
 import { MainHeader } from 'app/components/main-header/MainHeader';
 import { signIn } from 'app/service/auth-service';
 import { AxiosError } from 'axios';
-import { LOCAL_STORAGE_EVENTS, setLocalStorage } from 'app/utils/local-storage';
+import { LOCAL_STORAGE_EVENTS, setLocalStorage } from 'app/utils/local-storage.utils';
 import { ACCESS_TOKEN_CACHE } from 'app/contexts/auth/auth-context-provider';
 import { useNotifications } from 'app/contexts/notifications/notifications-provider';
 import { useLoader } from 'app/contexts/loader/loader-context-provider';

@@ -1,9 +1,16 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
-
 import rootSaga from 'app/redux/saga';
 
-const reducer = combineReducers({});
+import common from 'app/pages/common.slice';
+import searchPage from 'app/pages/search/search-page.slice';
+import routesPage from 'app/pages/routes/routes-page.slice';
+
+const reducer = combineReducers({
+  common,
+  searchPage,
+  routesPage
+});
 
 const sagaMiddleware = createSagaMiddleware();
 
