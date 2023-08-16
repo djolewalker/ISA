@@ -1,4 +1,4 @@
-﻿import { HeaderActions } from 'app/components/header-actions/HeaderActions';
+import { HeaderActions } from 'app/components/header-actions/HeaderActions';
 import { MainHeader } from 'app/components/main-header/MainHeader';
 
 export const SearchPage = () => {

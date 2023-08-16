@@ -1,9 +1,8 @@
-﻿import { Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { MainMap } from 'app/components/main-map/MainMap';
+import { IsaLoader } from 'app/components/isa-loader/IsaLoader';
 
 import './MapLayout.scss';
-import LoaderProvider from 'app/contexts/loader/loader-context-provider';
-import { IsaLoader } from 'app/components/isa-loader/IsaLoader';
 
 export const MapLayout = () => {
   return (

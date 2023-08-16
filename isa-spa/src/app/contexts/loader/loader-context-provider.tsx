@@ -1,9 +1,10 @@
-import { IsaLoader } from 'app/components/isa-loader/IsaLoader';
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
 type LoaderContextData = {
   isActive: boolean;
+  isTransparent: boolean;
   activateLoader: () => void;
+  activateTransparentLoader: () => void;
   deactivateLoader: () => void;
 };
 
@@ -15,13 +16,26 @@ type LoaderProviderProps = {
 
 const LoaderProvider = ({ children }: LoaderProviderProps) => {
   const [isActive, setIsActive] = useState(true);
+  const [isTransparent, setIsTransparent] = useState(false);
 
-  const activateLoader = useCallback(() => setIsActive(true), [setIsActive]);
+  const activateLoader = useCallback(() => {
+    setIsTransparent(false);
+    setIsActive(true);
+  }, [setIsActive, setIsTransparent]);
+
+  const activateTransparentLoader = useCallback(() => {
+    setIsTransparent(true);
+    setIsActive(true);
+  }, [setIsActive, setIsTransparent]);
+
   const deactivateLoader = useCallback(() => setIsActive(false), [setIsActive]);
 
-  return (
-    <LoaderContext.Provider value={{ isActive, activateLoader, deactivateLoader }}>{children}</LoaderContext.Provider>
+  const contextValue = useMemo(
+    () => ({ isActive, isTransparent, activateLoader, activateTransparentLoader, deactivateLoader }),
+    [isActive, isTransparent, activateLoader, activateTransparentLoader, deactivateLoader]
   );
+
+  return <LoaderContext.Provider value={contextValue}>{children}</LoaderContext.Provider>;
 };
 
 export const useLoader = () => useContext(LoaderContext);

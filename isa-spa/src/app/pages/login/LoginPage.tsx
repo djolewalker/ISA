@@ -1,4 +1,4 @@
-﻿import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Form, Input, notification } from 'antd';
 
 import { IsaButton } from 'app/components/isa-button/IsaButton';
@@ -7,7 +7,6 @@ import { signIn } from 'app/service/auth-service';
 import { AxiosError } from 'axios';
 import { LOCAL_STORAGE_EVENTS, setLocalStorage } from 'app/utils/local-storage';
 import { ACCESS_TOKEN_CACHE } from 'app/contexts/auth/auth-context-provider';
-import { useEffect, useState } from 'react';
 import { useNotifications } from 'app/contexts/notifications/notifications-provider';
 import { useLoader } from 'app/contexts/loader/loader-context-provider';
 
@@ -19,10 +18,12 @@ type LoginFormFields = {
 export const LoginPage = () => {
   const notifications = useNotifications();
   const navigate = useNavigate();
+  const { activateTransparentLoader, deactivateLoader } = useLoader();
 
   const handleRegisterClicked = () => navigate('/register');
 
   const handleOnFinish = async (value: LoginFormFields) => {
+    activateTransparentLoader();
     signIn(value.username, value.password)
       .then((accessTokenEntity) => {
         setLocalStorage({
@@ -36,7 +37,8 @@ export const LoginPage = () => {
         if (error?.response?.status === 401) {
           notifications.error({ message: 'Invalid credentials' });
         }
-      });
+      })
+      .finally(deactivateLoader);
   };
 
   return (
@@ -60,17 +62,20 @@ export const LoginPage = () => {
           <Form.Item<LoginFormFields>
             label="Lozinka"
             name="password"
-            rules={[{ required: true, message: 'Please input your password!' }]}
+            rules={[{ required: true, message: 'Unesite lozinku!' }]}
           >
             <Input.Password visibilityToggle={false} />
           </Form.Item>
 
-          <Form.Item wrapperCol={{ offset: 10, span: 22 }}>
-            <IsaButton type="primary" htmlType="submit">
+          <Form.Item className="d-flex justify-content-center">
+            <IsaButton className="mt-3" type="primary" htmlType="submit" size="large">
               Prijavi se
             </IsaButton>
           </Form.Item>
         </Form>
+        <Link className="mx-auto" to="/forgot-password">
+          Zaboravljena lozinka?
+        </Link>
       </div>
     </div>
   );

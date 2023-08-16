@@ -1,4 +1,4 @@
-﻿import React, { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import { Button } from 'antd';
 import { ButtonHTMLType, ButtonShape, ButtonSize, ButtonType } from 'antd/es/button';
 
