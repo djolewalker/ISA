@@ -3,15 +3,13 @@ package com.ftnisa.isa.controller;
 import java.security.Principal;
 import java.util.List;
 
+import com.ftnisa.isa.dto.user.UpdateUserRequest;
 import com.ftnisa.isa.dto.user.UserResponse;
 import com.ftnisa.isa.mapper.UserMapper;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
@@ -41,6 +39,12 @@ public class UserController {
         return ResponseEntity.ok(usersResponse);
     }
 
+    @GetMapping("/info")
+    public ResponseEntity<UserResponse> info(Principal user) {
+        var foundUser = this.userService.findByUsername(user.getName());
+        return ResponseEntity.ok(mapper.toUserResponse(foundUser));
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> getById(@PathVariable Integer id) {
@@ -48,9 +52,10 @@ public class UserController {
         return ResponseEntity.ok(mapper.toUserResponse(foundUser));
     }
 
-    @GetMapping("/info")
-    public ResponseEntity<UserResponse> info(Principal user) {
-        var foundUser = this.userService.findByUsername(user.getName());
-        return ResponseEntity.ok(mapper.toUserResponse(foundUser));
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Integer id, @RequestBody UpdateUserRequest updateUserRequest) {
+        var user = this.userService.updateUser(id, updateUserRequest);
+        return ResponseEntity.ok(mapper.toUserResponse(user));
     }
 }

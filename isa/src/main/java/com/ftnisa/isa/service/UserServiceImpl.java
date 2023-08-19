@@ -1,6 +1,7 @@
 package com.ftnisa.isa.service;
 
 import com.ftnisa.isa.dto.auth.RegisterRequest;
+import com.ftnisa.isa.dto.user.UpdateUserRequest;
 import com.ftnisa.isa.event.resetPasswordRequested.OnResetPasswordRequestedEvent;
 import com.ftnisa.isa.event.verificationRequested.OnVerificationRequestedEvent;
 import com.ftnisa.isa.exception.ResourceConflictException;
@@ -108,5 +109,21 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         tokenService.removeToken(token);
+    }
+
+    @Override
+    public User updateUser(int userId, UpdateUserRequest updateUserRequest) {
+        var user = userRepository.findById(userId).orElseThrow();
+
+        user.setAddress(updateUserRequest.getAddress());
+        user.setFirstname(updateUserRequest.getFirstname());
+        user.setLastname(updateUserRequest.getLastname());
+        user.setPhone(updateUserRequest.getPhone());
+        user.setImage(updateUserRequest.getImage());
+        user.setAddress(updateUserRequest.getAddress());
+
+        userRepository.save(user);
+
+        return user;
     }
 }
