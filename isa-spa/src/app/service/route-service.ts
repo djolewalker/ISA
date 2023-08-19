@@ -6,7 +6,7 @@ import { FeatureCollection } from 'geojson';
 const client = axios.create({
   baseURL: 'https://api.openrouteservice.org/v2/directions',
   headers: {
-    Authorization: process.env.REACT_APP_ORS_TOKEN
+    Authorization: '5b3ce3597851110001cf62483c60841ee62f43ceb4de453653278a3d'
   }
 });
 
