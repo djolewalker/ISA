@@ -8,7 +8,7 @@ import {
   setLocalStorage,
   useListenLocalStorage
 } from 'app/utils/local-storage.utils';
-import { getUser } from 'app/service/user-service';
+import { getUserInfo } from 'app/service/user-service';
 import { setAccessToken } from 'app/service/base-service';
 import { useLoader } from 'app/contexts/loader/loader-context-provider';
 
@@ -17,8 +17,9 @@ export const ACCESS_TOKEN_CACHE = 'access_token';
 type AuthContextType = {
   isAuthorized: boolean;
   user: User | null;
-  hasRole: (role: UserRole) => boolean;
+  hasAnyRole: (roles: UserRole[]) => boolean;
   logOut: () => void;
+  setUser: (user: User) => void;
 };
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -44,7 +45,8 @@ const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
 
   useEffect(() => {
     if (accessToken) {
-      getUser()
+      activateLoader();
+      getUserInfo()
         .then(setUser)
         .catch(() => {
           setToken(null);
@@ -66,10 +68,11 @@ const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
     () => ({
       user,
       isAuthorized: Boolean(user),
-      hasRole: (role: UserRole) => Boolean(user?.roles?.includes(role)),
-      logOut
+      hasAnyRole: (roles: UserRole[]) => roles.some((role) => user?.roles.includes(role)),
+      logOut,
+      setUser
     }),
-    [user]
+    [user, setUser]
   );
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;

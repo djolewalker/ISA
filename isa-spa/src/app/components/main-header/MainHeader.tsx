@@ -13,7 +13,7 @@ export const MainHeader = ({ children }: Props) => {
   const handleHomeClicked = () => navigate('/');
 
   return (
-    <div className="d-flex justify-content-between">
+    <div className="d-flex justify-content-between mb-2">
       <h1 className="h1 main-header-logo" onClick={handleHomeClicked}>
         ISA Uber
       </h1>

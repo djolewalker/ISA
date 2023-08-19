@@ -1,20 +1,43 @@
 import { Avatar, Dropdown, MenuProps } from 'antd';
+import { ItemType } from 'antd/es/menu/hooks/useItems';
 import { IsaButton } from 'app/components/isa-button/IsaButton';
 import { useAuthContext } from 'app/contexts/auth/auth-context-provider';
 import { useNavigate } from 'react-router-dom';
 
 export const HeaderActions = () => {
-  const { isAuthorized, user, logOut } = useAuthContext();
+  const { isAuthorized, user, logOut, hasAnyRole } = useAuthContext();
   const navigate = useNavigate();
 
   const handleRegisterClicked = () => navigate('/register');
   const handleLoginClicked = () => navigate('/login');
 
+  const adminMenu: ItemType[] = [
+    {
+      type: 'divider'
+    },
+    {
+      type: 'group',
+      label: 'Administracija',
+      children: [{ label: 'Korisnici', key: 'users', onClick: () => navigate('/admin/users') }]
+    }
+  ];
+
   const menu: MenuProps = {
     items: [
       {
+        label: 'Profil',
+        key: 'profile',
+
+        onClick: () => navigate('/profile')
+      },
+      ...(hasAnyRole(['ROLE_ADMIN']) ? adminMenu : []),
+      {
+        type: 'divider'
+      },
+      {
         label: 'Odjavi se',
-        key: '0',
+        key: 'logout',
+        danger: true,
         onClick: logOut
       }
     ]

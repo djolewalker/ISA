@@ -10,6 +10,10 @@ import { VerifyEmailPage } from 'app/pages/verify-email/VerifyEmailPage';
 import { ForgotPasswordPage } from 'app/pages/forgot-password/ForgotPasswordPage';
 import { ResetPasswordPage } from 'app/pages/reset-password/RestPasswordPage';
 import { RoutesPage } from 'app/pages/routes/RoutesPage';
+import { ProfilePage } from 'app/pages/profile/ProfilePage';
+import { PermittedRoute } from 'app/components/permitted-route/PermittedRoute';
+import { UsersPage } from 'app/pages/admin/users/UsersPage';
+import { UserPage } from 'app/pages/admin/user/UserPage';
 
 export const useMapLayoutRoutes = () => {
   const { isAuthorized } = useAuthContext();
@@ -28,7 +32,34 @@ export const useMapLayoutRoutes = () => {
   const authorizedRoutesOnly: RouteObject[] = [
     {
       element: <AuthorizedRoute />,
-      children: []
+      children: [
+        {
+          path: '/profile',
+          element: <ProfilePage />
+        },
+        {
+          path: '/admin',
+          element: <PermittedRoute roles={['ROLE_ADMIN']} />,
+          children: [
+            {
+              path: '/admin/users',
+              element: <UsersPage />
+            },
+            {
+              path: '/admin/users/create-driver',
+              element: <UserPage isCreate isDriverComponent />
+            },
+            {
+              path: '/admin/users/:userId',
+              element: <UserPage />
+            },
+            {
+              path: '/admin',
+              element: <Navigate to="/" replace />
+            }
+          ]
+        }
+      ]
     }
   ];
 

@@ -27,3 +27,7 @@ export const getRequest = async (endpoint: string, queryParameters?: KeyValue<st
 export const postRequest = async <T>(endpoint: string, data: T, queryParameters?: KeyValue<string>) => {
   return client.post(buildUrl(endpoint, queryParameters), data);
 };
+
+export const putRequest = async <T>(endpoint: string, data: T, queryParameters?: KeyValue<string>) => {
+  return client.put(buildUrl(endpoint, queryParameters), data);
+};

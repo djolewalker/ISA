@@ -38,7 +38,7 @@ export const MainMapContent = () => {
   useEffect(() => {
     const gJSONsMap = routes.features?.reduce((store, current) => {
       if (!current.id) return store;
-      store[current.id] = geoJson(current);
+      store[current.id] = geoJson(current.geometry);
       return store;
     }, {} as GeoJSONRoutes);
     if (!gJSONsMap) return;
