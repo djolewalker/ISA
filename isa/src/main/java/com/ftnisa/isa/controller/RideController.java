@@ -133,7 +133,7 @@ public class RideController {
 
     @PreAuthorize("hasRole('USER')")
     @Transactional
-    @PutMapping("/ride-history-by-date")
+    @PostMapping("/ride-history-by-date")
     public ResponseEntity<List<RideDto>> rideHistoryByDate(@RequestBody RideHistoryByDateRequestDto rideHistoryByDateRequestDto){
         try {
             List<Ride> rides = rideService.getUsersRidesBetweenDates(
@@ -150,6 +150,23 @@ public class RideController {
             return new ResponseEntity<>( HttpStatus.BAD_REQUEST);
         }
     }
+
+
+    @PreAuthorize("hasRole('USER')")
+    @Transactional
+    @PutMapping("/add-ride-to-favourites")
+    public ResponseEntity<Void> rideHistoryByDate(@RequestParam Integer rideId){
+        try {
+            rideService.addRideToFavourites(rideId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>( HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+
+
 
 
 

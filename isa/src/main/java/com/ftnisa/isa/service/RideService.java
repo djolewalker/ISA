@@ -49,4 +49,6 @@ public interface RideService {
     List<Ride> getUsersWholeRideHistory(Integer userId);
 
     List<Ride> getUsersRidesBetweenDates(Integer userId, LocalDateTime date1, LocalDateTime date2);
+
+    void addRideToFavourites(Integer rideId);
 }

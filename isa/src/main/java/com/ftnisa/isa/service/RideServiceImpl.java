@@ -11,7 +11,6 @@ import com.ftnisa.isa.model.user.User;
 import com.ftnisa.isa.model.vehicle.VehicleType;
 
 import com.ftnisa.isa.repository.*;
-import org.mapstruct.control.MappingControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -381,6 +379,14 @@ public class RideServiceImpl implements RideService {
             return null;
         }
         return rideRepository.findByPassengerAndStartTimeBetween(user, date1, date2);
+    }
+
+    @Override
+    public void addRideToFavourites(Integer rideId){
+        Ride ride = rideRepository.findById(rideId).orElse(null);
+        if (ride != null){
+            ride.setFavourite(true);
+        }
     }
 
 
