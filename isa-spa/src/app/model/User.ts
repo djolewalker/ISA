@@ -12,7 +12,30 @@ export type User = {
   roles: UserRole[];
 };
 
+export type Driver = User & {
+  driverLicense: string;
+  vehicle: Vehicle;
+  active?: boolean;
+  occupied?: boolean;
+};
+
+export type Vehicle = {
+  id: number;
+  vehicleModel: string;
+  registrationNumber: string;
+  numberOfSeats: number;
+  babyFriendly: boolean;
+  petFriendly: boolean;
+  vehicleType: VehicleType;
+};
+
 export type AccessToken = {
   accessToken: string;
   expiresIn: number;
+};
+
+export type VehicleType = {
+  id: number;
+  vehicleTypeName: string;
+  pricePerKm: number;
 };

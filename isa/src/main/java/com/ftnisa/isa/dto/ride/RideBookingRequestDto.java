@@ -1,7 +1,7 @@
 package com.ftnisa.isa.dto.ride;
 
 import com.ftnisa.isa.dto.location.LocationDto;
-import com.ftnisa.isa.dto.vehicle.VehicleTypeDto;
+import com.ftnisa.isa.dto.vehicle.VehicleTypeResponse;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public class RideBookingRequestDto {
 
     private Boolean babyTransportFlag;
 
-    private VehicleTypeDto vehicleType;
+    private VehicleTypeResponse vehicleType;
 
     private int numberOfPassengers;
 
@@ -36,7 +36,7 @@ public class RideBookingRequestDto {
     public RideBookingRequestDto() {
     }
 
-    public RideBookingRequestDto(LocationDto startLocation, LocationDto finishLocation, ArrayList<LocationDto> stops, Boolean petTransportFlag, Boolean babyTransportFlag, VehicleTypeDto vehicleType, int numberOfPassengers, boolean isScheduled, LocalDateTime scheduledStartTime, RouteOptimizationCriteriaDto routeOptimizationCriteria, boolean optimizeStops) {
+    public RideBookingRequestDto(LocationDto startLocation, LocationDto finishLocation, ArrayList<LocationDto> stops, Boolean petTransportFlag, Boolean babyTransportFlag, VehicleTypeResponse vehicleType, int numberOfPassengers, boolean isScheduled, LocalDateTime scheduledStartTime, RouteOptimizationCriteriaDto routeOptimizationCriteria, boolean optimizeStops) {
         this.startLocation = startLocation;
         this.finishLocation = finishLocation;
         this.stops = stops;
@@ -90,11 +90,11 @@ public class RideBookingRequestDto {
         this.babyTransportFlag = babyTransportFlag;
     }
 
-    public VehicleTypeDto getVehicleType() {
+    public VehicleTypeResponse getVehicleType() {
         return vehicleType;
     }
 
-    public void setVehicleType(VehicleTypeDto vehicleType) {
+    public void setVehicleType(VehicleTypeResponse vehicleType) {
         this.vehicleType = vehicleType;
     }
 

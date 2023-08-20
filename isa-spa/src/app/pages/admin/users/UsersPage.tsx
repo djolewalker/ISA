@@ -5,7 +5,7 @@ import { ColumnsType } from 'antd/es/table';
 import { HeaderActions } from 'app/components/header-actions/HeaderActions';
 import { MainHeader } from 'app/components/main-header/MainHeader';
 import { useAppDispatch, useAppSelector } from 'app/hooks/common';
-import { fetchUsers, selectUsers } from 'app/pages/admin/admin-slice';
+import { fetchUsers, selectUsers } from 'app/pages/admin/admin.slice';
 import { User } from 'app/model/User';
 import { useNavigate } from 'react-router-dom';
 
@@ -34,14 +34,18 @@ export const UsersPage = () => {
   const navigate = useNavigate();
 
   const users = useAppSelector(selectUsers);
+  const usersRows = users?.map((user) => ({ key: user.id, ...user }));
 
   useEffect(() => {
     dispatch(fetchUsers());
   }, [dispatch]);
 
-  const handleUserSelected = (id: number) => navigate(`/admin/users/${id}`);
+  const handleUserSelected = (id: number, rolses: string[]) => {
+    if (rolses.includes('ROLE_DRIVER')) navigate(`/admin/drivers/${id}`);
+    else navigate(`/admin/users/${id}`);
+  };
 
-  const handleCreateDiver = () => navigate(`/admin/users/create-driver`);
+  const handleCreateDiver = () => navigate(`/admin/driver`);
 
   return (
     <div className="d-flex flex-column flex-grow-1">
@@ -56,12 +60,12 @@ export const UsersPage = () => {
               Kreiraj vozača
             </IsaButton>
           </div>
-          {Boolean(users?.length) && (
+          {Boolean(usersRows?.length) && (
             <Table
-              dataSource={users}
+              dataSource={usersRows}
               columns={tableColumns}
               pagination={false}
-              onRow={({ id }) => ({ onClick: () => handleUserSelected(id) })}
+              onRow={({ id, roles }) => ({ onClick: () => handleUserSelected(id, roles) })}
             />
           )}
         </>

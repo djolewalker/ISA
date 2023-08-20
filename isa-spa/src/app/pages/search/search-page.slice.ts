@@ -1,7 +1,7 @@
 import { PayloadAction, createSelector, createSlice } from '@reduxjs/toolkit';
 import { RouteLocations } from 'app/model/Route';
 import { RootState } from 'app/redux/store';
-import { OSMLocation } from 'app/service/locations-service';
+import { OSMLocation } from 'app/service/locations.service';
 
 export type SearchFormFields = 'start' | 'destination';
 type FieldKey = string | number;

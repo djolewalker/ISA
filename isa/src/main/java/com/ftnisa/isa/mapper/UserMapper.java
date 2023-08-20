@@ -1,7 +1,9 @@
 package com.ftnisa.isa.mapper;
 
-import com.ftnisa.isa.dto.user.UpdateUserRequest;
+import com.ftnisa.isa.dto.user.DriverResponse;
+import com.ftnisa.isa.dto.user.UserRequest;
 import com.ftnisa.isa.dto.user.UserResponse;
+import com.ftnisa.isa.model.user.Driver;
 import com.ftnisa.isa.model.user.Role;
 import com.ftnisa.isa.model.user.User;
 import org.mapstruct.Mapper;
@@ -20,5 +22,5 @@ public interface UserMapper {
         return roles.stream().map(Role::getName).toList();
     }
 
-    User toUser (UpdateUserRequest updateUserRequest);
+    DriverResponse driverToDriverResponse(Driver driver);
 }

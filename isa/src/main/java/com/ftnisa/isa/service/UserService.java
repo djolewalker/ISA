@@ -1,9 +1,10 @@
 package com.ftnisa.isa.service;
 
 import com.ftnisa.isa.dto.auth.RegisterRequest;
-import com.ftnisa.isa.dto.user.UpdateUserRequest;
+import com.ftnisa.isa.dto.user.CreateDriverRequest;
+import com.ftnisa.isa.dto.user.UserRequest;
+import com.ftnisa.isa.model.user.Driver;
 import com.ftnisa.isa.model.user.User;
-import org.hibernate.sql.Update;
 
 import java.util.List;
 
@@ -22,5 +23,12 @@ public interface UserService {
 
     void resetPassword(String password, String resetPasswordToken);
 
-    User updateUser(int userId, UpdateUserRequest updateUserRequest);
+    User updateUserProfile(String username, UserRequest userRequest);
+
+    User updateUser(int id, UserRequest userRequest);
+
+    Driver registerDriver(CreateDriverRequest driverRequest);
+
+    Driver findDriverById(int id);
+
 }

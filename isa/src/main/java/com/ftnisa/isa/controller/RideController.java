@@ -40,8 +40,6 @@ public class RideController {
         this.locationMapper = locationMapper;
     }
 
-
-
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/ride-booking")
     public ResponseEntity<RideBookingResponseDto> rideBooking(@RequestBody RideBookingRequestDto rideBookingRequestDTO){
@@ -51,7 +49,7 @@ public class RideController {
             ride.setRoutes(routeService.generateAndOrganizeRoutes(
                     locationMapper.locationDtoToLocation(rideBookingRequestDTO.getStartLocation()),
                     locationMapper.locationDtoToLocation(rideBookingRequestDTO.getFinishLocation()),
-                    rideBookingRequestDTO.getStops().stream().map(l -> locationMapper.locationDtoToLocation(l)).collect(Collectors.toList()),
+                    rideBookingRequestDTO.getStops().stream().map(locationMapper::locationDtoToLocation).collect(Collectors.toList()),
                     rideBookingRequestDTO.isOptimizeStops()
                     )
             );

@@ -3,8 +3,7 @@ package com.ftnisa.isa.controller;
 import java.security.Principal;
 import java.util.List;
 
-import com.ftnisa.isa.dto.user.UpdateUserRequest;
-import com.ftnisa.isa.dto.user.UserResponse;
+import com.ftnisa.isa.dto.user.*;
 import com.ftnisa.isa.mapper.UserMapper;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +21,6 @@ import com.ftnisa.isa.service.UserService;
 public class UserController {
     private final UserService userService;
     private final UserMapper mapper;
-
 
     public UserController(UserService userService, UserMapper mapper) {
         this.userService = userService;
@@ -52,10 +50,30 @@ public class UserController {
         return ResponseEntity.ok(mapper.toUserResponse(foundUser));
     }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Integer id, @RequestBody UpdateUserRequest updateUserRequest) {
-        var user = this.userService.updateUser(id, updateUserRequest);
+    @PutMapping("/profile")
+    public ResponseEntity<UserResponse> updateUserProfile(Principal principal, @RequestBody UserRequest userRequest) {
+        var user = this.userService.updateUserProfile(principal.getName(), userRequest);
         return ResponseEntity.ok(mapper.toUserResponse(user));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Integer id, @RequestBody UserRequest userRequest) {
+        var user = this.userService.updateUser(id, userRequest);
+        return ResponseEntity.ok(mapper.toUserResponse(user));
+    }
+
+    @PostMapping("/driver")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<DriverResponse> createDriver(@RequestBody CreateDriverRequest driverRequest) {
+        var driver = userService.registerDriver(driverRequest);
+        return ResponseEntity.ok(mapper.driverToDriverResponse(driver));
+    }
+
+    @GetMapping("/driver/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DriverResponse> getDriverById(@PathVariable Integer id) {
+        var foundDriver = this.userService.findDriverById(id);
+        return ResponseEntity.ok(mapper.driverToDriverResponse(foundDriver));
     }
 }

@@ -1,15 +1,9 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import axios from 'axios';
 
 import { User, UserRole } from 'app/model/User';
-import {
-  LOCAL_STORAGE_EVENTS,
-  removeLocalStorage,
-  setLocalStorage,
-  useListenLocalStorage
-} from 'app/utils/local-storage.utils';
-import { getUserInfo } from 'app/service/user-service';
-import { setAccessToken } from 'app/service/base-service';
+import { LOCAL_STORAGE_EVENTS, removeLocalStorage, useListenLocalStorage } from 'app/utils/local-storage.utils';
+import { getUserInfo } from 'app/service/user.service';
+import { setAccessToken } from 'app/service/base.service';
 import { useLoader } from 'app/contexts/loader/loader-context-provider';
 
 export const ACCESS_TOKEN_CACHE = 'access_token';
@@ -58,21 +52,20 @@ const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
     }
   }, [accessToken, setUser, activateLoader, deactivateLoader]);
 
-  const logOut = () => {
-    setToken(null);
-    setUser(null);
-    removeLocalStorage({ key: ACCESS_TOKEN_CACHE });
-  };
-
   const contextValue = useMemo<AuthContextType>(
     () => ({
       user,
       isAuthorized: Boolean(user),
       hasAnyRole: (roles: UserRole[]) => roles.some((role) => user?.roles.includes(role)),
-      logOut,
+      logOut: () => {
+        setToken(null);
+        setUser(null);
+        removeLocalStorage({ key: ACCESS_TOKEN_CACHE });
+        deactivateLoader();
+      },
       setUser
     }),
-    [user, setUser]
+    [user, deactivateLoader]
   );
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;

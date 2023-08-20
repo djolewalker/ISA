@@ -16,11 +16,9 @@ public class Driver extends User {
     @Column(name = "occupied", nullable = false)
     private boolean occupied;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "driver")
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle;
-
-
 
     public String getDriverLicense() {
         return driverLicense;

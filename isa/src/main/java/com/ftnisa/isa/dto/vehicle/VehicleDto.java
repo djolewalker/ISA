@@ -1,42 +1,17 @@
 package com.ftnisa.isa.dto.vehicle;
 
-import com.ftnisa.isa.dto.location.LocationDto;
-import com.ftnisa.isa.dto.user.UserResponse;
-import com.ftnisa.isa.model.vehicle.VehicleType;
-
 public class VehicleDto {
+    protected String vehicleModel;
 
-    private String vehicleModel;
+    protected String registrationNumber;
 
-    private String registrationNumber;
+    protected int numberOfSeats;
 
-    private int numberOfSeats;
+    protected boolean babyFriendly;
 
-    private boolean babyFriendly;
-
-    private boolean petFriendly;
-
-    private Integer userId;
-
-    private VehicleTypeDto vehicleType;
-
-    private LocationDto currentLocation;
-
-
+    protected boolean petFriendly;
 
     public VehicleDto() {
-    }
-
-
-    public VehicleDto(String vehicleModel, String registrationNumber, int numberOfSeats, boolean babyFriendly, boolean petFriendly, Integer userId, VehicleTypeDto vehicleType, LocationDto currentLocation) {
-        this.vehicleModel = vehicleModel;
-        this.registrationNumber = registrationNumber;
-        this.numberOfSeats = numberOfSeats;
-        this.babyFriendly = babyFriendly;
-        this.petFriendly = petFriendly;
-        this.userId = userId;
-        this.vehicleType = vehicleType;
-        this.currentLocation = currentLocation;
     }
 
     public String getVehicleModel() {
@@ -77,30 +52,5 @@ public class VehicleDto {
 
     public void setPetFriendly(boolean petFriendly) {
         this.petFriendly = petFriendly;
-    }
-
-    public VehicleTypeDto getVehicleType() {
-        return vehicleType;
-    }
-
-    public void setVehicleType(VehicleTypeDto vehicleType) {
-        this.vehicleType = vehicleType;
-    }
-
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public LocationDto getCurrentLocation() {
-        return currentLocation;
-    }
-
-    public void setCurrentLocation(LocationDto currentLocation) {
-        this.currentLocation = currentLocation;
     }
 }

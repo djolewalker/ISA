@@ -1,12 +1,12 @@
 package com.ftnisa.isa.service;
 
-import com.ftnisa.isa.model.location.Location;
-import com.ftnisa.isa.model.user.User;
-import com.ftnisa.isa.model.vehicle.Vehicle;
+import com.ftnisa.isa.dto.vehicle.VehicleRequest;
 import com.ftnisa.isa.model.vehicle.VehicleType;
 
+import java.util.List;
+
 public interface VehicleService {
+    void createVehicle(VehicleRequest vehicle);
 
-
-    void saveNewVehicle(Vehicle vehicle);
+    List<VehicleType> getVehicleTypes();
 }

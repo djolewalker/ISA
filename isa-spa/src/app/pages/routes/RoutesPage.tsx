@@ -78,7 +78,7 @@ export const RoutesPage = () => {
           {alternativeRoutes && (
             <>
               <h4 className="mt-4 mb-3 h4">Alternative:</h4>
-              {alternativeRoutes.map((alternative) => (
+              {alternativeRoutes?.map((alternative) => (
                 <IsaButton
                   key={alternative.id}
                   className="w-100 mb-3"

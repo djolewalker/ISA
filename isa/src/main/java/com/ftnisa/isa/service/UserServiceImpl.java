@@ -1,17 +1,25 @@
 package com.ftnisa.isa.service;
 
 import com.ftnisa.isa.dto.auth.RegisterRequest;
-import com.ftnisa.isa.dto.user.UpdateUserRequest;
+import com.ftnisa.isa.dto.user.CreateDriverRequest;
+import com.ftnisa.isa.dto.user.DriverRequest;
+import com.ftnisa.isa.dto.user.UserRequest;
 import com.ftnisa.isa.event.resetPasswordRequested.OnResetPasswordRequestedEvent;
 import com.ftnisa.isa.event.verificationRequested.OnVerificationRequestedEvent;
 import com.ftnisa.isa.exception.ResourceConflictException;
 import com.ftnisa.isa.model.token.TokenType;
+import com.ftnisa.isa.model.user.Driver;
 import com.ftnisa.isa.model.user.Role;
 import com.ftnisa.isa.model.user.User;
+import com.ftnisa.isa.model.vehicle.Vehicle;
+import com.ftnisa.isa.repository.DriverRepository;
 import com.ftnisa.isa.repository.UserRepository;
+import com.ftnisa.isa.repository.VehicleRepository;
+import com.ftnisa.isa.repository.VehicleTypeRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
 
 import java.util.List;
@@ -24,15 +32,24 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final TokenService tokenService;
     private final ApplicationEventPublisher eventPublisher;
+    private final VehicleTypeRepository vehicleTypeRepository;
+    private final VehicleRepository vehicleRepository;
+    private final DriverRepository driverRepository;
 
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
             RoleService roleService, TokenService tokenService,
-            ApplicationEventPublisher eventPublisher) {
+            ApplicationEventPublisher eventPublisher,
+                           VehicleTypeRepository vehicleTypeRepository,
+                           VehicleRepository vehicleRepository,
+                           DriverRepository driverRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleService = roleService;
         this.tokenService = tokenService;
         this.eventPublisher = eventPublisher;
+        this.vehicleTypeRepository = vehicleTypeRepository;
+        this.vehicleRepository = vehicleRepository;
+        this.driverRepository = driverRepository;
     }
 
     @Override
@@ -112,18 +129,71 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(int userId, UpdateUserRequest updateUserRequest) {
-        var user = userRepository.findById(userId).orElseThrow();
+    public User updateUserProfile(String username, UserRequest userRequest) {
+        var user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
 
-        user.setAddress(updateUserRequest.getAddress());
-        user.setFirstname(updateUserRequest.getFirstname());
-        user.setLastname(updateUserRequest.getLastname());
-        user.setPhone(updateUserRequest.getPhone());
-        user.setImage(updateUserRequest.getImage());
-        user.setAddress(updateUserRequest.getAddress());
-
+        updateUserFields(user, userRequest);
         userRepository.save(user);
-
         return user;
+    }
+
+    @Override
+    public User updateUser(int id, UserRequest userRequest) {
+        var user = userRepository.findById(id).orElseThrow();
+
+        updateUserFields(user, userRequest);
+        userRepository.save(user);
+        return user;
+    }
+
+    @Override
+    public Driver findDriverById(int id) {
+        return driverRepository.findById(id).orElseThrow();
+    }
+
+    @Override
+    @Transactional
+    public Driver registerDriver(CreateDriverRequest driverRequest) {
+        var userCheck = userRepository.findByUsername(driverRequest.getUsername());
+        if (userCheck != null) {
+            throw new ResourceConflictException(userCheck.getId(), "Username already exists!");
+        }
+
+        var vehicleRequest = driverRequest.getVehicle();
+        var vehicle = new Vehicle();
+        vehicle.setVehicleType(vehicleTypeRepository.findById(vehicleRequest.getVehicleTypeId()).orElseThrow());
+        vehicle.setVehicleModel(vehicleRequest.getVehicleModel());
+        vehicle.setBabyFriendly(vehicleRequest.isBabyFriendly());
+        vehicle.setPetFriendly(vehicleRequest.isPetFriendly());
+        vehicle.setNumberOfSeats(vehicleRequest.getNumberOfSeats());
+        vehicle.setRegistrationNumber(vehicleRequest.getRegistrationNumber());
+        vehicleRepository.save(vehicle);
+
+        var driver = new Driver();
+        updateUserFields(driver, driverRequest);
+        driver.setEmail(driverRequest.getEmail());
+        driver.setUsername(driverRequest.getUsername());
+        driver.setPassword(passwordEncoder.encode(driverRequest.getPassword()));
+        driver.setRoles(roleService.findByName(Role.DRIVER));
+        driver.setEnabled(true);
+
+        driver.setDriverLicense(driverRequest.getDriverLicense());
+        driver.setVehicle(vehicle);
+
+        driverRepository.save(driver);
+
+        return driver;
+    }
+
+    private void updateUserFields(User user, UserRequest userRequest) {
+        user.setAddress(userRequest.getAddress());
+        user.setFirstname(userRequest.getFirstname());
+        user.setLastname(userRequest.getLastname());
+        user.setPhone(userRequest.getPhone());
+        user.setImage(userRequest.getImage());
+        user.setAddress(userRequest.getAddress());
     }
 }

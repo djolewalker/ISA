@@ -14,9 +14,6 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface RideMapper {
-
-
-
     Ride rideBookingRequestDtoToRide(RideBookingRequestDto rideBookingRequestDto);
 
     @Mapping(target = "rideStatus", source = "rideStatus")
@@ -24,9 +21,4 @@ public interface RideMapper {
     @Mapping(target = "startTime", source = "startTime")
     @Mapping(target = "rideId", source = "id")
     RideBookingResponseDto rideToRideBookingResponseDto(Ride ride);
-
-
-
-
-
 }

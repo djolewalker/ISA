@@ -1,6 +1,6 @@
 package com.ftnisa.isa.dto.user;
 
-public class UpdateUserRequest {
+public class UserRequest {
     private String email;
     private String firstname;
     private String lastname;
@@ -8,7 +8,7 @@ public class UpdateUserRequest {
     private String phone;
     private String address;
 
-    public UpdateUserRequest() {
+    public UserRequest() {
     }
 
     public String getEmail() {
