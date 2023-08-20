@@ -76,13 +76,17 @@ public class Ride {
     @JoinColumn(name = "vehicle_type")
     private VehicleType vehicleType;
 
+    @Column(name = "favourite_flag")
+    private Boolean favourite;
+
+
+
 
 
     public Ride() {
     }
 
-    public Ride(Integer id, LocalDateTime startTime, LocalDateTime finishTime, int numberOfPassengers, float totalPrice, Duration estimatedDuration, RideStatus rideStatus, RouteOptimizationCriteria routeOptimizationCriteria, Boolean panicFlag, Boolean petTransportFlag, Boolean babyTransportFlag, Driver driver, User passenger, List<Route> routes, Rejection rejection, VehicleType vehicleType) {
-        this.id = id;
+    public Ride(LocalDateTime startTime, LocalDateTime finishTime, int numberOfPassengers, float totalPrice, Duration estimatedDuration, RideStatus rideStatus, RouteOptimizationCriteria routeOptimizationCriteria, Boolean panicFlag, Boolean petTransportFlag, Boolean babyTransportFlag, Driver driver, User passenger, List<Route> routes, Rejection rejection, VehicleType vehicleType, Boolean favourite) {
         this.startTime = startTime;
         this.finishTime = finishTime;
         this.numberOfPassengers = numberOfPassengers;
@@ -98,6 +102,7 @@ public class Ride {
         this.routes = routes;
         this.rejection = rejection;
         this.vehicleType = vehicleType;
+        this.favourite = favourite;
     }
 
     public Integer getId() {
@@ -229,4 +234,11 @@ public class Ride {
         this.vehicleType = vehicleType;
     }
 
+    public Boolean getFavourite() {
+        return favourite;
+    }
+
+    public void setFavourite(Boolean favourite) {
+        this.favourite = favourite;
+    }
 }
