@@ -1,7 +1,5 @@
 package com.ftnisa.isa.service;
 
-import com.ftnisa.isa.dto.ride.*;
-import com.ftnisa.isa.model.location.Location;
 import com.ftnisa.isa.model.ride.Panic;
 import com.ftnisa.isa.model.ride.Rejection;
 import com.ftnisa.isa.model.ride.Ride;
@@ -13,7 +11,6 @@ import com.ftnisa.isa.model.user.User;
 import com.ftnisa.isa.model.vehicle.VehicleType;
 
 import com.ftnisa.isa.repository.*;
-import org.mapstruct.control.MappingControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +18,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -139,6 +139,7 @@ public class RideServiceImpl implements RideService {
         // calculate the price and the  estimated finish time
         ride.setTotalPrice(calculateRidePrice(rideLengthMeters, ride.getVehicleType()));
         ride.setFinishTime(ride.getStartTime().plusMinutes((long)rideDurationMinutes));
+        ride.setEstimatedDuration(Duration.of((long)rideDurationMinutes, ChronoUnit.MINUTES));
         ride.setRideStatus(RideStatus.PENDING);
 
         // save and return
@@ -148,6 +149,7 @@ public class RideServiceImpl implements RideService {
 
     }
 
+    @Transactional
     @Override
     public Ride scheduledRideBooking(Ride ride) {
 
@@ -205,8 +207,8 @@ public class RideServiceImpl implements RideService {
 
         List<Driver> schedulableAppropriateDrivers = filterDriversBySchedule(appropriateDrivers, ride);
 
-        // NTD needs a different selectClosest method
-        Driver chosenDriver = driverService.selectClosestDriverAfterCurrentRide(schedulableAppropriateDrivers, routeService.getRidesStartLocation(ride));
+
+        Driver chosenDriver = driverService.selectCurrentlyClosestDriver(schedulableAppropriateDrivers, routeService.getRidesStartLocation(ride));
 
         ride.setDriver(chosenDriver);
 
@@ -239,6 +241,7 @@ public class RideServiceImpl implements RideService {
         rideRepository.save(ride);
     }
 
+
     @Override
     @Transactional
     public void startRideByDriver(Integer rideId){
@@ -248,6 +251,7 @@ public class RideServiceImpl implements RideService {
         rideRepository.save(ride);
     }
 
+
     @Override
     @Transactional
     public void finishRideByDriver(Integer rideId){
@@ -255,7 +259,6 @@ public class RideServiceImpl implements RideService {
         ride.setRideStatus(RideStatus.FINISHED);
         ride.getDriver().setOccupied(false);
         rideRepository.save(ride);
-
     }
 
 
@@ -274,11 +277,6 @@ public class RideServiceImpl implements RideService {
     }
 
 
-
-
-
-
-
     @Override
     public void rejectRideByDriver(Integer rideId, String rejectionReason){
         User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -287,7 +285,6 @@ public class RideServiceImpl implements RideService {
         Rejection rejection = new Rejection( rejectionReason, user, LocalDateTime.now());
         ride.setRejection(rejection);
         rideRepository.save(ride);
-
     }
 
 
@@ -313,8 +310,6 @@ public class RideServiceImpl implements RideService {
         float price = 120 + (vehicleType.getPricePerKm()*rideLength/1000);
         return price;
     }
-
-
 
 
     @Override
@@ -370,8 +365,22 @@ public class RideServiceImpl implements RideService {
             }
         }
         return true;
-
     }
+
+
+    @Override
+    public List<Ride> getUsersWholeRideHistory(Integer userId){
+        return rideRepository.findByPassenger(userRepository.findById(userId).orElse(null));
+    }
+
+    @Override
+    public List<Ride> getUsersRidesBetweenDates(User user, Date date1, Date date2){
+        return rideRepository.findByPassengerAndStartTimeBetween(user, date1, date2);
+    }
+
+
+
+
 
 
 
