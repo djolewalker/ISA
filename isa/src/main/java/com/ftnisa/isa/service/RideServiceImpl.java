@@ -11,6 +11,7 @@ import com.ftnisa.isa.model.user.User;
 import com.ftnisa.isa.model.vehicle.VehicleType;
 
 import com.ftnisa.isa.repository.*;
+import org.mapstruct.control.MappingControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -374,7 +375,11 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public List<Ride> getUsersRidesBetweenDates(User user, Date date1, Date date2){
+    public List<Ride> getUsersRidesBetweenDates(Integer userId, LocalDateTime date1, LocalDateTime date2){
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null){
+            return null;
+        }
         return rideRepository.findByPassengerAndStartTimeBetween(user, date1, date2);
     }
 

@@ -17,6 +17,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -117,10 +119,31 @@ public class RideController {
 
     @PreAuthorize("hasRole('USER')")
     @Transactional
-    @PutMapping("/ride-history")
-    public ResponseEntity<List<RideDto>> rideHistory(@RequestBody Integer userId){
+    @GetMapping("/ride-history")
+    public ResponseEntity<List<RideDto>> rideHistory(@RequestParam Integer userId){
         try {
             List<Ride> rides = rideService.getUsersWholeRideHistory(userId);
+            List<RideDto> rideDtos = rides.stream().map(r -> rideMapper.rideToRideDto(r)).toList();
+            return new ResponseEntity<>(rideDtos, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>( HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    @PreAuthorize("hasRole('USER')")
+    @Transactional
+    @PutMapping("/ride-history-by-date")
+    public ResponseEntity<List<RideDto>> rideHistoryByDate(@RequestBody RideHistoryByDateRequestDto rideHistoryByDateRequestDto){
+        try {
+            List<Ride> rides = rideService.getUsersRidesBetweenDates(
+                    rideHistoryByDateRequestDto.getUserId(),
+                    rideHistoryByDateRequestDto.getDate1(),
+                    rideHistoryByDateRequestDto.getDate2()
+            );
+            if (rides == null){
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
             List<RideDto> rideDtos = rides.stream().map(r -> rideMapper.rideToRideDto(r)).toList();
             return new ResponseEntity<>(rideDtos, HttpStatus.OK);
         } catch (Exception e) {
