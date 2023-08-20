@@ -19,6 +19,8 @@ public interface RideService {
     Ride requestQuickRideBooking(Ride ride);
 
 
+    Ride recreateRide(Integer rideId);
+
     void finalizeRideBooking(boolean isRideAccepted, int rideId);
 
     void startRideByDriver(Integer rideId);

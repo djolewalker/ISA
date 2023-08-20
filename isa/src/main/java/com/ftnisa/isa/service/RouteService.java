@@ -39,4 +39,6 @@ public interface RouteService {
     Location getRidesFinishLocation(Ride ride);
 
     Location getRidesStartLocation(Ride ride);
+
+    List<Route> cloneRoutes(List<Route> oldRoutes);
 }

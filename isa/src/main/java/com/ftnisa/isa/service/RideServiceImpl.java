@@ -221,6 +221,24 @@ public class RideServiceImpl implements RideService {
         routeService.saveRoutesForRide(ride);
         return ride;
 
+    }
+
+    @Override
+    @Transactional
+    public Ride recreateRide(Integer rideId){
+        Ride oldRide = rideRepository.findById(rideId).orElse(null);
+        if (oldRide == null){
+            return  null;
+        }
+        Ride newRide = new Ride();
+        newRide.setNumberOfPassengers(oldRide.getNumberOfPassengers());
+        newRide.setRouteOptimizationCriteria(oldRide.getRouteOptimizationCriteria());
+        newRide.setPetTransportFlag(oldRide.getPetTransportFlag());
+        newRide.setBabyTransportFlag(oldRide.getBabyTransportFlag() );
+        newRide.setVehicleType( new VehicleType(oldRide.getVehicleType().getVehicleTypeName(), oldRide.getVehicleType().getPricePerKm()) );
+        newRide.setRoutes(routeService.cloneRoutes(oldRide.getRoutes()));
+
+        return newRide;
 
     }
 
@@ -388,6 +406,9 @@ public class RideServiceImpl implements RideService {
             ride.setFavourite(true);
         }
     }
+
+
+
 
 
 
