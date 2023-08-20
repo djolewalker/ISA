@@ -30,7 +30,7 @@ public interface RideRepository extends JpaRepository<Ride, Integer> {
 
     public List<Ride> findByPassenger(User passenger);
 
-    public List<Ride> findByPassengerAndStartTimeBetween(User passenger, Date date1, Date date2);
+    public List<Ride> findByPassengerAndStartTimeBetween(User passenger, LocalDateTime date1, LocalDateTime date2);
 
 
 
