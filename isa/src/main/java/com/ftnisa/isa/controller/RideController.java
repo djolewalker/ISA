@@ -17,8 +17,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,7 +46,6 @@ public class RideController {
     @PostMapping("/ride-booking")
     public ResponseEntity<RideBookingResponseDto> rideBooking(@RequestBody RideBookingRequestDto rideBookingRequestDTO){
         try {
-
             Ride ride = rideMapper.rideBookingRequestDtoToRide(rideBookingRequestDTO);
             ride.setRoutes(routeService.generateAndOrganizeRoutes(
                     locationMapper.locationDtoToLocation(rideBookingRequestDTO.getStartLocation()),
@@ -66,6 +63,29 @@ public class RideController {
 
             RideBookingResponseDto rideBookingResponseDto = rideMapper.rideToRideBookingResponseDto(ride);
             return new ResponseEntity<RideBookingResponseDto>(rideBookingResponseDto, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/recreate-ride")
+    public ResponseEntity<RideBookingResponseDto> recreateRide(@RequestBody RecreateRideDto recreateRideDto){
+        try {
+            Ride ride = rideService.recreateRide(recreateRideDto.getRideId());
+
+            if (recreateRideDto.getScheduled()){
+                ride.setStartTime(recreateRideDto.getScheduledStartTime());
+                rideService.scheduledRideBooking(ride);
+            } else {
+                rideService.requestQuickRideBooking(ride);
+            }
+
+            RideBookingResponseDto rideBookingResponseDto = rideMapper.rideToRideBookingResponseDto(ride);
+            return new ResponseEntity<RideBookingResponseDto>(rideBookingResponseDto, HttpStatus.CREATED);
+
+
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -163,6 +183,12 @@ public class RideController {
             return new ResponseEntity<>( HttpStatus.BAD_REQUEST);
         }
     }
+
+
+
+
+
+
 
 
 

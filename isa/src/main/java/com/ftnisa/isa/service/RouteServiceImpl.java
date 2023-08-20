@@ -149,6 +149,19 @@ public class RouteServiceImpl implements RouteService {
     }
 
 
+    @Override
+    public List<Route> cloneRoutes(List<Route> oldRoutes){
+        List<Route> newRoutes = new ArrayList<>();
+        for (Route r : oldRoutes){
+            Route newRoute = new Route();
+            newRoute.setStartLocation(new Location(r.getStartLocation().getLongitude(), r.getStartLocation().getLatitude()));
+            newRoute.setFinishLocation(new Location(r.getFinishLocation().getLongitude(), r.getFinishLocation().getLatitude()));
+            newRoutes.add(newRoute);
+        }
+        return newRoutes;
+    }
+
+
 
 
 }
