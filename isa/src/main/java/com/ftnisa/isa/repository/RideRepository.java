@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -26,6 +27,12 @@ public interface RideRepository extends JpaRepository<Ride, Integer> {
     public Ride findOneById(Integer id);
 
     public List<Ride> findByPassengerAndRideStatus(User passenger, RideStatus rideStatus);
+
+    public List<Ride> findByPassenger(User passenger);
+
+    public List<Ride> findByPassengerAndStartTimeBetween(User passenger, Date date1, Date date2);
+
+
 
 
 }

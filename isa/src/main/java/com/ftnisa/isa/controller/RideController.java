@@ -14,8 +14,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
@@ -112,6 +114,25 @@ public class RideController {
         }
         return new ResponseEntity<>( HttpStatus.OK);
     }
+
+    @PreAuthorize("hasRole('USER')")
+    @Transactional
+    @PutMapping("/ride-history")
+    public ResponseEntity<List<RideDto>> rideHistory(@RequestBody Integer userId){
+        try {
+            List<Ride> rides = rideService.getUsersWholeRideHistory(userId);
+            List<RideDto> rideDtos = rides.stream().map(r -> rideMapper.rideToRideDto(r)).toList();
+            return new ResponseEntity<>(rideDtos, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>( HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+
+
+
+
 
 
 

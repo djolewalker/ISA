@@ -5,6 +5,7 @@ import com.ftnisa.isa.model.location.Location;
 import com.ftnisa.isa.model.ride.Ride;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -26,10 +27,12 @@ public class Route {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "start_location")
+    @NotNull
     private Location startLocation;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "finish_location")
+    @NotNull
     private Location finishLocation;
 
     @Column(name = "length")

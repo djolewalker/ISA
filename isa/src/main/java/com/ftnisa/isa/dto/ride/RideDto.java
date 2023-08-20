@@ -1,88 +1,57 @@
-package com.ftnisa.isa.model.ride;
+package com.ftnisa.isa.dto.ride;
 
-
+import com.ftnisa.isa.dto.location.LocationDto;
+import com.ftnisa.isa.dto.route.RouteDto;
+import com.ftnisa.isa.dto.user.DriverDto;
+import com.ftnisa.isa.dto.vehicle.VehicleTypeDto;
+import com.ftnisa.isa.model.ride.Rejection;
+import com.ftnisa.isa.model.ride.RideStatus;
+import com.ftnisa.isa.model.ride.RouteOptimizationCriteria;
 import com.ftnisa.isa.model.route.Route;
 import com.ftnisa.isa.model.user.Driver;
-
-import com.ftnisa.isa.model.user.User;
 import com.ftnisa.isa.model.vehicle.VehicleType;
 
-import javax.persistence.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-@Entity
-@Table(name = "isa_ride")
-public class Ride {
+public class RideDto {
 
-    @Id
-    @SequenceGenerator(name = "rideSeqGen", sequenceName = "rideSeq", initialValue = 1, allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "rideSeqGen")
-    private Integer id;
 
-    @Column(name = "start_time", nullable = true)
     private LocalDateTime startTime;
 
-    @Column(name = "finish_time", nullable = true)
     private LocalDateTime finishTime;
 
-    @Column(name = "number_of_passengers")
     private int numberOfPassengers;
 
-    @Column(name = "total_price")
     private float totalPrice;
 
-    @Column(name = "estimated_duration")
     private Duration estimatedDuration;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "ride_status", nullable = false)
-    private RideStatus rideStatus;
+    private RideStatusDto rideStatus;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "route_optimization_criteria")
-    private RouteOptimizationCriteria routeOptimizationCriteria;
+    private RouteOptimizationCriteriaDto routeOptimizationCriteria;
 
-    @Column(name = "panic_flag")
     private Boolean panicFlag;
 
-    @Column(name = "pet_transport_flag")
     private Boolean petTransportFlag;
 
-    @Column(name = "baby_transport_flag")
     private Boolean babyTransportFlag;
 
+    private DriverDto driver;
 
-    @ManyToOne
-    @JoinColumn(name = "driver")
-    private Driver driver;
+    private List<RouteDto> routes;
 
-    @ManyToOne
-    @JoinColumn(name = "passenger")
-    private User passenger;
+    private RejectionDto rejection;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<Route> routes;
+    private VehicleTypeDto vehicleType;
 
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "rejection")
-    private Rejection rejection;
-
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "vehicle_type")
-    private VehicleType vehicleType;
-
-
-
-    public Ride() {
+    public RideDto() {
     }
 
-    public Ride(Integer id, LocalDateTime startTime, LocalDateTime finishTime, int numberOfPassengers, float totalPrice, Duration estimatedDuration, RideStatus rideStatus, RouteOptimizationCriteria routeOptimizationCriteria, Boolean panicFlag, Boolean petTransportFlag, Boolean babyTransportFlag, Driver driver, User passenger, List<Route> routes, Rejection rejection, VehicleType vehicleType) {
-        this.id = id;
+    public RideDto(LocalDateTime startTime, LocalDateTime finishTime, int numberOfPassengers, float totalPrice, Duration estimatedDuration, RideStatusDto rideStatus, RouteOptimizationCriteriaDto routeOptimizationCriteria, Boolean panicFlag, Boolean petTransportFlag, Boolean babyTransportFlag, DriverDto driver, List<RouteDto> routes, RejectionDto rejection, VehicleTypeDto vehicleType) {
         this.startTime = startTime;
         this.finishTime = finishTime;
         this.numberOfPassengers = numberOfPassengers;
@@ -94,18 +63,9 @@ public class Ride {
         this.petTransportFlag = petTransportFlag;
         this.babyTransportFlag = babyTransportFlag;
         this.driver = driver;
-        this.passenger = passenger;
         this.routes = routes;
         this.rejection = rejection;
         this.vehicleType = vehicleType;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public LocalDateTime getStartTime() {
@@ -148,19 +108,19 @@ public class Ride {
         this.estimatedDuration = estimatedDuration;
     }
 
-    public RideStatus getRideStatus() {
+    public RideStatusDto getRideStatus() {
         return rideStatus;
     }
 
-    public void setRideStatus(RideStatus rideStatus) {
+    public void setRideStatus(RideStatusDto rideStatus) {
         this.rideStatus = rideStatus;
     }
 
-    public RouteOptimizationCriteria getRouteOptimizationCriteria() {
+    public RouteOptimizationCriteriaDto getRouteOptimizationCriteria() {
         return routeOptimizationCriteria;
     }
 
-    public void setRouteOptimizationCriteria(RouteOptimizationCriteria routeOptimizationCriteria) {
+    public void setRouteOptimizationCriteria(RouteOptimizationCriteriaDto routeOptimizationCriteria) {
         this.routeOptimizationCriteria = routeOptimizationCriteria;
     }
 
@@ -188,45 +148,35 @@ public class Ride {
         this.babyTransportFlag = babyTransportFlag;
     }
 
-    public Driver getDriver() {
+    public DriverDto getDriver() {
         return driver;
     }
 
-    public void setDriver(Driver driver) {
+    public void setDriver(DriverDto driver) {
         this.driver = driver;
     }
 
-    public User getPassenger() {
-        return passenger;
-    }
-
-    public void setPassenger(User passenger) {
-        this.passenger = passenger;
-    }
-
-    public List<Route> getRoutes() {
+    public List<RouteDto> getRoutes() {
         return routes;
     }
 
-    public void setRoutes(List<Route> routes) {
+    public void setRoutes(List<RouteDto> routes) {
         this.routes = routes;
     }
 
-
-    public Rejection getRejection() {
+    public RejectionDto getRejection() {
         return rejection;
     }
 
-    public void setRejection(Rejection rejection) {
+    public void setRejection(RejectionDto rejection) {
         this.rejection = rejection;
     }
 
-    public VehicleType getVehicleType() {
+    public VehicleTypeDto getVehicleType() {
         return vehicleType;
     }
 
-    public void setVehicleType(VehicleType vehicleType) {
+    public void setVehicleType(VehicleTypeDto vehicleType) {
         this.vehicleType = vehicleType;
     }
-
 }
