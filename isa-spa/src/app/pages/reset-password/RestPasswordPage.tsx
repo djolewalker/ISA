@@ -4,7 +4,7 @@ import { IsaButton } from 'app/components/isa-button/IsaButton';
 import { MainHeader } from 'app/components/main-header/MainHeader';
 import { useLoader } from 'app/contexts/loader/loader-context-provider';
 import { useNotifications } from 'app/contexts/notifications/notifications-provider';
-import { resetPassword } from 'app/service/auth-service';
+import { resetPassword } from 'app/service/auth.service';
 import { AxiosError } from 'axios';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';

@@ -1,7 +1,7 @@
 import { HeaderActions } from 'app/components/header-actions/HeaderActions';
 import { IsaButton } from 'app/components/isa-button/IsaButton';
 import { MainHeader } from 'app/components/main-header/MainHeader';
-import { verifyEmail } from 'app/service/auth-service';
+import { verifyEmail } from 'app/service/auth.service';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 

@@ -32,9 +32,8 @@ public class Vehicle {
     @Column(name = "pet_friendly")
     private boolean petFriendly;
 
-    @OneToOne
-    @JoinColumn(name = "driver_id")
-    private User driver;
+    @OneToOne(mappedBy = "vehicle")
+    private Driver driver;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "vehicle_type")
@@ -47,13 +46,12 @@ public class Vehicle {
     public Vehicle() {
     }
 
-    public Vehicle(String vehicleModel, String registrationNumber, int numberOfSeats, boolean babyFriendly, boolean petFriendly, User driver, VehicleType vehicleType, Location currentLocation) {
+    public Vehicle(String vehicleModel, String registrationNumber, int numberOfSeats, boolean babyFriendly, boolean petFriendly, VehicleType vehicleType, Location currentLocation) {
         this.vehicleModel = vehicleModel;
         this.registrationNumber = registrationNumber;
         this.numberOfSeats = numberOfSeats;
         this.babyFriendly = babyFriendly;
         this.petFriendly = petFriendly;
-        this.driver = driver;
         this.vehicleType = vehicleType;
         this.currentLocation = currentLocation;
     }
@@ -106,12 +104,8 @@ public class Vehicle {
         this.petFriendly = petFriendly;
     }
 
-    public User getDriver() {
+    public Driver getDriver() {
         return driver;
-    }
-
-    public void setDriver(User driver) {
-        this.driver = driver;
     }
 
     public VehicleType getVehicleType() {

@@ -46,8 +46,12 @@ export const useMapLayoutRoutes = () => {
               element: <UsersPage />
             },
             {
-              path: '/admin/users/create-driver',
+              path: '/admin/driver',
               element: <UserPage isCreate isDriverComponent />
+            },
+            {
+              path: '/admin/drivers/:userId',
+              element: <UserPage isDriverComponent />
             },
             {
               path: '/admin/users/:userId',

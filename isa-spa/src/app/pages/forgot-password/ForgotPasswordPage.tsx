@@ -7,7 +7,7 @@ import { IsaButton } from 'app/components/isa-button/IsaButton';
 import { MainHeader } from 'app/components/main-header/MainHeader';
 import { useLoader } from 'app/contexts/loader/loader-context-provider';
 import { useNotifications } from 'app/contexts/notifications/notifications-provider';
-import { forgotPassword } from 'app/service/auth-service';
+import { forgotPassword } from 'app/service/auth.service';
 
 type ForgotPasswordForm = {
   email: string;

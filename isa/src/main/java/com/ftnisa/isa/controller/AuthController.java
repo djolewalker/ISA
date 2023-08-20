@@ -54,12 +54,6 @@ public class AuthController {
         return new ResponseEntity<>(mapper.toUserResponse(user), HttpStatus.CREATED);
     }
 
-    @PostMapping("/signup/driver")
-    public ResponseEntity<UserResponse> createDriver(@RequestBody RegisterRequest registerRequest) {
-        var user = userService.registerUser(registerRequest, Role.DRIVER);
-        return new ResponseEntity<>(mapper.toUserResponse(user), HttpStatus.CREATED);
-    }
-
     @GetMapping("/verify-email")
     public ResponseEntity<Void> verifyUser(@RequestParam String verificationToken) {
         userService.verify(verificationToken);

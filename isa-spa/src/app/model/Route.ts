@@ -1,4 +1,4 @@
-import { OSMLocation } from 'app/service/locations-service';
+import { OSMLocation } from 'app/service/locations.service';
 
 export type RouteLocations = {
   start: OSMLocation;

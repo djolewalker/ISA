@@ -1,20 +1,13 @@
 import { AccessToken, User } from 'app/model/User';
 
-import { getRequest, postRequest } from './base-service';
+import { getRequest, postRequest } from './base.service';
 
 const CONTROLLER = 'auth';
 
 export const signIn = async (username: string, password: string) =>
   postRequest(`${CONTROLLER}/signin`, { username, password }).then((response) => response.data as AccessToken);
 
-export type RegisterUser = {
-  username: string;
-  firstname: string;
-  lastname: string;
-  email: string;
-  password: string;
-  repeatPassword: string;
-};
+export type RegisterUser = Omit<User, 'id' | 'roles'> & { password: string };
 export const register = async (user: RegisterUser) =>
   postRequest(`${CONTROLLER}/signup/user`, user).then((response) => response.data as User);
 

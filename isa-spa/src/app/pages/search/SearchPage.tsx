@@ -26,7 +26,7 @@ import { buildCoordinates } from 'app/utils/coordinate.utils';
 import { useLoader } from 'app/contexts/loader/loader-context-provider';
 import { useNotifications } from 'app/contexts/notifications/notifications-provider';
 import { useNavigate } from 'react-router-dom';
-import { OSMLocation } from 'app/service/locations-service';
+import { OSMLocation } from 'app/service/locations.service';
 
 const mapToOptions = (location: OSMLocation) => ({
   label: location.display_name,

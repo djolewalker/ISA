@@ -6,10 +6,10 @@ import { useAuthContext } from 'app/contexts/auth/auth-context-provider';
 import { useLoader } from 'app/contexts/loader/loader-context-provider';
 import { useNotifications } from 'app/contexts/notifications/notifications-provider';
 import { User } from 'app/model/User';
-import { UpdateUserRequest, updateUser } from 'app/service/user-service';
+import { UpdateUser, updateUserProfile } from 'app/service/user.service';
 import { AxiosError } from 'axios';
 
-type UpdateUserForm = UpdateUserRequest;
+type UpdateUserForm = UpdateUser;
 
 export const ProfilePage = () => {
   const notifications = useNotifications();
@@ -20,7 +20,7 @@ export const ProfilePage = () => {
 
   const handleOnFinish = (data: UpdateUserForm) => {
     activateTransparentLoader();
-    updateUser(user.id, data)
+    updateUserProfile(data)
       .then((user: User) => {
         notifications.success({ message: 'Podaci korisnika su ispešno izmenjeni!' });
         setUser(user);
