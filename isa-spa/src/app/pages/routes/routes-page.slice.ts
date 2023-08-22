@@ -1,6 +1,6 @@
 import { PayloadAction, createSelector, createSlice } from '@reduxjs/toolkit';
 import { Coordinates } from 'app/model/Location';
-import { RoutePriorityType } from 'app/model/Route';
+import { RoutePriorityType, RoutePriorityTypeMeasuresMap } from 'app/model/Route';
 import { RootState } from 'app/redux/store';
 import { FeatureCollection, Feature } from 'geojson';
 
@@ -19,15 +19,16 @@ const initialState: RoutesState = {
   routes: {} as FeatureCollection,
   isLoadingRoutes: false,
   routeError: '',
-  routePriorityType: 'distance',
+  routePriorityType: 'BY_TIME',
   prioritizedRouteId: '',
   selectedRouteId: ''
 };
 
 const calculatePrioritizedRouteId = (state: RoutesState) => {
-  const values = state.routes.features.map((f) => f.properties?.summary[state.routePriorityType]);
+  const measure = RoutePriorityTypeMeasuresMap[state.routePriorityType];
+  const values = state.routes.features.map((f) => f.properties?.summary[measure]);
   const minByPrio = Math.min(...values);
-  return state.routes.features.find((f) => f.properties?.summary[state.routePriorityType] === minByPrio)?.id;
+  return state.routes.features.find((f) => f.properties?.summary[measure] === minByPrio)?.id;
 };
 
 const routesPage = createSlice({
@@ -39,6 +40,8 @@ const routesPage = createSlice({
     },
     setRoutes: (state, { payload }: PayloadAction<FeatureCollection>) => {
       state.routes = payload;
+
+      if (!state?.routes?.features?.length) return;
 
       const prioritizedRouteId = calculatePrioritizedRouteId(state);
       if (prioritizedRouteId) {
@@ -52,18 +55,18 @@ const routesPage = createSlice({
     setRouteError: (state, { payload }: PayloadAction<string>) => {
       state.routeError = payload;
     },
-    setRoutePriotiryType: (state, { payload }: PayloadAction<RoutePriorityType>) => {
+    setRoutePriorityType: (state, { payload }: PayloadAction<RoutePriorityType>) => {
       state.routePriorityType = payload;
 
-      if (!state.routes.features.length) return;
+      if (!state.routes?.features?.length) return;
 
-      const minDistanceByPrio = calculatePrioritizedRouteId(state);
-      if (minDistanceByPrio) state.prioritizedRouteId = minDistanceByPrio;
+      const prioritizedRouteId = calculatePrioritizedRouteId(state);
+      if (prioritizedRouteId) state.prioritizedRouteId = prioritizedRouteId;
     },
     setPrioritizedRouteId: (state, { payload }: PayloadAction<string>) => {
       state.routeError = payload;
     },
-    setSelectedRouteId: (state, { payload }: PayloadAction<string | number>) => {
+    setSelectedRouteId: (state, { payload }: PayloadAction<string>) => {
       state.selectedRouteId = payload;
     }
   }
@@ -90,13 +93,17 @@ export const selectPrioritizedRouteId = createSelector(
   ({ prioritizedRouteId }) => prioritizedRouteId
 );
 export const selectSelectedRouteId = createSelector(routesPageSliceSelector, ({ selectedRouteId }) => selectedRouteId);
+export const selectSelectedRoute = createSelector(routesPageSliceSelector, ({ routes, selectedRouteId }) =>
+  routes.features.find((route) => route.id === selectedRouteId)
+);
 
 export const {
   setRouteCoordinates,
   setRoutes,
   setIsLoadingRoutes,
   setRouteError,
-  setRoutePriotiryType,
+  setRoutePriorityType,
+  setPrioritizedRouteId,
   setSelectedRouteId
 } = routesPage.actions;
 

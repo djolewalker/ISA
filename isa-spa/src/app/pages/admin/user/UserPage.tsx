@@ -6,14 +6,8 @@ import { useAuthContext } from 'app/contexts/auth/auth-context-provider';
 import { useLoader } from 'app/contexts/loader/loader-context-provider';
 import { useNotifications } from 'app/contexts/notifications/notifications-provider';
 import { useAppDispatch, useAppSelector } from 'app/hooks/common';
-import {
-  fetchVehicleTypes,
-  selectUser,
-  selectVehicleTypes,
-  setFetchDriverId,
-  setFetchUserId,
-  setUser
-} from 'app/pages/admin/admin.slice';
+import { selectUser, setFetchDriverId, setFetchUserId, setUser } from 'app/pages/admin/admin.slice';
+import { fetchVehicleTypes, selectVehicleTypes } from 'app/pages/common.slice';
 import { UpdateUser, createDriver, updateUser } from 'app/service/user.service';
 import { AxiosError } from 'axios';
 import { useEffect, useState } from 'react';

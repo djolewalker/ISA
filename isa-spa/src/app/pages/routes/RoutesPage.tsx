@@ -12,14 +12,15 @@ import {
   selectRoutePriorityType,
   selectRoutes,
   selectSelectedRouteId,
-  setRoutePriotiryType,
+  setRoutePriorityType,
   setSelectedRouteId
 } from 'app/pages/routes/routes-page.slice';
 import { IsaButton } from 'app/components/isa-button/IsaButton';
 
 const routePriorityOptions: DefaultOptionType[] = [
-  { label: 'Udaljenost', value: 'distance' },
-  { label: 'Vreme dolaska', value: 'duration' }
+  { label: 'Udaljenost', value: 'BY_LENGTH' },
+  { label: 'Vreme dolaska', value: 'BY_TIME' },
+  { label: 'Cena vožnje', value: 'BY_PRICE' }
 ];
 
 export const RoutesPage = () => {
@@ -33,6 +34,7 @@ export const RoutesPage = () => {
 
   const { prioritizedRoute, alternativeRoutes } = useMemo(() => {
     const features = routes.features;
+
     const prioritizedRoute = features?.find((route) => route.id === prioritizedRouteId);
     const alternativeRoutes = features
       ?.filter((route) => route !== prioritizedRoute)
@@ -45,11 +47,13 @@ export const RoutesPage = () => {
   }, [routes, navigate]);
 
   const handleRoutePriorityTypeChange = (priorityType: RoutePriorityType) =>
-    dispatch(setRoutePriotiryType(priorityType));
+    dispatch(setRoutePriorityType(priorityType));
 
-  const handleRouteSelected = (routeId: string | number) => dispatch(setSelectedRouteId(routeId));
+  const handleRouteSelected = (routeId: string) => dispatch(setSelectedRouteId(routeId));
 
   const handleModifyLocations = () => navigate('/');
+
+  const handleProceedBooking = () => navigate('/ride/booking');
 
   return (
     <div className="d-flex flex-column flex-grow-1">
@@ -69,13 +73,13 @@ export const RoutesPage = () => {
             className="w-100 "
             type={selectedRouteId === prioritizedRouteId ? 'primary' : 'link'}
             size="large"
-            onClick={() => handleRouteSelected(prioritizedRouteId)}
+            onClick={() => handleRouteSelected(prioritizedRouteId as string)}
           >
             Udaljenost: {prioritizedRoute?.properties?.summary.distance} km - Vreme dolaska:{' '}
             {(prioritizedRoute?.properties?.summary.duration / 60).toFixed(2)} min
           </IsaButton>
 
-          {alternativeRoutes && (
+          {Boolean(alternativeRoutes?.length) && (
             <>
               <h4 className="mt-4 mb-3 h4">Alternative:</h4>
               {alternativeRoutes?.map((alternative) => (
@@ -84,7 +88,7 @@ export const RoutesPage = () => {
                   className="w-100 mb-3"
                   type={selectedRouteId === alternative.id ? 'primary' : 'link'}
                   size="large"
-                  onClick={() => handleRouteSelected(alternative.id as number)}
+                  onClick={() => handleRouteSelected(alternative.id as string)}
                 >
                   Udaljenost: {alternative?.properties?.summary.distance} km - Vreme dolaska:{' '}
                   {(alternative?.properties?.summary.duration / 60).toFixed(2)} min
@@ -97,7 +101,7 @@ export const RoutesPage = () => {
           <IsaButton className="mx-4" size="large" onClick={handleModifyLocations}>
             Izmeni
           </IsaButton>
-          <IsaButton className="mx-4" type="primary" size="large">
+          <IsaButton className="mx-4" type="primary" size="large" onClick={handleProceedBooking}>
             Nastavi
           </IsaButton>
         </div>

@@ -1,5 +1,6 @@
 package com.ftnisa.isa.mapper;
 
+import com.ftnisa.isa.dto.user.DriverInfoDto;
 import com.ftnisa.isa.dto.user.DriverResponse;
 import com.ftnisa.isa.dto.user.UserRequest;
 import com.ftnisa.isa.dto.user.UserResponse;
@@ -23,4 +24,6 @@ public interface UserMapper {
     }
 
     DriverResponse driverToDriverResponse(Driver driver);
+
+    DriverInfoDto driverToDriverInfoDto(Driver driver);
 }

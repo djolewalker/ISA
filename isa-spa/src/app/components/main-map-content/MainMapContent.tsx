@@ -10,7 +10,7 @@ const selectedRouteStyle = {
   opacity: 0.8
 };
 
-const alternatveRouteStyle = {
+const alternativeRouteStyle = {
   color: 'gray',
   opacity: 0.8
 };
@@ -55,8 +55,8 @@ export const MainMapContent = () => {
 
   useEffect(() => {
     Object.entries(displayedRoutes).forEach(([key, gJSON]) => {
-      if (key === selectedRouteId) gJSON.setStyle(selectedRouteStyle).bringToFront();
-      else gJSON.setStyle(alternatveRouteStyle);
+      if (parseInt(key) === selectedRouteId) gJSON.setStyle(selectedRouteStyle).bringToFront();
+      else gJSON.setStyle(alternativeRouteStyle);
     });
   }, [displayedRoutes, selectedRouteId]);
 

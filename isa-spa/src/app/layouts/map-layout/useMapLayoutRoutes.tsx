@@ -14,6 +14,8 @@ import { ProfilePage } from 'app/pages/profile/ProfilePage';
 import { PermittedRoute } from 'app/components/permitted-route/PermittedRoute';
 import { UsersPage } from 'app/pages/admin/users/UsersPage';
 import { UserPage } from 'app/pages/admin/user/UserPage';
+import { CreateRidePage } from 'app/pages/create-ride/CreateRidePage';
+import { RidePage } from 'app/pages/ride/RidePage';
 
 export const useMapLayoutRoutes = () => {
   const { isAuthorized } = useAuthContext();
@@ -62,6 +64,14 @@ export const useMapLayoutRoutes = () => {
               element: <Navigate to="/" replace />
             }
           ]
+        },
+        {
+          path: '/ride/booking',
+          element: <CreateRidePage />
+        },
+        {
+          path: '/ride/:rideId',
+          element: <RidePage />
         }
       ]
     }

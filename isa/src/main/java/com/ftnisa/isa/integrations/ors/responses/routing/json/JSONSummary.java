@@ -1,0 +1,115 @@
+/*
+ * This file is part of Openrouteservice.
+ *
+ * Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
+ * of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this library;
+ * if not, see <https://www.gnu.org/licenses/>.
+ */
+
+package com.ftnisa.isa.integrations.ors.responses.routing.json;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.io.Serializable;
+
+
+@Schema(description = "Contains total sums of duration, route distance and actual distance of the route.")
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+public class JSONSummary implements Serializable {
+    @Schema(description = "Total route distance in specified units.", example = "12.6")
+    @JsonProperty(value = "distance")
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.2d")
+    protected Double distance;
+    @Schema(description = "Total duration in seconds.", example = "604")
+    @JsonProperty(value = "duration")
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
+    protected Double duration;
+    @Schema(description = "Total ascent in meters.",
+            extensions = {@Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "elevation"),
+                    @ExtensionProperty(name = "value", value = "true", parseValue = true)}
+            )}, example = "166.3")
+    @JsonProperty(value = "ascent")
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
+    protected Double ascent;
+    @Schema(description = "Total descent in meters.",
+            extensions = {@Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "elevation"),
+                    @ExtensionProperty(name = "value", value = "true", parseValue = true)}
+            )}, example = "201.3")
+    @JsonProperty(value = "descent")
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
+    protected Double descent;
+
+//    @JsonIgnore
+//    @JsonProperty(value = "transfers")
+//    @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
+//    protected int transfers;
+//
+//    public int getTransfers() {
+//        return transfers;
+//    }
+//
+//    public void setTransfers(int transfers) {
+//        this.transfers = transfers;
+//    }
+//
+//    public int getFare() {
+//        return fare;
+//    }
+//
+//    public void setFare(int fare) {
+//        this.fare = fare;
+//    }
+//
+//    @JsonProperty(value = "fare")
+//    @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
+//    protected int fare;
+
+    public JSONSummary() {}
+
+    public Double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
+    }
+
+    public Double getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Double duration) {
+        this.duration = duration;
+    }
+
+    public Double getAscent() {
+        return ascent;
+    }
+
+    public void setAscent(Double ascent) {
+        this.ascent = ascent;
+    }
+
+    public Double getDescent() {
+        return descent;
+    }
+
+    public void setDescent(Double descent) {
+        this.descent = descent;
+    }
+}
