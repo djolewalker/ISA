@@ -87,9 +87,8 @@ jobs:
         if: github.event_name == 'push'
         uses: docker/build-push-action@v4
         with:
-          folder: ${{ env.PROJ_DIR }}
           context: .
-          file: ./Dockerfile
+          file: ./${{ env.PROJ_DIR }}/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/isa:latest  
       
