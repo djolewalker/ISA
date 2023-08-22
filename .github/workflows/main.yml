@@ -88,7 +88,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./${{ env.PROJ_DIR }}/Dockerfile
+          file: ${{ env.PROJ_DIR }}/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/isa:latest  
       
