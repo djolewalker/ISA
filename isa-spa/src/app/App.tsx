@@ -29,7 +29,7 @@ const App = () => {
 
         if (error?.response?.status === 401) {
           if (isAuthorized) logOut();
-        } else {
+        } else if (error?.response?.status && error.response.status >= 500) {
           notifications.error({
             message: 'Something went wrong!',
             description: error.message

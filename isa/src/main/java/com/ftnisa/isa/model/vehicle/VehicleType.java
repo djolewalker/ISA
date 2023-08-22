@@ -9,12 +9,10 @@ import java.util.Set;
 @Entity
 @Table(name = "isa_vehicle_type")
 public class VehicleType {
-
     @Id
     @SequenceGenerator(name = "vehicleTypeSeqGen", sequenceName = "vehicleTypeSeq", initialValue = 1, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "vehicleTypeSeqGen")
     private Integer id;
-
 
     @Enumerated(EnumType.STRING)
     @Column(name = "vehicle_type_name", nullable = false)
@@ -22,7 +20,6 @@ public class VehicleType {
 
     @Column(name = "price_per_km")
     private Float pricePerKm;
-
 
     public VehicleType() {
     }

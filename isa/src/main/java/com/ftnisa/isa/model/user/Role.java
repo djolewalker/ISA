@@ -1,6 +1,9 @@
 package com.ftnisa.isa.model.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;

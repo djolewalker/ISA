@@ -6,14 +6,12 @@ export type AdminState = {
   users: User[];
   fetchUserId: number | null;
   user: User | null;
-  vehicleTypes: VehicleType[];
 };
 
 const initialState: AdminState = {
   users: [],
   fetchUserId: null,
-  user: null,
-  vehicleTypes: []
+  user: null
 };
 
 const admin = createSlice({
@@ -32,10 +30,6 @@ const admin = createSlice({
     },
     setUser: (state, { payload }: PayloadAction<User | null>) => {
       state.user = payload;
-    },
-    fetchVehicleTypes: () => {},
-    setVehicleTypes: (state, { payload }: PayloadAction<VehicleType[]>) => {
-      state.vehicleTypes = payload;
     }
   }
 });
@@ -45,9 +39,7 @@ const adminSliceSelector = (state: RootState) => state.admin;
 export const selectUsers = createSelector(adminSliceSelector, ({ users }) => users);
 export const selectUser = createSelector(adminSliceSelector, ({ user }) => user);
 export const selectFetchUserId = createSelector(adminSliceSelector, ({ fetchUserId }) => fetchUserId);
-export const selectVehicleTypes = createSelector(adminSliceSelector, ({ vehicleTypes }) => vehicleTypes);
 
-export const { fetchUsers, setUsers, setFetchUserId, setUser, fetchVehicleTypes, setFetchDriverId, setVehicleTypes } =
-  admin.actions;
+export const { fetchUsers, setUsers, setFetchUserId, setUser, setFetchDriverId } = admin.actions;
 
 export default admin.reducer;

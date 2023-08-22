@@ -15,9 +15,9 @@ import java.util.List;
 
 public interface RideService {
 
+    Ride bookARide(RideBookingRequestDto rideDto);
 
     Ride requestQuickRideBooking(Ride ride);
-
 
     Ride recreateRide(Integer rideId);
 

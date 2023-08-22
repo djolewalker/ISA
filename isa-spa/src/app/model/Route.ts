@@ -1,4 +1,5 @@
 import { OSMLocation } from 'app/service/locations.service';
+import { ISALocation } from './Location';
 
 export type RouteLocations = {
   start: OSMLocation;
@@ -6,4 +7,16 @@ export type RouteLocations = {
   [key: number]: OSMLocation;
 };
 
-export type RoutePriorityType = 'distance' | 'duration';
+export type RoutePriorityType = 'BY_LENGTH' | 'BY_TIME' | 'BY_PRICE';
+
+export const RoutePriorityTypeMeasuresMap = {
+  BY_LENGTH: 'distance',
+  BY_PRICE: 'distance',
+  BY_TIME: 'duration'
+};
+
+export type Route = {
+  id: number;
+  startLocation: ISALocation;
+  finishLocation: ISALocation;
+};

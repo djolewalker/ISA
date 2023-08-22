@@ -21,14 +21,10 @@ function* fetchRoutesFlow() {
   try {
     const coordinates: Coordinates = yield select(selectRouteCoordinates);
     const routes: FeatureCollection = yield call(searchRoutes, coordinates);
-    const routesWithId: FeatureCollection = {
-      ...routes,
-      features: routes.features?.map((f) => ({ ...f, id: nanoid() }))
-    };
-    yield put(setRoutes(routesWithId));
+    yield put(setRoutes(routes));
     yield put(setNavigateTo('/route'));
   } catch (error: any) {
-    if (error?.response?.data?.error?.code === 2004) {
+    if (error?.response?.data?.orsError?.error?.code === 2004) {
       yield put(setRouteError('Distanca izmedju trazenih lokacija je ća od 150km.'));
     }
   } finally {

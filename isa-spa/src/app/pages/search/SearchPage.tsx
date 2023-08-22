@@ -20,13 +20,16 @@ import {
   selectAreRoutesExist,
   selectIsLoadingRoutes,
   selectRouteError,
-  setRouteCoordinates
+  setRouteCoordinates,
+  setRouteError,
+  setRoutes
 } from 'app/pages/routes/routes-page.slice';
 import { buildCoordinates } from 'app/utils/coordinate.utils';
 import { useLoader } from 'app/contexts/loader/loader-context-provider';
 import { useNotifications } from 'app/contexts/notifications/notifications-provider';
 import { useNavigate } from 'react-router-dom';
 import { OSMLocation } from 'app/service/locations.service';
+import { FeatureCollection } from 'geojson';
 
 const mapToOptions = (location: OSMLocation) => ({
   label: location.display_name,
@@ -51,6 +54,10 @@ export const SearchPage = () => {
   const handleActiveFieldChange = (field: SearchFormFields) => dispatch(setActiveField(field));
 
   useEffect(() => {
+    dispatch(setRoutes({} as FeatureCollection));
+  }, [dispatch]);
+
+  useEffect(() => {
     if (isLoading) activateTransparentLoader();
     else {
       deactivateLoader();
@@ -60,8 +67,11 @@ export const SearchPage = () => {
   useEffect(() => {}, [navigate, areRoutesExist]);
 
   useEffect(() => {
-    if (routeError) info({ message: 'Ruta nije nađena!', description: routeError });
-  }, [routeError, info]);
+    if (routeError) {
+      info({ message: 'Ruta nije nađena!', description: routeError });
+      dispatch(setRouteError(''));
+    }
+  }, [dispatch, routeError, info]);
 
   const handleFieldLeft = () => {
     handleSearchLocations('');

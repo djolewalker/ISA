@@ -2,12 +2,18 @@ package com.ftnisa.isa.model.ride;
 
 
 import com.ftnisa.isa.model.user.User;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "isa_panic")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Panic {
 
     @Id
@@ -29,53 +35,10 @@ public class Panic {
     @JoinColumn(name = "ride_id")
     private Ride ride;
 
-    public Panic() {
-    }
-
     public Panic(LocalDateTime panicTime, User user, String panicReason, Ride ride) {
         this.panicTime = panicTime;
         this.user = user;
         this.panicReason = panicReason;
-        this.ride = ride;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public LocalDateTime getPanicTime() {
-        return panicTime;
-    }
-
-    public void setPanicTime(LocalDateTime panicTime) {
-        this.panicTime = panicTime;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public String getPanicReason() {
-        return panicReason;
-    }
-
-    public void setPanicReason(String panicReason) {
-        this.panicReason = panicReason;
-    }
-
-    public Ride getRide() {
-        return ride;
-    }
-
-    public void setRide(Ride ride) {
         this.ride = ride;
     }
 }
