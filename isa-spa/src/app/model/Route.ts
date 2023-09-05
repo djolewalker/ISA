@@ -4,7 +4,7 @@ import { ISALocation } from './Location';
 export type RouteLocations = {
   start: OSMLocation;
   destination: OSMLocation;
-  [key: number]: OSMLocation;
+  [key: string]: OSMLocation | null;
 };
 
 export type RoutePriorityType = 'BY_LENGTH' | 'BY_TIME' | 'BY_PRICE';

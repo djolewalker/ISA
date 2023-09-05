@@ -12,6 +12,7 @@ interface Props {
   size?: ButtonSize;
   className?: string;
   htmlType?: ButtonHTMLType;
+  danger?: boolean;
   onClick?: React.MouseEventHandler;
 }
 
@@ -25,10 +26,12 @@ export const IsaButton = ({
   block,
   size,
   htmlType,
+  danger,
   onClick
 }: Props) => {
   return (
     <Button
+      danger={danger}
       className={className}
       type={type}
       shape={shape}

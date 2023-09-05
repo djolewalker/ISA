@@ -1,10 +1,10 @@
 package com.ftnisa.isa.service;
 
-import com.ftnisa.isa.integrations.ors.responses.routing.geojson.GeoJSONIndividualRouteResponse;
 import com.ftnisa.isa.integrations.ors.responses.routing.geojson.GeoJSONRouteResponse;
 import com.ftnisa.isa.integrations.ors.service.DirectionService;
 import com.ftnisa.isa.model.location.Location;
 import com.ftnisa.isa.model.ride.Ride;
+import com.ftnisa.isa.model.route.IntermediateStop;
 import com.ftnisa.isa.model.route.Route;
 import com.ftnisa.isa.repository.RouteRepository;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -30,18 +29,20 @@ public class RouteServiceImpl implements RouteService {
         this.directionService = directionService;
     }
 
-
     @Override
-    public List<Route> generateAndOrganizeRoutes(Location startLocation, Location finishLocation, List<Location> stops, boolean optimizeOrder) {
+    public List<Route> generateAndOrganizeRoutes(Location startLocation, Location finishLocation, List<Location> stops,
+            boolean optimizeOrder) {
         if (optimizeOrder) {
             List<List<Location>> stopPermutations = generateStopPermutations(stops);
-            List<Location> optimalStopPermutation = stopPermutations.stream().min(Comparator.comparing(s -> calculateTotalDistanceForRouteList(generateRoutes(startLocation, finishLocation, s)))).orElse(new ArrayList());
+            List<Location> optimalStopPermutation = stopPermutations.stream()
+                    .min(Comparator.comparing(
+                            s -> calculateTotalDistanceForRouteList(generateRoutes(startLocation, finishLocation, s))))
+                    .orElse(new ArrayList());
 
             return generateRoutes(startLocation, finishLocation, optimalStopPermutation);
         }
         return generateRoutes(startLocation, finishLocation, stops);
     }
-
 
     @Override
     public ArrayList<Route> generateRoutes(Location startLocation, Location finishLocation, List<Location> stops) {
@@ -71,7 +72,6 @@ public class RouteServiceImpl implements RouteService {
         return routes;
     }
 
-
     @Override
     public List<List<Location>> generateStopPermutations(List<Location> stops) {
         if (stops.isEmpty()) {
@@ -92,7 +92,6 @@ public class RouteServiceImpl implements RouteService {
         return returnValue;
     }
 
-
     // DUMMMY returns 2500 meters
     @Override
     public long fetchRouteLengthMeters(Route route) {
@@ -105,8 +104,8 @@ public class RouteServiceImpl implements RouteService {
         return 15;
     }
 
-
-    // DUMMMY calculates the estimated route duration based on the length, and an average speed of 50km/h
+    // DUMMMY calculates the estimated route duration based on the length, and an
+    // average speed of 50km/h
     @Override
     public Duration estimateRouteDuration(long routeLength) {
         return Duration.of((long) (routeLength / 13.889), ChronoUnit.SECONDS);
@@ -123,7 +122,6 @@ public class RouteServiceImpl implements RouteService {
     public long fetchTimeInMinutesBetweenLocations(Location location1, Location location2) {
         return 8;
     }
-
 
     @Override
     public long calculateTotalDistanceForRouteList(List<Route> routes) {
@@ -145,14 +143,15 @@ public class RouteServiceImpl implements RouteService {
         return ride.getRoutes().get(0).getStartLocation();
     }
 
-
     @Override
     public List<Route> cloneRoutes(List<Route> oldRoutes) {
         List<Route> newRoutes = new ArrayList<>();
         for (Route r : oldRoutes) {
             Route newRoute = new Route();
-            newRoute.setStartLocation(new Location(r.getStartLocation().getLongitude(), r.getStartLocation().getLatitude()));
-            newRoute.setFinishLocation(new Location(r.getFinishLocation().getLongitude(), r.getFinishLocation().getLatitude()));
+            newRoute.setStartLocation(
+                    new Location(r.getStartLocation().getLongitude(), r.getStartLocation().getLatitude()));
+            newRoute.setFinishLocation(
+                    new Location(r.getFinishLocation().getLongitude(), r.getFinishLocation().getLatitude()));
             newRoutes.add(newRoute);
         }
         return newRoutes;
@@ -165,10 +164,26 @@ public class RouteServiceImpl implements RouteService {
         routeResponse.getRoutes().stream().forEach(geoJSONIndividualRouteResponse -> {
             var route = new Route();
             route.setStartLocation(new Location(coordinates[0][0].longValue(), coordinates[0][1].longValue()));
-            route.setFinishLocation(new Location(coordinates[coordinates.length - 1][0].longValue(), coordinates[coordinates.length - 1][1].longValue()));
-            route.setEstimatedDuration(Duration.of(geoJSONIndividualRouteResponse.getProperties().getSummary().getDuration().longValue(), ChronoUnit.MINUTES));
+            route.setFinishLocation(new Location(coordinates[coordinates.length - 1][0].longValue(),
+                    coordinates[coordinates.length - 1][1].longValue()));
+            route.setEstimatedDuration(
+                    Duration.of(geoJSONIndividualRouteResponse.getProperties().getSummary().getDuration().longValue(),
+                            ChronoUnit.MINUTES));
             route.setLength(geoJSONIndividualRouteResponse.getProperties().getSummary().getDistance().longValue());
             route.setGeo(geoJSONIndividualRouteResponse);
+
+            if (coordinates.length > 2) {
+                var stops = new ArrayList<IntermediateStop>(coordinates.length - 2);
+                for (var i = 1; i < coordinates.length - 1; i++) {
+                    var intermediateStop = new IntermediateStop();
+                    intermediateStop.setRoute(route);
+                    intermediateStop
+                            .setLocation(new Location(coordinates[i][0].longValue(), coordinates[i][1].longValue()));
+                    stops.add(intermediateStop);
+                }
+                route.setStops(stops);
+            }
+
             routeRepository.save(route);
 
             geoJSONIndividualRouteResponse.setId(route.getId());

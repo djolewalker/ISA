@@ -1,10 +1,17 @@
+import { useEffect } from 'react';
+import { nanoid } from '@reduxjs/toolkit';
+import { useNavigate } from 'react-router-dom';
 import { Form } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 import Select, { DefaultOptionType } from 'antd/es/select';
+import { FeatureCollection } from 'geojson';
+
 import { HeaderActions } from 'app/components/header-actions/HeaderActions';
 import { IsaButton } from 'app/components/isa-button/IsaButton';
 import { MainHeader } from 'app/components/main-header/MainHeader';
 import {
   SearchFormFields,
+  removeSelectedLocation,
   selectActiveField,
   selectLocationQuery,
   selectSelectedLocations,
@@ -14,10 +21,8 @@ import {
   setSelectedLocations
 } from 'app/pages/search/search-page.slice';
 import { useAppDispatch, useAppSelector } from 'app/hooks/common';
-import { useEffect, useState } from 'react';
 import { RouteLocations } from 'app/model/Route';
 import {
-  selectAreRoutesExist,
   selectIsLoadingRoutes,
   selectRouteError,
   setRouteCoordinates,
@@ -27,13 +32,12 @@ import {
 import { buildCoordinates } from 'app/utils/coordinate.utils';
 import { useLoader } from 'app/contexts/loader/loader-context-provider';
 import { useNotifications } from 'app/contexts/notifications/notifications-provider';
-import { useNavigate } from 'react-router-dom';
 import { OSMLocation } from 'app/service/locations.service';
-import { FeatureCollection } from 'geojson';
+import { Authorized } from 'app/components/authorized/Authorized';
 
-const mapToOptions = (location: OSMLocation) => ({
-  label: location.display_name,
-  value: location.place_id,
+const mapToOptions = (location: OSMLocation | null) => ({
+  label: location?.display_name,
+  value: location?.place_id,
   data: location
 });
 
@@ -45,7 +49,6 @@ export const SearchPage = () => {
 
   const locationsQuery = useAppSelector(selectLocationQuery);
   const isLoading = useAppSelector(selectIsLoadingRoutes);
-  const areRoutesExist = useAppSelector(selectAreRoutesExist);
   const routeError = useAppSelector(selectRouteError);
   const selectedLocations = useAppSelector(selectSelectedLocations);
   const suggestions = useAppSelector(selectSuggestions);
@@ -63,8 +66,6 @@ export const SearchPage = () => {
       deactivateLoader();
     }
   }, [isLoading, activateTransparentLoader, deactivateLoader]);
-
-  useEffect(() => {}, [navigate, areRoutesExist]);
 
   useEffect(() => {
     if (routeError) {
@@ -92,7 +93,10 @@ export const SearchPage = () => {
     dispatch(setSelectedLocations({ [activeField]: b.data } as RouteLocations));
   };
 
-  const submitEnabled = Boolean(selectedLocations.start && selectedLocations.destination);
+  const { start, destination, ...stops } = selectedLocations;
+  const numberOfStops = stops ? Object.keys(stops).length : 0;
+  const allStopsHaveValues = Object.values(stops).every((stop) => stop != null);
+  const submitEnabled = Boolean(start && destination && allStopsHaveValues);
 
   const getSuggestions = (field: SearchFormFields) => {
     if (suggestions[field]?.length) return suggestions[field];
@@ -103,9 +107,18 @@ export const SearchPage = () => {
 
   const getiInitialValues = (): { [key: string]: number } => {
     return Object.entries(selectedLocations).reduce((store, [key, data]) => {
-      store[key] = data.place_id;
+      if (data?.place_id) store[key] = data.place_id;
       return store;
     }, {} as { [key: string | number]: number });
+  };
+
+  const handleAddStopLocation = () => {
+    const nextStop = nanoid();
+    dispatch(setSelectedLocations({ [nextStop]: null } as RouteLocations));
+  };
+
+  const handleRemoveSelectedLocation = (stepToRemove: string) => {
+    dispatch(removeSelectedLocation(stepToRemove));
   };
 
   return (
@@ -134,9 +147,41 @@ export const SearchPage = () => {
               onBlur={handleFieldLeft}
               onSelect={handleLocationSelected}
               notFoundContent={null}
+              onClear={() => handleRemoveSelectedLocation('start')}
               allowClear
             />
           </Form.Item>
+
+          {stops &&
+            Object.entries(stops)?.map(([key]) => (
+              <Form.Item key={key} label="Usputno odredište" name={key}>
+                <div className="d-flex align-items-center">
+                  <Select
+                    style={{ maxWidth: '100%', minWidth: '100%' }}
+                    options={getSuggestions(key)?.map(mapToOptions)}
+                    showSearch
+                    suffixIcon={null}
+                    filterOption={false}
+                    searchValue={activeField === key ? locationsQuery : ''}
+                    onSearch={handleSearchLocations}
+                    onFocus={() => handleActiveFieldChange(key)}
+                    onBlur={handleFieldLeft}
+                    onSelect={handleLocationSelected}
+                    onClear={() => handleRemoveSelectedLocation(key)}
+                    notFoundContent={null}
+                    value={getiInitialValues()[key]}
+                  />
+
+                  <IsaButton
+                    danger
+                    shape="circle"
+                    type="link"
+                    icon={<DeleteOutlined />}
+                    onClick={() => handleRemoveSelectedLocation(key)}
+                  />
+                </div>
+              </Form.Item>
+            ))}
 
           <Form.Item label="Konačna destinacija" name="destination">
             <Select
@@ -149,13 +194,26 @@ export const SearchPage = () => {
               onFocus={() => handleActiveFieldChange('destination')}
               onBlur={handleFieldLeft}
               onSelect={handleLocationSelected}
+              onClear={() => handleRemoveSelectedLocation('destination')}
               notFoundContent={null}
               allowClear
             />
           </Form.Item>
 
           <Form.Item className="d-flex justify-content-center">
-            <IsaButton disabled={!submitEnabled} className="mt-3" type="primary" htmlType="submit" size="large">
+            <Authorized roles={['ROLE_USER']}>
+              <IsaButton
+                disabled={numberOfStops >= 4}
+                className="mt-3 mx-2"
+                type="link"
+                size="large"
+                onClick={handleAddStopLocation}
+              >
+                Dodaj usputno odredište
+              </IsaButton>
+            </Authorized>
+
+            <IsaButton disabled={!submitEnabled} className="mt-3 mx-2" type="primary" htmlType="submit" size="large">
               Pretraži
             </IsaButton>
           </Form.Item>

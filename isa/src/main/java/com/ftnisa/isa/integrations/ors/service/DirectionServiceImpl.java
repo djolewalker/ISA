@@ -27,15 +27,17 @@ public class DirectionServiceImpl implements DirectionService {
                 .defaultHeader(HttpHeaders.AUTHORIZATION, osmOmsOSMConfiguration.getOsmToken())
                 .build();
 
-        var alternativeRouteSettings = new RouteRequestAlternativeRoutes();
-        alternativeRouteSettings.setTargetCount(3);
-        alternativeRouteSettings.setShareFactor(0.5);
-
         var routeRequest = new RouteRequest(coordinates);
         routeRequest.setInstructionsFormat(APIEnums.InstructionsFormat.HTML);
         routeRequest.setUnits(APIEnums.Units.KILOMETRES);
-        routeRequest.setAlternativeRoutes(alternativeRouteSettings);
         routeRequest.setMaximumSearchRadii(new Double[]{(double) -1});
+
+        if (coordinates.length == 2) {
+            var alternativeRouteSettings = new RouteRequestAlternativeRoutes();
+            alternativeRouteSettings.setTargetCount(3);
+            alternativeRouteSettings.setShareFactor(0.5);
+            routeRequest.setAlternativeRoutes(alternativeRouteSettings);
+        }
 
         var spec = client
                 .post()

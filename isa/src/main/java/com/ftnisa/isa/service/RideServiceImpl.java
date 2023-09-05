@@ -26,7 +26,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class RideServiceImpl implements RideService {
@@ -43,23 +42,21 @@ public class RideServiceImpl implements RideService {
 
     private final PanicRepository panicRepository;
 
-    private final RejectionRepository rejectionRepository;
-
     private final RouteRepository routeRepository;
 
     private final VehicleTypeRepository vehicleTypeRepository;
 
-    public RideServiceImpl(RideRepository rideRepository, RouteService routeService, DriverService driverService, UserRepository userRepository, PanicRepository panicRepository, RejectionRepository rejectionRepository, RouteRepository routeRepository, VehicleTypeRepository vehicleTypeRepository) {
+    public RideServiceImpl(RideRepository rideRepository, RouteService routeService, DriverService driverService,
+                           UserRepository userRepository, PanicRepository panicRepository, RouteRepository routeRepository,
+                           VehicleTypeRepository vehicleTypeRepository) {
         this.rideRepository = rideRepository;
         this.routeService = routeService;
         this.driverService = driverService;
         this.userRepository = userRepository;
         this.panicRepository = panicRepository;
-        this.rejectionRepository = rejectionRepository;
         this.routeRepository = routeRepository;
         this.vehicleTypeRepository = vehicleTypeRepository;
     }
-
 
     @Override
     public Ride bookARide(RideBookingRequestDto rideBookingRequestDTO) {
@@ -93,9 +90,10 @@ public class RideServiceImpl implements RideService {
         User passenger = userRepository.findByUsername(user.getUsername());
         ride.setPassenger(passenger);
 
-        //check if passenger has an active ride, if yes, reject
+        // check if passenger has an active ride, if yes, reject
         if (!rideRepository.findByPassengerAndRideStatus(passenger, RideStatus.ACTIVE).isEmpty()) {
-            Rejection rejection = new Rejection("Sorry, new ride cant be booked while having an active ride", LocalDateTime.now());
+            Rejection rejection = new Rejection("Sorry, new ride cant be booked while having an active ride",
+                    LocalDateTime.now());
             ride.setRejection(rejection);
             ride.setRideStatus(RideStatus.REJECTED);
             rideRepository.save(ride);
@@ -113,12 +111,14 @@ public class RideServiceImpl implements RideService {
             return ride;
         }
 
-        // if all drivers are taken and already have a ride booked after the current one, then abort
+        // if all drivers are taken and already have a ride booked after the current
+        // one, then abort
         List<Driver> freeActiveDrivers = driverService.getFreeActiveDrivers(activeDrivers);
         List<Driver> driversWithoutNextBooking = driverService.getDriversWithoutNextBooking(activeDrivers);
 
         if (freeActiveDrivers.isEmpty() && driversWithoutNextBooking.isEmpty()) {
-            Rejection rejection = new Rejection("Sorry, there are no available drivers for this ride. Try again a bit later.", LocalDateTime.now());
+            Rejection rejection = new Rejection(
+                    "Sorry, there are no available drivers for this ride. Try again a bit later.", LocalDateTime.now());
             ride.setRejection(rejection);
             ride.setRideStatus(RideStatus.REJECTED);
             rideRepository.save(ride);
@@ -141,9 +141,17 @@ public class RideServiceImpl implements RideService {
                     ride.getBabyTransportFlag(),
                     ride.getVehicleType(),
                     ride.getNumberOfPassengers(),
-                    rideDurationMinutes
-            );
-            Driver chosenDriver = driverService.selectCurrentlyClosestDriver(appropriateDrivers, routeService.getRidesStartLocation(ride));
+                    rideDurationMinutes);
+            if (appropriateDrivers.isEmpty()) {
+                Rejection rejection = new Rejection("Sorry, we don't have car with required conditions!",
+                        LocalDateTime.now());
+                ride.setRejection(rejection);
+                ride.setRideStatus(RideStatus.REJECTED);
+                rideRepository.save(ride);
+                return ride;
+            }
+            Driver chosenDriver = driverService.selectCurrentlyClosestDriver(appropriateDrivers,
+                    routeService.getRidesStartLocation(ride));
             ride.setDriver(chosenDriver);
         } else {
             List<Driver> appropriateDrivers = filterDriversByRideCriteria(
@@ -152,14 +160,14 @@ public class RideServiceImpl implements RideService {
                     ride.getBabyTransportFlag(),
                     ride.getVehicleType(),
                     ride.getNumberOfPassengers(),
-                    rideDurationMinutes
-            );
-            Driver chosenDriver = driverService.selectClosestDriverAfterCurrentRide(appropriateDrivers, routeService.getRidesStartLocation(ride));
+                    rideDurationMinutes);
+            Driver chosenDriver = driverService.selectClosestDriverAfterCurrentRide(appropriateDrivers,
+                    routeService.getRidesStartLocation(ride));
             ride.setDriver(chosenDriver);
         }
         ride.setStartTime(estimateDriversTimeOfArrival(ride));
 
-        // calculate the price and the  estimated finish time
+        // calculate the price and the estimated finish time
         ride.setTotalPrice(calculateRidePrice(rideLengthMeters, ride.getVehicleType()));
         ride.setFinishTime(ride.getStartTime().plusMinutes((long) rideDurationMinutes));
         ride.setEstimatedDuration(Duration.of((long) rideDurationMinutes, ChronoUnit.MINUTES));
@@ -178,9 +186,10 @@ public class RideServiceImpl implements RideService {
         User passenger = userRepository.findByUsername(user.getUsername());
         ride.setPassenger(passenger);
 
-        //check if passenger has an active ride, if yes, reject
+        // check if passenger has an active ride, if yes, reject
         if (!rideRepository.findByPassengerAndRideStatus(passenger, RideStatus.ACTIVE).isEmpty()) {
-            Rejection rejection = new Rejection("Sorry, new ride cant be booked while having an active ride", LocalDateTime.now());
+            Rejection rejection = new Rejection("Sorry, new ride cant be booked while having an active ride",
+                    LocalDateTime.now());
             ride.setRejection(rejection);
             ride.setRideStatus(RideStatus.REJECTED);
             rideRepository.save(ride);
@@ -189,7 +198,8 @@ public class RideServiceImpl implements RideService {
 
         // if ride start time is more than 5 hours later reject
         if (ride.getStartTime().isAfter(LocalDateTime.now().plusHours(5))) {
-            Rejection rejection = new Rejection("Sorry, the ride cant be scheduled more than 5 hours in advance", LocalDateTime.now());
+            Rejection rejection = new Rejection("Sorry, the ride cant be scheduled more than 5 hours in advance",
+                    LocalDateTime.now());
             ride.setRejection(rejection);
             ride.setRideStatus(RideStatus.REJECTED);
             rideRepository.save(ride);
@@ -222,13 +232,12 @@ public class RideServiceImpl implements RideService {
                 ride.getBabyTransportFlag(),
                 ride.getVehicleType(),
                 ride.getNumberOfPassengers(),
-                rideDurationMinutes
-        );
+                rideDurationMinutes);
 
         List<Driver> schedulableAppropriateDrivers = filterDriversBySchedule(appropriateDrivers, ride);
 
-
-        Driver chosenDriver = driverService.selectCurrentlyClosestDriver(schedulableAppropriateDrivers, routeService.getRidesStartLocation(ride));
+        Driver chosenDriver = driverService.selectCurrentlyClosestDriver(schedulableAppropriateDrivers,
+                routeService.getRidesStartLocation(ride));
         ride.setDriver(chosenDriver);
 
         ride.setTotalPrice(calculateRidePrice(rideLengthMeters, ride.getVehicleType()));
@@ -252,14 +261,16 @@ public class RideServiceImpl implements RideService {
         newRide.setRouteOptimizationCriteria(oldRide.getRouteOptimizationCriteria());
         newRide.setPetTransportFlag(oldRide.getPetTransportFlag());
         newRide.setBabyTransportFlag(oldRide.getBabyTransportFlag());
-        newRide.setVehicleType(new VehicleType(oldRide.getVehicleType().getVehicleTypeName(), oldRide.getVehicleType().getPricePerKm()));
+        newRide.setVehicleType(new VehicleType(oldRide.getVehicleType().getVehicleTypeName(),
+                oldRide.getVehicleType().getPricePerKm()));
         newRide.setRoutes(routeService.cloneRoutes(oldRide.getRoutes()));
 
         return newRide;
 
     }
 
-    // if user confirmed the price and the reservation finalize the ride booking  (else abort)
+    // if user confirmed the price and the reservation finalize the ride booking
+    // (else abort)
     @Override
     public void finalizeRideBooking(boolean isRideAccepted, int rideId) {
         Ride ride = rideRepository.findOneById(rideId);
@@ -267,12 +278,12 @@ public class RideServiceImpl implements RideService {
             ride.setRideStatus(RideStatus.ACCEPTED);
         } else {
             ride.setRideStatus(RideStatus.REJECTED);
-            ride.setRejection(new Rejection("Passenger did not accept the ride", ride.getPassenger(), LocalDateTime.now()));
+            ride.setRejection(
+                    new Rejection("Passenger did not accept the ride", ride.getPassenger(), LocalDateTime.now()));
         }
-        //save
+        // save
         rideRepository.save(ride);
     }
-
 
     @Override
     @Transactional
@@ -283,7 +294,6 @@ public class RideServiceImpl implements RideService {
         rideRepository.save(ride);
     }
 
-
     @Override
     @Transactional
     public void finishRideByDriver(Integer rideId) {
@@ -292,7 +302,6 @@ public class RideServiceImpl implements RideService {
         ride.getDriver().setOccupied(false);
         rideRepository.save(ride);
     }
-
 
     @Override
     public Panic panic(Integer userId, Integer rideId, String panicReason) {
@@ -308,7 +317,6 @@ public class RideServiceImpl implements RideService {
         return panic;
     }
 
-
     @Override
     public void rejectRideByDriver(Integer rideId, String rejectionReason) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -319,9 +327,9 @@ public class RideServiceImpl implements RideService {
         rideRepository.save(ride);
     }
 
-
     @Override
-    public List<Driver> filterDriversByRideCriteria(List<Driver> drivers, Boolean isPetTransported, Boolean isBabyTransported, VehicleType vehicleType, int numberOfPassengers, float newRideDurationMinutes) {
+    public List<Driver> filterDriversByRideCriteria(List<Driver> drivers, Boolean isPetTransported,
+                                                    Boolean isBabyTransported, VehicleType vehicleType, int numberOfPassengers, float newRideDurationMinutes) {
 
         if (isPetTransported) {
             drivers = drivers.stream().filter(d -> d.getVehicle().isPetFriendly()).toList();
@@ -330,7 +338,8 @@ public class RideServiceImpl implements RideService {
             drivers = drivers.stream().filter(d -> d.getVehicle().isBabyFriendly()).toList();
         }
 
-        drivers = drivers.stream().filter(d -> d.getVehicle().getVehicleType().getVehicleTypeName() == vehicleType.getVehicleTypeName())
+        drivers = drivers.stream()
+                .filter(d -> d.getVehicle().getVehicleType().getVehicleTypeName() == vehicleType.getVehicleTypeName())
                 .filter(d -> d.getVehicle().getNumberOfSeats() >= numberOfPassengers)
                 .filter(d -> driverService.checkDailyWorkHourLimit(d, newRideDurationMinutes)).toList();
 
@@ -343,28 +352,30 @@ public class RideServiceImpl implements RideService {
         return price;
     }
 
-
     @Override
     public LocalDateTime estimateDriversTimeOfArrival(Ride ride) {
         Driver driver = ride.getDriver();
 
         if (!driver.isOccupied()) {
-            return LocalDateTime.now().plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(driver.getVehicle().getCurrentLocation(), routeService.getRidesStartLocation(ride)));
+            return LocalDateTime.now().plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(
+                    driver.getVehicle().getCurrentLocation(), routeService.getRidesStartLocation(ride)));
         } else {
             Ride driversCurrentRide = driverService.getDriversCurrentRide(driver);
-            return driversCurrentRide.getFinishTime().plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(routeService.getRidesFinishLocation(driversCurrentRide), routeService.getRidesStartLocation(ride)));
+            return driversCurrentRide.getFinishTime().plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(
+                    routeService.getRidesFinishLocation(driversCurrentRide), routeService.getRidesStartLocation(ride)));
         }
     }
-
 
     @Override
     public boolean checkIfRidesOverlap(Ride ride1, Ride ride2) {
         if (ride1.getFinishTime()
-                .plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(routeService.getRidesFinishLocation(ride1), routeService.getRidesStartLocation(ride2)))
+                .plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(routeService.getRidesFinishLocation(ride1),
+                        routeService.getRidesStartLocation(ride2)))
                 .isBefore(ride2.getStartTime())
                 ||
                 (ride2.getFinishTime()
-                        .plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(routeService.getRidesFinishLocation(ride2), routeService.getRidesStartLocation(ride1)))
+                        .plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(
+                                routeService.getRidesFinishLocation(ride2), routeService.getRidesStartLocation(ride1)))
                         .isBefore(ride1.getStartTime()))) {
             return false;
         } else {
@@ -382,7 +393,6 @@ public class RideServiceImpl implements RideService {
         return schedulableDrivers;
     }
 
-
     @Override
     public boolean checkIfRideIsSchedulableForDriver(Ride ride, Driver driver) {
         List<Ride> rides = new ArrayList<>();
@@ -397,7 +407,6 @@ public class RideServiceImpl implements RideService {
         }
         return true;
     }
-
 
     @Override
     public List<Ride> getUsersWholeRideHistory(Integer userId) {
@@ -420,6 +429,5 @@ public class RideServiceImpl implements RideService {
             ride.setFavourite(true);
         }
     }
-
 
 }
