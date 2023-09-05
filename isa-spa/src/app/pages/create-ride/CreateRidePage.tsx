@@ -14,6 +14,7 @@ import { bookRide } from 'app/service/ride.service';
 import { useLoader } from 'app/contexts/loader/loader-context-provider';
 import { useNotifications } from 'app/contexts/notifications/notifications-provider';
 import { AxiosError } from 'axios';
+import { resetSearch } from 'app/pages/search/search-page.slice';
 
 type BookRideForm = Omit<BookRide, 'routeId' | 'routeOptimizationCriteria'>;
 
@@ -56,11 +57,13 @@ export const CreateRidePage = () => {
           notifications.success({
             message: 'Vožnja je zakazana!'
           });
+          dispatch(resetSearch());
         } else {
           notifications.success({
             message: 'Vožnja pokrenuta!',
             description: 'Vozilo je krenulo ka dogovorenoj lokaciji!'
           });
+          dispatch(resetSearch());
           navigate(`/ride/${ride.id}`);
         }
       })

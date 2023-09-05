@@ -9,8 +9,10 @@ export const buildCoordinates = (routeLocations: RouteLocations) => {
   routeCoordinates[numberOfCoordinates - 1] = [parseFloat(destination.lon), parseFloat(destination.lat)];
 
   if (stops) {
-    Object.entries(stops).forEach(([order, { lon, lat }]) => {
-      routeCoordinates[parseFloat(order)] = [parseFloat(lon), parseFloat(lat)];
+    Object.entries(stops).forEach(([_, location], index) => {
+      if (location) {
+        routeCoordinates[index + 1] = [parseFloat(location.lon), parseFloat(location.lat)];
+      }
     });
   }
 

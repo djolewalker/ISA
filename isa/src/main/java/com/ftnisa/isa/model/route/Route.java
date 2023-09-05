@@ -16,6 +16,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Table(name = "isa_route")
@@ -38,6 +39,9 @@ public class Route {
     @JoinColumn(name = "finish_location")
     @NotNull
     private Location finishLocation;
+
+    @OneToMany(mappedBy = "route", cascade = CascadeType.ALL)
+    private List<IntermediateStop> stops;
 
     @Column(name = "length")
     private float length;
