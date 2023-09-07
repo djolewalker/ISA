@@ -21,24 +21,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ftnisa.isa.integrations.ors.responses.routing.RouteWarning;
 import com.ftnisa.isa.integrations.ors.responses.routing.json.JSONExtra;
 import com.ftnisa.isa.integrations.ors.responses.routing.json.JSONLeg;
+import com.ftnisa.isa.integrations.ors.responses.routing.json.JSONSegment;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import com.ftnisa.isa.integrations.ors.responses.routing.json.JSONSummary;
 
-import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@JsonIgnoreProperties({"distance", "duration"})
-public class GeoJSONSummary extends JSONSummary implements Serializable {
-//    @JsonProperty("segments")
-//    private List<JSONSegment> segments;
+@JsonIgnoreProperties({ "distance", "duration" })
+public class GeoJSONSummary extends JSONSummary {
+    private List<JSONSegment> segments;
 
-//    @JsonProperty("way_points")
-//    private List<Integer> wayPoints;
+    // @JsonProperty("way_points")
+    // private List<Integer> wayPoints;
 
     @JsonProperty("extras")
     private Map<String, JSONExtra> extras;
@@ -52,39 +51,36 @@ public class GeoJSONSummary extends JSONSummary implements Serializable {
     @JsonProperty("summary")
     public JSONSummary summary;
 
-    @Schema(description = "Departure date and time",
-            extensions = {@Extension(name = "validWhen", properties = {
-                    @ExtensionProperty(name = "ref", value = "departure"),
-                    @ExtensionProperty(name = "value", value = "true", parseValue = true)}
-            )}, example = "2020-01-31T12:45:00+01:00")
+    @Schema(description = "Departure date and time", extensions = { @Extension(name = "validWhen", properties = {
+            @ExtensionProperty(name = "ref", value = "departure"),
+            @ExtensionProperty(name = "value", value = "true", parseValue = true) }) }, example = "2020-01-31T12:45:00+01:00")
     @JsonProperty(value = "departure")
     protected ZonedDateTime departure;
 
-    @Schema(description = "Arrival date and time",
-            extensions = {@Extension(name = "validWhen", properties = {
-                    @ExtensionProperty(name = "ref", value = "arrival"),
-                    @ExtensionProperty(name = "value", value = "true", parseValue = true)}
-            )}, example = "2020-01-31T13:15:00+01:00")
+    @Schema(description = "Arrival date and time", extensions = { @Extension(name = "validWhen", properties = {
+            @ExtensionProperty(name = "ref", value = "arrival"),
+            @ExtensionProperty(name = "value", value = "true", parseValue = true) }) }, example = "2020-01-31T13:15:00+01:00")
     @JsonProperty(value = "arrival")
     protected ZonedDateTime arrival;
 
-    public GeoJSONSummary() {}
+    public GeoJSONSummary() {
+    }
 
-//    public List<JSONSegment> getSegments() {
-//        return segments;
-//    }
-//
-//    public void setSegments(List<JSONSegment> segments) {
-//        this.segments = segments;
-//    }
+    public List<JSONSegment> getSegments() {
+        return segments;
+    }
 
-//    public List<Integer> getWayPoints() {
-//        return wayPoints;
-//    }
-//
-//    public void setWayPoints(List<Integer> wayPoints) {
-//        this.wayPoints = wayPoints;
-//    }
+    public void setSegments(List<JSONSegment> segments) {
+        this.segments = segments;
+    }
+
+    // public List<Integer> getWayPoints() {
+    // return wayPoints;
+    // }
+    //
+    // public void setWayPoints(List<Integer> wayPoints) {
+    // this.wayPoints = wayPoints;
+    // }
 
     public Map<String, JSONExtra> getExtras() {
         return extras;

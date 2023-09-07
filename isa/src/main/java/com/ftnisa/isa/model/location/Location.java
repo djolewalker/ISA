@@ -1,15 +1,14 @@
 package com.ftnisa.isa.model.location;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
-
 @Entity
 @Table(name = "isa_location")
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Location {
@@ -19,14 +18,24 @@ public class Location {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "locationGen")
     private Integer id;
 
+    @Column(name = "name", nullable = true)
+    private String name;
+
     @Column(name = "longitude", nullable = false)
     private float longitude;
 
     @Column(name = "latitude", nullable = false)
     private float latitude;
 
-    public Location(float longitude, float latitude) {
+    public Location(float longitude, float latitude, String name) {
         this.longitude = longitude;
         this.latitude = latitude;
+        this.name = name;
+    }
+
+    public Location(Location location) {
+        this.longitude = location.getLongitude();
+        this.latitude = location.getLatitude();
+        this.name = location.getName();
     }
 }
