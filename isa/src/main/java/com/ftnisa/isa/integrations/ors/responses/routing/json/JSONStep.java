@@ -15,7 +15,6 @@
 
 package com.ftnisa.isa.integrations.ors.responses.routing.json;
 
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -23,11 +22,11 @@ import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import java.util.Arrays;
+import java.io.Serializable;
 
 @Schema(name = "JSONStep", description = "Step of a route segment")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class JSONStep {
+public class JSONStep implements Serializable {
     @Schema(description = "The distance for the step in metres.", example = "245")
     @JsonProperty("distance")
     private Double distance;
@@ -47,24 +46,23 @@ public class JSONStep {
     @Schema(description = "Only for roundabouts. Contains the number of the exit to take.", example = "2")
     @JsonProperty("exit_number")
     private Integer exitNumber;
-    @Schema(description = "Contains the bearing of the entrance and all passed exits in a roundabout.",
-            extensions = {@Extension(name = "validWhen", properties = {
+    @Schema(description = "Contains the bearing of the entrance and all passed exits in a roundabout.", extensions = {
+            @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "roundabout_exits"),
-                    @ExtensionProperty(name = "value", value = "true", parseValue = true)}
-            )}, example = "[10,45,60]")
+                    @ExtensionProperty(name = "value", value = "true", parseValue = true) }) }, example = "[10,45,60]")
     @JsonProperty("exit_bearings")
     private int[] exitBearings;
     @Schema(description = "List containing the indices of the steps start- and endpoint corresponding to the *geometry*.", example = "[45,48]")
     @JsonProperty("way_points")
     private int[] waypoints;
-    @Schema(description = "The maneuver to be performed.",
-            extensions = {@Extension(name = "validWhen", properties = {
-                    @ExtensionProperty(name = "ref", value = "maneuvers"),
-                    @ExtensionProperty(name = "value", value = "true", parseValue = true)}
-            )})
-
-    @JsonProperty("maneuver")
-    private JSONStepManeuver maneuver;
+    // @Schema(description = "The maneuver to be performed.",
+    // extensions = {@Extension(name = "validWhen", properties = {
+    // @ExtensionProperty(name = "ref", value = "maneuvers"),
+    // @ExtensionProperty(name = "value", value = "true", parseValue = true)}
+    // )})
+    //
+    // @JsonProperty("maneuver")
+    // private JSONStepManeuver maneuver;
 
     public JSONStep() {
     }
@@ -133,11 +131,11 @@ public class JSONStep {
         this.waypoints = waypoints;
     }
 
-    public JSONStepManeuver getManeuver() {
-        return maneuver;
-    }
-
-    public void setManeuver(JSONStepManeuver maneuver) {
-        this.maneuver = maneuver;
-    }
+    // public JSONStepManeuver getManeuver() {
+    // return maneuver;
+    // }
+    //
+    // public void setManeuver(JSONStepManeuver maneuver) {
+    // this.maneuver = maneuver;
+    // }
 }

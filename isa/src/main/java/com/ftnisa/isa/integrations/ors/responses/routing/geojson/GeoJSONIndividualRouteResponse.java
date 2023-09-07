@@ -15,22 +15,23 @@
 
 package com.ftnisa.isa.integrations.ors.responses.routing.geojson;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import com.ftnisa.isa.integrations.ors.responses.routing.json.JSONBasedIndividualRouteResponse;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.json.simple.JSONObject;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
+@JsonIgnoreProperties({ "startLocationName", "destinationLocationName", "stopLocationName", "clearSegments" })
 public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResponse implements Serializable {
     @JsonProperty("type")
     public final String type = "Feature";
@@ -72,5 +73,42 @@ public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResp
 
     public void setGetBBox(double[] getBBox) {
         this.getBBox = getBBox;
+    }
+
+    public String startLocationName() {
+        var segments = this.properties.getSegments();
+        var steps = segments.get(0).getSteps();
+        return steps
+                .stream()
+                .filter(jsonStep -> !jsonStep.getName().equals("-"))
+                .findFirst()
+                .get()
+                .getName();
+    }
+
+    public String destinationLocationName() {
+        var segments = this.properties.getSegments();
+        var steps = segments.get(segments.size() - 1).getSteps();
+        return steps
+                .stream()
+                .filter(jsonStep -> !jsonStep.getName().equals("-"))
+                .reduce((first, second) -> second)
+                .get()
+                .getName();
+    }
+
+    public String stopLocationName(int order) {
+        var segments = this.properties.getSegments();
+        var steps = segments.get(order - 1).getSteps();
+        return steps
+                .stream()
+                .filter(jsonStep -> !jsonStep.getName().equals("-"))
+                .reduce((first, second) -> second)
+                .get()
+                .getName();
+    }
+
+    public void clearSegments() {
+        this.getProperties().setSegments(new ArrayList<>());
     }
 }

@@ -20,11 +20,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.io.Serializable;
 import java.util.List;
 
 @Schema(description = "List containing the segments and its correspoding steps which make up the route.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class JSONSegment {
+public class JSONSegment implements Serializable {
     @Schema(description = "Contains the distance of the segment in specified units.", example = "253")
     @JsonProperty("distance")
     @JsonInclude()

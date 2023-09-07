@@ -13,8 +13,7 @@ import com.ftnisa.isa.model.user.User;
 import com.ftnisa.isa.model.vehicle.VehicleType;
 
 import com.ftnisa.isa.repository.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,11 +26,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@AllArgsConstructor
 @Service
 public class RideServiceImpl implements RideService {
-
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private final RideRepository rideRepository;
 
     private final DriverService driverService;
@@ -45,18 +42,6 @@ public class RideServiceImpl implements RideService {
     private final RouteRepository routeRepository;
 
     private final VehicleTypeRepository vehicleTypeRepository;
-
-    public RideServiceImpl(RideRepository rideRepository, RouteService routeService, DriverService driverService,
-                           UserRepository userRepository, PanicRepository panicRepository, RouteRepository routeRepository,
-                           VehicleTypeRepository vehicleTypeRepository) {
-        this.rideRepository = rideRepository;
-        this.routeService = routeService;
-        this.driverService = driverService;
-        this.userRepository = userRepository;
-        this.panicRepository = panicRepository;
-        this.routeRepository = routeRepository;
-        this.vehicleTypeRepository = vehicleTypeRepository;
-    }
 
     @Override
     public Ride bookARide(RideBookingRequestDto rideBookingRequestDTO) {
@@ -329,7 +314,7 @@ public class RideServiceImpl implements RideService {
 
     @Override
     public List<Driver> filterDriversByRideCriteria(List<Driver> drivers, Boolean isPetTransported,
-                                                    Boolean isBabyTransported, VehicleType vehicleType, int numberOfPassengers, float newRideDurationMinutes) {
+            Boolean isBabyTransported, VehicleType vehicleType, int numberOfPassengers, float newRideDurationMinutes) {
 
         if (isPetTransported) {
             drivers = drivers.stream().filter(d -> d.getVehicle().isPetFriendly()).toList();
