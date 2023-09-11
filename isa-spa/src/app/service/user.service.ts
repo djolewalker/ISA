@@ -1,6 +1,7 @@
 import { Driver, User, Vehicle } from 'app/model/User';
 import { getRequest, postRequest, putRequest } from 'app/service/base.service';
 import { RegisterUser } from 'app/service/auth.service';
+import { DriverLocation } from 'app/model/Location';
 
 const CONTROLLER = 'user';
 
@@ -38,3 +39,8 @@ type CreateDriver = RegisterUser & {
 };
 export const createDriver = async (data: CreateDriver) =>
   postRequest(`${CONTROLLER}/driver`, data).then((response) => response.data as Driver);
+
+export const getActiveDriversLocations = async () =>
+  getRequest(`${CONTROLLER}/driver/location`)
+    .then((response) => response.data as DriverLocation[])
+    .catch(() => []);

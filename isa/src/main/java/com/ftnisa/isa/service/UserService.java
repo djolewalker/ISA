@@ -28,7 +28,4 @@ public interface UserService {
     User updateUser(int id, UserRequest userRequest);
 
     Driver registerDriver(CreateDriverRequest driverRequest);
-
-    Driver findDriverById(int id);
-
 }

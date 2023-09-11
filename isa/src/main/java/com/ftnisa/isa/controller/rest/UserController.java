@@ -1,10 +1,12 @@
-package com.ftnisa.isa.controller;
+package com.ftnisa.isa.controller.rest;
 
 import java.security.Principal;
 import java.util.List;
 
 import com.ftnisa.isa.dto.user.*;
 import com.ftnisa.isa.mapper.UserMapper;
+import com.ftnisa.isa.service.DriverService;
+import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,14 +20,11 @@ import com.ftnisa.isa.service.UserService;
 @RestController
 @RequestMapping(value = "/api/user", produces = MediaType.APPLICATION_JSON_VALUE)
 @SecurityRequirement(name = "isasec")
+@AllArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final DriverService driverService;
     private final UserMapper mapper;
-
-    public UserController(UserService userService, UserMapper mapper) {
-        this.userService = userService;
-        this.mapper = mapper;
-    }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -73,7 +72,13 @@ public class UserController {
     @GetMapping("/driver/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DriverResponse> getDriverById(@PathVariable Integer id) {
-        var foundDriver = this.userService.findDriverById(id);
+        var foundDriver = this.driverService.findDriverById(id);
         return ResponseEntity.ok(mapper.driverToDriverResponse(foundDriver));
+    }
+
+    @GetMapping("/driver/location")
+    public ResponseEntity<List<DriverLocationDto>> getDriversLocation() {
+        var drivers = this.driverService.getActiveDrivers();
+        return ResponseEntity.ok(mapper.driversToDriversLocationDto(drivers));
     }
 }

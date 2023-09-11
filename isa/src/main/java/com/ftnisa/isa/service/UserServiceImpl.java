@@ -7,6 +7,7 @@ import com.ftnisa.isa.dto.user.UserRequest;
 import com.ftnisa.isa.event.resetPasswordRequested.OnResetPasswordRequestedEvent;
 import com.ftnisa.isa.event.verificationRequested.OnVerificationRequestedEvent;
 import com.ftnisa.isa.exception.ResourceConflictException;
+import com.ftnisa.isa.model.location.Location;
 import com.ftnisa.isa.model.token.TokenType;
 import com.ftnisa.isa.model.user.Driver;
 import com.ftnisa.isa.model.user.Role;
@@ -28,7 +29,6 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
-
     private final UserRepository userRepository;
     private final TokenService tokenService;
     private final ApplicationEventPublisher eventPublisher;
@@ -147,11 +147,6 @@ public class UserServiceImpl implements UserService {
         updateUserFields(user, userRequest);
         userRepository.save(user);
         return user;
-    }
-
-    @Override
-    public Driver findDriverById(int id) {
-        return driverRepository.findById(id).orElseThrow();
     }
 
     @Override

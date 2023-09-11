@@ -9,7 +9,6 @@ import {
 import { Coordinates } from 'app/model/Location';
 import { searchRoutes } from 'app/service/route.service';
 import { FeatureCollection } from 'geojson';
-import { nanoid } from '@reduxjs/toolkit';
 import { setNavigateTo } from 'app/pages/common.slice';
 
 export function* fetchRoutesWatcher() {

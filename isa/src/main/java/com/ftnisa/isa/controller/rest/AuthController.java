@@ -1,12 +1,16 @@
-package com.ftnisa.isa.controller;
+package com.ftnisa.isa.controller.rest;
 
 import com.ftnisa.isa.dto.auth.*;
 import com.ftnisa.isa.dto.user.UserResponse;
 import com.ftnisa.isa.mapper.UserMapper;
 import com.ftnisa.isa.model.user.Role;
+import com.ftnisa.isa.service.DriverService;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,21 +20,18 @@ import com.ftnisa.isa.model.user.User;
 import com.ftnisa.isa.service.UserService;
 import com.ftnisa.isa.util.TokenUtils;
 
+import java.security.Principal;
+
 @RestController
 @RequestMapping(value = "/api/auth", produces = MediaType.APPLICATION_JSON_VALUE)
+@AllArgsConstructor
 public class AuthController {
     private final TokenUtils tokenUtils;
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final UserMapper mapper;
-
-    public AuthController(TokenUtils tokenUtils, AuthenticationManager authenticationManager, UserService userService,
-            UserMapper mapper) {
-        this.tokenUtils = tokenUtils;
-        this.authenticationManager = authenticationManager;
-        this.userService = userService;
-        this.mapper = mapper;
-    }
+    private final DriverService driverService;
+    private SimpMessagingTemplate template;
 
     @PostMapping("/signin")
     public ResponseEntity<JwtResponse> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest) {
@@ -41,11 +42,33 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         var user = (User) authentication.getPrincipal();
-        var roles = user.getRoles().stream().map(role -> role.getName()).toList();
+        var roles = user.getRoles().stream().map(Role::getName).toList();
         var jwt = tokenUtils.generateAccessToken(user.getUsername(), roles);
         var expTime = tokenUtils.getExpiredIn();
 
-        return ResponseEntity.ok(new JwtResponse(jwt, expTime));
+        if (user.hasRole(Role.DRIVER)) {
+            driverService.activateDriver(user.getUsername());
+        }
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.add(HttpHeaders.SET_COOKIE, tokenUtils.createAccessTokenCookie(jwt, expTime).toString());
+
+        return ResponseEntity.ok().headers(responseHeaders).body(new JwtResponse(jwt, expTime));
+    }
+
+    @GetMapping("/signout")
+    public ResponseEntity signOut(Principal principal) {
+        var user = this.userService.findByUsername(principal.getName());
+
+        if (user.hasRole(Role.DRIVER)) {
+            driverService.deactivateDriver(user.getUsername());
+            template.convertAndSend("/topic/driver/deactivated", user.getId());
+        }
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.add(HttpHeaders.SET_COOKIE, tokenUtils.deleteAccessTokenCookie().toString());
+
+        return ResponseEntity.ok().headers(responseHeaders).build();
     }
 
     @PostMapping("/signup/user")
@@ -68,7 +91,7 @@ public class AuthController {
 
     @PostMapping("/reset-password")
     public ResponseEntity<Void> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest,
-            @RequestParam String resetPasswordToken) {
+                                              @RequestParam String resetPasswordToken) {
         userService.resetPassword(resetPasswordRequest.getPassword(), resetPasswordToken);
         return ResponseEntity.ok().build();
     }

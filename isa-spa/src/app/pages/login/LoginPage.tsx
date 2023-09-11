@@ -1,12 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Form, Input, notification } from 'antd';
+import { Form, Input } from 'antd';
 
 import { IsaButton } from 'app/components/isa-button/IsaButton';
 import { MainHeader } from 'app/components/main-header/MainHeader';
 import { signIn } from 'app/service/auth.service';
 import { AxiosError } from 'axios';
-import { LOCAL_STORAGE_EVENTS, setLocalStorage } from 'app/utils/local-storage.utils';
-import { ACCESS_TOKEN_CACHE } from 'app/contexts/auth/auth-context-provider';
+import { useAuthContext } from 'app/contexts/auth/auth-context-provider';
 import { useNotifications } from 'app/contexts/notifications/notifications-provider';
 import { useLoader } from 'app/contexts/loader/loader-context-provider';
 
@@ -19,20 +18,14 @@ export const LoginPage = () => {
   const notifications = useNotifications();
   const navigate = useNavigate();
   const { activateTransparentLoader, deactivateLoader } = useLoader();
+  const { fetchUser } = useAuthContext();
 
   const handleRegisterClicked = () => navigate('/register');
 
   const handleOnFinish = async (value: LoginFormFields) => {
     activateTransparentLoader();
     signIn(value.username, value.password)
-      .then((accessTokenEntity) => {
-        setLocalStorage({
-          key: ACCESS_TOKEN_CACHE,
-          value: accessTokenEntity.accessToken,
-          silent: false,
-          eventName: LOCAL_STORAGE_EVENTS.ACCESS_TOKEN_CHANGE_EVENT_NAME
-        });
-      })
+      .then(fetchUser)
       .catch((error: AxiosError) => {
         if (error?.response?.status === 401) {
           notifications.error({ message: 'Invalid credentials' });

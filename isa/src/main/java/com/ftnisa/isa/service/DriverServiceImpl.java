@@ -1,12 +1,17 @@
 package com.ftnisa.isa.service;
 
+import com.ftnisa.isa.dto.user.CreateDriverRequest;
+import com.ftnisa.isa.exception.ResourceConflictException;
 import com.ftnisa.isa.model.location.Location;
 import com.ftnisa.isa.model.ride.Ride;
 import com.ftnisa.isa.model.ride.RideStatus;
 import com.ftnisa.isa.model.user.Driver;
+import com.ftnisa.isa.model.user.Role;
+import com.ftnisa.isa.model.vehicle.Vehicle;
 import com.ftnisa.isa.repository.DriverRepository;
 import com.ftnisa.isa.repository.RideRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -116,10 +121,32 @@ public class DriverServiceImpl implements DriverService{
         return rideRepository.findOneByDriverAndRideStatus(driver, RideStatus.ACTIVE);
     }
 
+    @Override
+    public Driver findDriverById(int id) {
+        return driverRepository.findById(id).orElseThrow();
+    }
 
+    @Override
+    public void activateDriver(String username) {
+        var driver = driverRepository.findByUsername(username);
+        driver.setActive(true);
+        driverRepository.save(driver);
+    }
 
+    @Override
+    public void deactivateDriver(String username) {
+        var driver = driverRepository.findByUsername(username);
+        driver.setOccupied(false);
+        driver.setActive(false);
+        driverRepository.save(driver);
+    }
 
-
-
-
+    @Override
+    public Driver updateDriverLocation(int id, float lon, float lat) {
+        var driver = driverRepository.findById(id).orElseThrow();
+        var vehicle = driver.getVehicle();
+        vehicle.setCurrentLocation(new Location(lon, lat, null));
+        driverRepository.save(driver);
+        return driver;
+    }
 }

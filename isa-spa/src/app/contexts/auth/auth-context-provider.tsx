@@ -1,10 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { User, UserRole } from 'app/model/User';
-import { LOCAL_STORAGE_EVENTS, removeLocalStorage, useListenLocalStorage } from 'app/utils/local-storage.utils';
 import { getUserInfo } from 'app/service/user.service';
-import { setAccessToken } from 'app/service/base.service';
 import { useLoader } from 'app/contexts/loader/loader-context-provider';
+import { signOut } from 'app/service/auth.service';
+import { useWs } from 'app/contexts/ws/ws-provider';
 
 export const ACCESS_TOKEN_CACHE = 'access_token';
 
@@ -14,6 +14,7 @@ type AuthContextType = {
   hasAnyRole: (roles: UserRole[]) => boolean;
   logOut: () => void;
   setUser: (user: User) => void;
+  fetchUser: () => void;
 };
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -22,35 +23,32 @@ type AuthContextProviderProps = {
   children: React.ReactNode;
 };
 const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
+  const { reconnect } = useWs();
   const { activateLoader, deactivateLoader } = useLoader();
-
-  const [accessToken, setToken] = useState(localStorage.getItem(ACCESS_TOKEN_CACHE));
   const [user, setUser] = useState<User | null>(null);
 
-  const updateToken = useCallback(() => {
-    setToken(localStorage.getItem(ACCESS_TOKEN_CACHE));
-  }, [setToken]);
-
-  useListenLocalStorage(LOCAL_STORAGE_EVENTS.ACCESS_TOKEN_CHANGE_EVENT_NAME, updateToken);
+  const fetchUser = useCallback(() => {
+    activateLoader();
+    getUserInfo()
+      .then(setUser)
+      .catch(() => {
+        setUser(null);
+      })
+      .finally(deactivateLoader);
+  }, [activateLoader, deactivateLoader]);
 
   useEffect(() => {
-    setAccessToken(accessToken);
-  }, [accessToken]);
+    reconnect();
+    // eslint-disable-next-line
+  }, [user]);
 
   useEffect(() => {
-    if (accessToken) {
-      activateLoader();
-      getUserInfo()
-        .then(setUser)
-        .catch(() => {
-          setToken(null);
-          setUser(null);
-        })
-        .finally(deactivateLoader);
+    if (!user) {
+      fetchUser();
     } else {
       deactivateLoader();
     }
-  }, [accessToken, setUser, activateLoader, deactivateLoader]);
+  }, [deactivateLoader, fetchUser, user]);
 
   const contextValue = useMemo<AuthContextType>(
     () => ({
@@ -58,14 +56,15 @@ const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
       isAuthorized: Boolean(user),
       hasAnyRole: (roles: UserRole[]) => roles.some((role) => user?.roles.includes(role)),
       logOut: () => {
-        setToken(null);
-        setUser(null);
-        removeLocalStorage({ key: ACCESS_TOKEN_CACHE });
-        deactivateLoader();
+        signOut().then(() => {
+          deactivateLoader();
+          setUser(null);
+        });
       },
-      setUser
+      setUser,
+      fetchUser
     }),
-    [user, deactivateLoader]
+    [user, fetchUser, deactivateLoader]
   );
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;

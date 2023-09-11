@@ -7,6 +7,8 @@ const CONTROLLER = 'auth';
 export const signIn = async (username: string, password: string) =>
   postRequest(`${CONTROLLER}/signin`, { username, password }).then((response) => response.data as AccessToken);
 
+export const signOut = () => getRequest(`${CONTROLLER}/signout`);
+
 export type RegisterUser = Omit<User, 'id' | 'roles'> & { password: string };
 export const register = async (user: RegisterUser) =>
   postRequest(`${CONTROLLER}/signup/user`, user).then((response) => response.data as User);
