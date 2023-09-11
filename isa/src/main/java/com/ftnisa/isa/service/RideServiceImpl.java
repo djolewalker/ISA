@@ -43,23 +43,19 @@ public class RideServiceImpl implements RideService {
 
     private final RouteRepository routeRepository;
 
+    private final NotificationService notificationService;
 
 
-
-
-
-    @Autowired
-    public RideServiceImpl(RideRepository rideRepository, RouteService routeService, DriverService driverService, UserRepository userRepository, PanicRepository panicRepository, RejectionRepository rejectionRepository, RouteRepository routeRepository) {
-        super();
+    public RideServiceImpl(RideRepository rideRepository, DriverService driverService, RouteService routeService, UserRepository userRepository, PanicRepository panicRepository, RejectionRepository rejectionRepository, RouteRepository routeRepository, NotificationService notificationService) {
         this.rideRepository = rideRepository;
-        this.routeService = routeService;
         this.driverService = driverService;
+        this.routeService = routeService;
         this.userRepository = userRepository;
         this.panicRepository = panicRepository;
         this.rejectionRepository = rejectionRepository;
         this.routeRepository = routeRepository;
+        this.notificationService = notificationService;
     }
-
 
     @Override
     public Ride requestQuickRideBooking(Ride ride) {
@@ -219,6 +215,7 @@ public class RideServiceImpl implements RideService {
         // save and return
         rideRepository.save(ride);
         routeService.saveRoutesForRide(ride);
+        notificationService.createScheduledDriveReminders(passenger, ride.getStartTime());
         return ride;
 
     }
@@ -250,6 +247,8 @@ public class RideServiceImpl implements RideService {
         Ride ride = rideRepository.findOneById(rideId);
         if (isRideAccepted){
             ride.setRideStatus(RideStatus.ACCEPTED);
+            notificationService.createInstantNotification(ride.getPassenger(), "Vaša vožnja je upravo zakazana. Status vožnje možete pratiti na Vašem dešbordu.");
+            notificationService.createInstantNotification(ride.getDriver(), "Zakazana Vam je nova vožnja");
         } else {
             ride.setRideStatus(RideStatus.REJECTED);
             ride.setRejection(new Rejection( "Passenger did not accept the ride", ride.getPassenger() , LocalDateTime.now()));
@@ -266,6 +265,7 @@ public class RideServiceImpl implements RideService {
         ride.setRideStatus(RideStatus.ACTIVE);
         ride.getDriver().setOccupied(true);
         rideRepository.save(ride);
+        notificationService.createInstantNotification(ride.getPassenger(), "Vaša vožnja je započeta.");
     }
 
 
@@ -276,6 +276,7 @@ public class RideServiceImpl implements RideService {
         ride.setRideStatus(RideStatus.FINISHED);
         ride.getDriver().setOccupied(false);
         rideRepository.save(ride);
+        notificationService.createInstantNotification(ride.getPassenger(), "Vaša vožnja je završena.");
     }
 
 
@@ -295,6 +296,7 @@ public class RideServiceImpl implements RideService {
 
 
     @Override
+    @Transactional
     public void rejectRideByDriver(Integer rideId, String rejectionReason){
         User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Ride ride = rideRepository.findOneById(rideId);
@@ -302,6 +304,10 @@ public class RideServiceImpl implements RideService {
         Rejection rejection = new Rejection( rejectionReason, user, LocalDateTime.now());
         ride.setRejection(rejection);
         rideRepository.save(ride);
+
+        // notification
+        User passenger = ride.getPassenger();
+        notificationService.createInstantNotification(passenger, "Vašu vožnju je vozač nažalost morao da otkaže.");
     }
 
 
