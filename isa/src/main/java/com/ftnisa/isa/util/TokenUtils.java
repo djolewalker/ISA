@@ -1,9 +1,12 @@
 package com.ftnisa.isa.util;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpCookie;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -25,8 +28,8 @@ public class TokenUtils {
     @Value("${jwt.exp}")
     private int EXPIRES_IN;
 
-    @Value("${jwt.header}")
-    private String AUTH_HEADER;
+    @Value("${jwt.cookie}")
+    private String AUTH_COOKIE;
 
     private static final String AUDIENCE_WEB = "web";
     private static final String ROLES_CLAIM = "roles";
@@ -52,20 +55,32 @@ public class TokenUtils {
         return new Date(new Date().getTime() + exp);
     }
 
-    /**
-     * Funkcija za preuzimanje JWT tokena iz zahteva.
-     *
-     * @param request HTTP zahtev koji klijent šalje.
-     * @return JWT token ili null ukoliko se token ne nalazi u odgovarajućem zaglavlju HTTP zahteva.
-     */
-    public String getToken(HttpServletRequest request) {
-        String authHeader = getAuthHeaderFromHeader(request);
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
+    public String getTokenFromCookie(HttpServletRequest request) {
+        var cookies = request.getCookies();
+        if (cookies != null) {
+            for (var cookie : cookies) {
+                if (AUTH_COOKIE.equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
         }
-
         return null;
+    }
+
+    public HttpCookie createAccessTokenCookie(String token, int expTime) {
+        return ResponseCookie.from(AUTH_COOKIE, token)
+                .maxAge(expTime)
+                .httpOnly(true)
+                .path("/")
+                .build();
+    }
+
+    public HttpCookie deleteAccessTokenCookie() {
+        return ResponseCookie.from(AUTH_COOKIE, "")
+                .maxAge(0)
+                .httpOnly(true)
+                .path("/")
+                .build();
     }
 
     /**
@@ -207,15 +222,5 @@ public class TokenUtils {
      */
     public int getExpiredIn() {
         return EXPIRES_IN;
-    }
-
-    /**
-     * Funkcija za preuzimanje sadržaja AUTH_HEADER-a iz zahteva.
-     *
-     * @param request HTTP zahtev.
-     * @return Sadrzaj iz AUTH_HEADER-a.
-     */
-    public String getAuthHeaderFromHeader(HttpServletRequest request) {
-        return request.getHeader(AUTH_HEADER);
     }
 }

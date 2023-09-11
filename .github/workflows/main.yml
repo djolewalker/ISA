@@ -12,6 +12,7 @@ env:
   DOCKERHUB_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/isa
   DOCKERHUB_REPO_FE: ${{ secrets.DOCKERHUB_USERNAME }}/isa-front
   REACT_APP_API_URL: ${{ vars.REACT_APP_API_URL }}
+  REACT_APP_WS_URL: ${{ vars.REACT_APP_WS_URL }}
 
 jobs:
   build-and-deploy:

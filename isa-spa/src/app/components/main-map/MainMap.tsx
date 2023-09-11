@@ -1,16 +1,9 @@
 import { MapContainer, TileLayer } from 'react-leaflet';
-import { LatLngTuple, icon } from 'leaflet';
+import { LatLngTuple } from 'leaflet';
 
-import iconUrl from 'leaflet/dist/images/marker-icon.png';
-import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+import { MainMapContent } from 'app/components/main-map-content/MainMapContent';
 
 import './MainMap.scss';
-import { MainMapContent } from '../main-map-content/MainMapContent';
-
-const Icon = icon({
-  iconUrl,
-  shadowUrl
-});
 
 const DEFAULT_MAP_POSITION: LatLngTuple = [45.2396, 19.8227];
 const DEFAULT_MAP_ZOOM = 13;

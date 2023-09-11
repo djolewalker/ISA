@@ -1,4 +1,4 @@
-package com.ftnisa.isa.controller;
+package com.ftnisa.isa.controller.rest;
 
 import com.ftnisa.isa.dto.route.FindRouteDto;
 import com.ftnisa.isa.integrations.ors.responses.routing.geojson.GeoJSONRouteResponse;

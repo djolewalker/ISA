@@ -17,7 +17,7 @@ import static javax.persistence.InheritanceType.JOINED;
 
 @Entity
 @Table(name = "isa_user")
-@Inheritance(strategy=JOINED)
+@Inheritance(strategy = JOINED)
 public class User implements UserDetails {
     @Id
     @SequenceGenerator(name = "userSeqGen", sequenceName = "userSeq", initialValue = 1, allocationSize = 1)
@@ -59,22 +59,15 @@ public class User implements UserDetails {
     private boolean isBlocked;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "isa_user_role",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+    @JoinTable(name = "isa_user_role", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private List<Role> roles;
-
 
     @Enumerated(EnumType.STRING)
     @Column(name = "user_type")
     private UserType userType;
 
-
     @OneToMany(mappedBy = "user")
     private List<UserNotification> notifications;
-
-
-
 
     public Integer getId() {
         return id;
@@ -221,5 +214,10 @@ public class User implements UserDetails {
 
     public void setNotifications(List<UserNotification> notifications) {
         this.notifications = notifications;
+    }
+
+    public boolean hasRole(String role) {
+        var roles = getRoles().stream().map(Role::getName).toList();
+        return roles.contains(role);
     }
 }

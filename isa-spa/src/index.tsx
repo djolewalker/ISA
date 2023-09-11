@@ -6,6 +6,7 @@ import reportWebVitals from 'reportWebVitals';
 import AppRoot from 'app/App';
 
 import { store } from 'app/redux/store';
+import WsProvider from 'app/contexts/ws/ws-provider';
 import LoaderProvider from 'app/contexts/loader/loader-context-provider';
 import AuthContextProvider from 'app/contexts/auth/auth-context-provider';
 import NotificationsProvider from 'app/contexts/notifications/notifications-provider';
@@ -16,13 +17,15 @@ const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 
 root.render(
   <LoaderProvider>
-    <Provider store={store}>
-      <AuthContextProvider>
-        <NotificationsProvider>
-          <AppRoot />
-        </NotificationsProvider>
-      </AuthContextProvider>
-    </Provider>
+    <WsProvider>
+      <Provider store={store}>
+        <AuthContextProvider>
+          <NotificationsProvider>
+            <AppRoot />
+          </NotificationsProvider>
+        </AuthContextProvider>
+      </Provider>
+    </WsProvider>
   </LoaderProvider>
 );
 

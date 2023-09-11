@@ -1,4 +1,4 @@
-package com.ftnisa.isa.controller;
+package com.ftnisa.isa.controller.rest;
 
 
 import com.ftnisa.isa.dto.vehicle.VehicleRequest;
@@ -25,6 +25,7 @@ public class VehicleController {
         this.vehicleService = vehicleService;
         this.vehicleMapper = vehicleMapper;
     }
+
     @PostMapping()
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> createVehicle(@RequestBody VehicleRequest vehicleDto){

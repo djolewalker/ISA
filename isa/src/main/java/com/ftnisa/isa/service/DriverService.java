@@ -1,5 +1,6 @@
 package com.ftnisa.isa.service;
 
+import com.ftnisa.isa.dto.user.CreateDriverRequest;
 import com.ftnisa.isa.model.location.Location;
 import com.ftnisa.isa.model.ride.Ride;
 import com.ftnisa.isa.model.user.Driver;
@@ -24,4 +25,13 @@ public interface DriverService {
     Driver selectClosestDriverAfterCurrentRide(List<Driver> drivers, Location location);
 
     Ride getDriversCurrentRide(Driver driver);
+
+
+    Driver findDriverById(int id);
+
+    void activateDriver(String username);
+
+    void deactivateDriver(String username);
+
+    Driver updateDriverLocation(int id, float lon, float lat);
 }

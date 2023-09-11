@@ -1,9 +1,18 @@
 import { useEffect, useState } from 'react';
-import { LatLngTuple, geoJson, GeoJSON } from 'leaflet';
+import { LatLngTuple, geoJson, GeoJSON, icon, marker, Marker } from 'leaflet';
 import { useMap } from 'react-leaflet';
 
 import { useAppSelector } from 'app/hooks/common';
 import { selectRoutes, selectSelectedRouteId } from 'app/pages/routes/routes-page.slice';
+
+import iconUrl from 'leaflet/dist/images/marker-icon.png';
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+import { selectActiveDriversLocations } from 'app/pages/common.slice';
+
+const Icon = icon({
+  iconUrl,
+  shadowUrl
+});
 
 const selectedRouteStyle = {
   color: 'blue',
@@ -22,6 +31,7 @@ export const MainMapContent = () => {
 
   const routes = useAppSelector(selectRoutes);
   const selectedRouteId = useAppSelector(selectSelectedRouteId);
+  const locations = useAppSelector(selectActiveDriversLocations);
 
   const [displayedRoutes, setDisplayedRoutes] = useState<GeoJSONRoutes>({});
 
@@ -59,6 +69,18 @@ export const MainMapContent = () => {
       else gJSON.setStyle(alternativeRouteStyle);
     });
   }, [displayedRoutes, selectedRouteId]);
+
+  useEffect(() => {
+    console.log(locations);
+    const markers: Marker[] = locations.map(({ longitude, latitude, occupied }) =>
+      marker([latitude, longitude], { icon: Icon })
+    );
+    markers.forEach((m) => m.addTo(map));
+
+    return () => {
+      markers.forEach((m) => m.remove());
+    };
+  }, [map, locations]);
 
   return <></>;
 };
