@@ -18,6 +18,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface RideMapper {
+
     Ride rideBookingRequestDtoToRide(RideBookingRequestDto rideBookingRequestDto);
 
     @Mapping(target = "rejection", source = "rejection")

@@ -247,8 +247,12 @@ public class RideServiceImpl implements RideService {
         Ride ride = rideRepository.findOneById(rideId);
         if (isRideAccepted){
             ride.setRideStatus(RideStatus.ACCEPTED);
-            notificationService.createInstantNotification(ride.getPassenger(), "Vaša vožnja je upravo zakazana. Status vožnje možete pratiti na Vašem dešbordu.");
-            notificationService.createInstantNotification(ride.getDriver(), "Zakazana Vam je nova vožnja");
+            Long minutesUntilArrival = LocalDateTime.now().until(ride.getStartTime(), ChronoUnit.MINUTES);
+            String passengerNotificationMessage = String.format("Vaša vožnja je upravo zakazana. Vozilo stiže za %d minuta. Status vožnje možete pratiti na Vašem dešbordu.", minutesUntilArrival);
+            String driverNotificationMessage = String.format("Zakazana Vam je nova vožnja. Putnik Vas očekuje za %d minuta. Detalje vožnje možete proveriti na Vašem dešbordu.", minutesUntilArrival);
+
+            notificationService.createInstantNotification(ride.getPassenger(), passengerNotificationMessage);
+            notificationService.createInstantNotification(ride.getDriver(), driverNotificationMessage);
         } else {
             ride.setRideStatus(RideStatus.REJECTED);
             ride.setRejection(new Rejection( "Passenger did not accept the ride", ride.getPassenger() , LocalDateTime.now()));

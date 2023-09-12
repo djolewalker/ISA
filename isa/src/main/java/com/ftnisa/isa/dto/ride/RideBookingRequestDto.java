@@ -18,7 +18,7 @@ public class RideBookingRequestDto {
 
     private Boolean babyTransportFlag;
 
-    private VehicleTypeResponse vehicleType;
+    private Integer vehicleTypeId;
 
     private int numberOfPassengers;
 
@@ -36,13 +36,13 @@ public class RideBookingRequestDto {
     public RideBookingRequestDto() {
     }
 
-    public RideBookingRequestDto(LocationDto startLocation, LocationDto finishLocation, ArrayList<LocationDto> stops, Boolean petTransportFlag, Boolean babyTransportFlag, VehicleTypeResponse vehicleType, int numberOfPassengers, boolean isScheduled, LocalDateTime scheduledStartTime, RouteOptimizationCriteriaDto routeOptimizationCriteria, boolean optimizeStops) {
+    public RideBookingRequestDto(LocationDto startLocation, LocationDto finishLocation, ArrayList<LocationDto> stops, Boolean petTransportFlag, Boolean babyTransportFlag, Integer vehicleTypeId, int numberOfPassengers, boolean isScheduled, LocalDateTime scheduledStartTime, RouteOptimizationCriteriaDto routeOptimizationCriteria, boolean optimizeStops) {
         this.startLocation = startLocation;
         this.finishLocation = finishLocation;
         this.stops = stops;
         this.petTransportFlag = petTransportFlag;
         this.babyTransportFlag = babyTransportFlag;
-        this.vehicleType = vehicleType;
+        this.vehicleTypeId = vehicleTypeId;
         this.numberOfPassengers = numberOfPassengers;
         this.isScheduled = isScheduled;
         this.scheduledStartTime = scheduledStartTime;
@@ -90,12 +90,12 @@ public class RideBookingRequestDto {
         this.babyTransportFlag = babyTransportFlag;
     }
 
-    public VehicleTypeResponse getVehicleType() {
-        return vehicleType;
+    public Integer getVehicleTypeId() {
+        return vehicleTypeId;
     }
 
-    public void setVehicleType(VehicleTypeResponse vehicleType) {
-        this.vehicleType = vehicleType;
+    public void setVehicleTypeId(Integer vehicleTypeId) {
+        this.vehicleTypeId = vehicleTypeId;
     }
 
     public int getNumberOfPassengers() {

@@ -43,4 +43,5 @@ public class VehicleServiceImpl implements VehicleService{
     public List<VehicleType> getVehicleTypes() {
         return vehicleTypeRepository.findAll();
     }
+
 }
