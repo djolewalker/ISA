@@ -12,12 +12,6 @@ import java.util.List;
 public interface RideMapper {
 
 
-    Ride rideBookingRequestDtoToRide(RideBookingRequestDto rideBookingRequestDto);
-
-    @Mapping(target = "rejection", source = "rejection")
-    @Mapping(target = "startTime", source = "startTime")
-    @Mapping(target = "rideId", source = "id")
-    RideBookingResponseDto rideToRideBookingResponseDto(Ride ride);
 
     @Mapping(target = "routes", source = "routes")
     RideDto rideToRideDto(Ride ride);
