@@ -1,29 +1,34 @@
 package com.ftnisa.isa.model.route;
 
-
+import com.ftnisa.isa.integrations.ors.responses.routing.geojson.GeoJSONIndividualRouteResponse;
 import com.ftnisa.isa.model.location.Location;
 import com.ftnisa.isa.model.ride.Ride;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.Set;
+import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Table(name = "isa_route")
+@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Route {
-
     @Id
     @SequenceGenerator(name = "routeSeqGen", sequenceName = "routeSeq", initialValue = 1, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "routeSeqGen")
     private Integer id;
-
-    @Column(name = "start_time")
-    private LocalDateTime startTime;
-
-    @Column(name = "finish_time")
-    private LocalDateTime finishTime;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "start_location")
@@ -34,6 +39,9 @@ public class Route {
     @JoinColumn(name = "finish_location")
     @NotNull
     private Location finishLocation;
+
+    @OneToMany(mappedBy = "route", cascade = CascadeType.ALL)
+    private List<IntermediateStop> stops;
 
     @Column(name = "length")
     private float length;
@@ -48,89 +56,17 @@ public class Route {
     @JoinColumn(name = "ride_id")
     private Ride ride;
 
-    public Route() {
-    }
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    @Getter
+    private Instant createdAt;
 
-    public Route(LocalDateTime startTime, LocalDateTime finishTime, Location startLocation, Location finishLocation, float length, Duration estimatedDuration, float routePrice, Ride ride) {
-        this.startTime = startTime;
-        this.finishTime = finishTime;
-        this.startLocation = startLocation;
-        this.finishLocation = finishLocation;
-        this.length = length;
-        this.estimatedDuration = estimatedDuration;
-        this.routePrice = routePrice;
-        this.ride = ride;
-    }
+    @Type(type = "jsonb")
+    @Column(columnDefinition = "jsonb", name = "geo")
+    private GeoJSONIndividualRouteResponse geo;
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public LocalDateTime getFinishTime() {
-        return finishTime;
-    }
-
-    public void setFinishTime(LocalDateTime finishTime) {
-        this.finishTime = finishTime;
-    }
-
-    public Location getStartLocation() {
-        return startLocation;
-    }
-
-    public void setStartLocation(Location startLocation) {
-        this.startLocation = startLocation;
-    }
-
-    public Location getFinishLocation() {
-        return finishLocation;
-    }
-
-    public void setFinishLocation(Location finishLocation) {
-        this.finishLocation = finishLocation;
-    }
-
-    public float getLength() {
-        return length;
-    }
-
-    public void setLength(float length) {
-        this.length = length;
-    }
-
-    public Duration getEstimatedDuration() {
-        return estimatedDuration;
-    }
-
-    public void setEstimatedDuration(Duration estimatedDuration) {
-        this.estimatedDuration = estimatedDuration;
-    }
-
-    public float getRoutePrice() {
-        return routePrice;
-    }
-
-    public void setRoutePrice(float routePrice) {
-        this.routePrice = routePrice;
-    }
-
-    public Ride getRide() {
-        return ride;
-    }
-
-    public void setRide(Ride ride) {
-        this.ride = ride;
+    @PrePersist
+    public void onPrePersist() {
+        createdAt = Instant.now();
     }
 }

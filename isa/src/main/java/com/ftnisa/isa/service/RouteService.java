@@ -1,5 +1,8 @@
 package com.ftnisa.isa.service;
 
+import com.ftnisa.isa.dto.route.FindRouteDto;
+import com.ftnisa.isa.integrations.ors.responses.routing.RouteResponse;
+import com.ftnisa.isa.integrations.ors.responses.routing.geojson.GeoJSONRouteResponse;
 import com.ftnisa.isa.model.location.Location;
 import com.ftnisa.isa.model.ride.Ride;
 import com.ftnisa.isa.model.route.Route;
@@ -9,8 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface RouteService {
-
-
     ArrayList<Route> generateRoutes(Location startLocation, Location finishLocation, List<Location> stops);
 
     List<Route> generateAndOrganizeRoutes(Location startLocation, Location finishLocation, List<Location> stops, boolean optimizeOrder);
@@ -25,7 +26,6 @@ public interface RouteService {
 
     float fetchRouteDurationMinutes(Route route);
 
-
     // DUMMY
     float fetchDistanceInMetersBetweenLocations(Location location1, Location location2);
 
@@ -34,11 +34,13 @@ public interface RouteService {
 
     long calculateTotalDistanceForRouteList(List<Route> routes);
 
-    void saveRoutesForRide(Ride ride);
-
     Location getRidesFinishLocation(Ride ride);
 
     Location getRidesStartLocation(Ride ride);
 
     List<Route> cloneRoutes(List<Route> oldRoutes);
+
+    GeoJSONRouteResponse searchRoute(Double[][] coordinates) throws Exception;
+
+    int cleanOrphanRoutes();
 }

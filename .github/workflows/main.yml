@@ -31,11 +31,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+
       - name: Build and Test with Maven - BE
         run: mvn -B test --file ./isa/pom.xml
 
       - name: Dump variables
-        run: echo "$GITHUB_CONTEXT"  
+        run: echo "$GITHUB_CONTEXT"
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -89,23 +90,23 @@ jobs:
         with:
           context: ${{ env.PROJ_DIR }}
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/isa:latest  
-      
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/isa:latest
+
       - name: 🚀 Deploy server application to the DigitalOcean Platform
         uses: digitalocean/app_action@v1.1.5
         with:
           app_name: isa-server
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
           images: '[
-              {
-                "name": "server",
-                "image": {
-                  "registry_type": "DOCKER_HUB",
-                  "registry": "djolewalker",
-                  "repository": "isa",
-                  "tag": "latest"
-                }
-              }
+            {
+            "name": "server",
+            "image": {
+            "registry_type": "DOCKER_HUB",
+            "registry": "djolewalker",
+            "repository": "isa",
+            "tag": "latest"
+            }
+            }
             ]'
 
       - name: 🚀 Deploy client application to the GitHub Pages

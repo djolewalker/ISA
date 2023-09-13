@@ -6,14 +6,13 @@ import {
   selectFetchUserId,
   setUsers,
   setUser,
-  fetchVehicleTypes,
-  setVehicleTypes,
   setFetchDriverId
 } from 'app/pages/admin/admin.slice';
 import { Driver, User, VehicleType } from 'app/model/User';
 import { safe } from 'app/redux/safe-interceptor';
 import { getDriver, getUser, getUsers } from 'app/service/user.service';
 import { getVehicleTypes } from 'app/service/vehicle.service';
+import { fetchVehicleTypes, setVehicleTypes } from '../common.slice';
 
 export function* fetchUsersWatcher() {
   yield takeLatest(fetchUsers.type, safe(fetchUsersFlow));

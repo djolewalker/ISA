@@ -3,7 +3,7 @@ import { RouteLocations } from 'app/model/Route';
 import { RootState } from 'app/redux/store';
 import { OSMLocation } from 'app/service/locations.service';
 
-export type SearchFormFields = 'start' | 'destination';
+export type SearchFormFields = 'start' | 'destination' | string;
 type FieldKey = string | number;
 type FieldSuggestions = { [key: FieldKey]: OSMLocation[] };
 
@@ -39,8 +39,19 @@ const searchPage = createSlice({
     setSelectedLocations: (state, { payload }: PayloadAction<Partial<RouteLocations>>) => {
       state.selectedLocations = { ...state.selectedLocations, ...payload };
     },
+    removeSelectedLocation: (state, { payload }: PayloadAction<string>) => {
+      const temp = { ...state.selectedLocations };
+      delete temp[payload];
+      state.selectedLocations = temp;
+    },
     setActiveField: (state, { payload }: PayloadAction<Partial<SearchFormFields | null>>) => {
       state.activeField = payload;
+    },
+    resetSearch: (state) => {
+      state.activeField = null;
+      state.locationsQuery = '';
+      state.selectedLocations = {};
+      state.suggestions = {};
     }
   }
 });
@@ -55,6 +66,13 @@ export const selectSelectedLocations = createSelector(
 );
 export const selectActiveField = createSelector(searchPageSliceSelector, ({ activeField }) => activeField);
 
-export const { setLocationsQuery, locationReceived, setSelectedLocations, setActiveField } = searchPage.actions;
+export const {
+  setLocationsQuery,
+  locationReceived,
+  setSelectedLocations,
+  setActiveField,
+  removeSelectedLocation,
+  resetSearch
+} = searchPage.actions;
 
 export default searchPage.reducer;

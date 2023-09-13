@@ -11,7 +11,6 @@ import com.ftnisa.isa.service.RideService;
 import com.ftnisa.isa.service.RouteService;
 import com.ftnisa.isa.service.VehicleService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "/api/rides", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/ride", produces = MediaType.APPLICATION_JSON_VALUE)
 @SecurityRequirement(name = "isasec")
 public class RideController {
 
@@ -36,6 +35,7 @@ public class RideController {
     private final RideMapper rideMapper;
 
     private final LocationMapper locationMapper;
+
 
     @Autowired
     public RideController(RideService rideService, VehicleTypeRepository vehicleTypeRepository, RouteService routeService, RideMapper rideMapper, LocationMapper locationMapper) {
@@ -51,37 +51,21 @@ public class RideController {
 
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/ride-booking")
-    @Transactional
-    public ResponseEntity<RideBookingResponseDto> rideBooking(@RequestBody RideBookingRequestDto rideBookingRequestDTO){
+    @PostMapping("/booking")
+    public ResponseEntity<RideDto> rideBooking(@RequestBody RideBookingRequestDto rideBookingRequestDTO){
         try {
-            Ride ride = rideMapper.rideBookingRequestDtoToRide(rideBookingRequestDTO);
-            ride.setVehicleType(vehicleTypeRepository.findById(rideBookingRequestDTO.getVehicleTypeId()).get());
-            ride.setRoutes(routeService.generateAndOrganizeRoutes(
-                    locationMapper.locationDtoToLocation(rideBookingRequestDTO.getStartLocation()),
-                    locationMapper.locationDtoToLocation(rideBookingRequestDTO.getFinishLocation()),
-                    rideBookingRequestDTO.getStops().stream().map(locationMapper::locationDtoToLocation).collect(Collectors.toList()),
-                    rideBookingRequestDTO.isOptimizeStops()
-                    )
-            );
-            if (rideBookingRequestDTO.isScheduled()){
-                ride.setStartTime(rideBookingRequestDTO.getScheduledStartTime());
-                rideService.scheduledRideBooking(ride);
-            } else {
-                rideService.requestQuickRideBooking(ride);
-            }
-
-            RideBookingResponseDto rideBookingResponseDto = rideMapper.rideToRideBookingResponseDto(ride);
-            return new ResponseEntity<RideBookingResponseDto>(rideBookingResponseDto, HttpStatus.CREATED);
+            var ride = rideService.bookARide(rideBookingRequestDTO);
+            var rideBookingResponseDto = rideMapper.rideToRideDto(ride);
+            return ResponseEntity.status(HttpStatus.CREATED).body(rideBookingResponseDto);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         }
     }
 
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/recreate-ride")
-    public ResponseEntity<RideBookingResponseDto> recreateRide(@RequestBody RecreateRideDto recreateRideDto){
+    @PostMapping("/clone")
+    public ResponseEntity<RideDto> recreateRide(@RequestBody RecreateRideDto recreateRideDto){
         try {
             Ride ride = rideService.recreateRide(recreateRideDto.getRideId());
 
@@ -92,19 +76,14 @@ public class RideController {
                 rideService.requestQuickRideBooking(ride);
             }
 
-            RideBookingResponseDto rideBookingResponseDto = rideMapper.rideToRideBookingResponseDto(ride);
-            return new ResponseEntity<RideBookingResponseDto>(rideBookingResponseDto, HttpStatus.CREATED);
-
-
+            return ResponseEntity.status(HttpStatus.CREATED).body(rideMapper.rideToRideDto(ride));
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         }
     }
 
-
-
     @PreAuthorize("hasRole('USER')")
-    @PutMapping("/ride-acceptance")
+    @PutMapping("/acceptance")
     public ResponseEntity<Void> acceptOrRejectRideByPassenger(@RequestBody RideAcceptanceDto rideAcceptanceDto){
         try {
             rideService.finalizeRideBooking(rideAcceptanceDto.isRideAccepted(), rideAcceptanceDto.getRideId());
@@ -115,21 +94,21 @@ public class RideController {
     }
 
     @PreAuthorize("hasRole('DRIVER')")
-    @PutMapping("/reject-ride")
+    @PutMapping("/reject")
     public ResponseEntity<Void> rejectRideByDriver(@RequestBody RideRejectionRequestDto rideRejectionRequestDto){
         rideService.rejectRideByDriver(rideRejectionRequestDto.getRideId(), rideRejectionRequestDto.getRejectionReason());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('DRIVER')")
-    @PutMapping("/start-ride")
+    @PutMapping("/start")
     public ResponseEntity<Void> startRideByDriver(@RequestBody Integer rideId){
         rideService.startRideByDriver(rideId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('DRIVER')")
-    @PutMapping("/finish-ride")
+    @PutMapping("/finish")
     public ResponseEntity<Void> finishRideByDriver(@RequestBody Integer rideId){
         rideService.finishRideByDriver(rideId);
         return new ResponseEntity<>(HttpStatus.OK);
