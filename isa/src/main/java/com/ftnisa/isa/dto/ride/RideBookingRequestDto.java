@@ -1,6 +1,7 @@
 package com.ftnisa.isa.dto.ride;
 
 import com.ftnisa.isa.model.ride.RouteOptimizationCriteria;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

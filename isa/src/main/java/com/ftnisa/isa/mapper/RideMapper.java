@@ -5,6 +5,7 @@ import com.ftnisa.isa.dto.route.RouteDto;
 import com.ftnisa.isa.model.ride.Ride;
 import com.ftnisa.isa.model.route.Route;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
