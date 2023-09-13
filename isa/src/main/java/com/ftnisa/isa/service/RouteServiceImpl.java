@@ -14,6 +14,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -111,16 +112,42 @@ public class RouteServiceImpl implements RouteService {
         return Duration.of((long) (routeLength / 13.889), ChronoUnit.SECONDS);
     }
 
-    // DUMMMY
+
     @Override
-    public float fetchDistanceInMetersBetweenLocations(Location location1, Location location2) {
-        return 1000;
+    public Double[][] convertLocationsToCoordinateArray(Location location1, Location location2){
+        Double[][] coordinates = new Double[2][2];
+        coordinates[0][0] = (double) location1.getLongitude();
+        coordinates[0][1] = (double) location1.getLatitude();
+        coordinates[1][0] = (double) location2.getLongitude();
+        coordinates[1][1] = (double) location2.getLatitude();
+        return coordinates;
     }
 
-    // DUMMMY
     @Override
-    public long fetchTimeInMinutesBetweenLocations(Location location1, Location location2) {
-        return 8;
+    public float fetchDistanceInMetersBetweenLocations(Location location1, Location location2) throws Exception {
+        var coordinates = convertLocationsToCoordinateArray(location1, location2);
+        List<Long> distances = new ArrayList<>();
+
+        var routeResponse = directionService.findRoutes(coordinates).block();
+        routeResponse.getRoutes().stream().forEach(geoJSONIndividualRouteResponse -> {
+            distances.add(geoJSONIndividualRouteResponse.getProperties().getSummary().getDistance().longValue());
+        });
+
+        return (float) Collections.min(distances);
+    }
+
+
+    @Override
+    public long fetchTimeInMinutesBetweenLocations(Location location1, Location location2) throws Exception {
+        var coordinates = convertLocationsToCoordinateArray(location1, location2);
+        List<Long> durations = new ArrayList<>();
+
+        var routeResponse = directionService.findRoutes(coordinates).block();
+        routeResponse.getRoutes().stream().forEach(geoJSONIndividualRouteResponse -> {
+            durations.add(geoJSONIndividualRouteResponse.getProperties().getSummary().getDuration().longValue());
+        });
+
+        return Collections.min(durations);
     }
 
     @Override

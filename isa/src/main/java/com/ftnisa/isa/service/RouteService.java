@@ -1,7 +1,5 @@
 package com.ftnisa.isa.service;
 
-import com.ftnisa.isa.dto.route.FindRouteDto;
-import com.ftnisa.isa.integrations.ors.responses.routing.RouteResponse;
 import com.ftnisa.isa.integrations.ors.responses.routing.geojson.GeoJSONRouteResponse;
 import com.ftnisa.isa.model.location.Location;
 import com.ftnisa.isa.model.ride.Ride;
@@ -26,11 +24,12 @@ public interface RouteService {
 
     float fetchRouteDurationMinutes(Route route);
 
-    // DUMMY
-    float fetchDistanceInMetersBetweenLocations(Location location1, Location location2);
+    // DUMMMY
+    Double[][] convertLocationsToCoordinateArray(Location location1, Location location2);
 
-    // DUMMY
-    long fetchTimeInMinutesBetweenLocations(Location location1, Location location2);
+    float fetchDistanceInMetersBetweenLocations(Location location1, Location location2) throws Exception;
+
+    long fetchTimeInMinutesBetweenLocations(Location location1, Location location2) throws Exception;
 
     long calculateTotalDistanceForRouteList(List<Route> routes);
 
