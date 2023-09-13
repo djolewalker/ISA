@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.Set;
 
@@ -17,6 +18,6 @@ import java.util.Set;
 @AllArgsConstructor
 public class Passenger extends User {
 
-    @ManyToMany
+    @OneToMany
     private Set<Ride> ridesList;
 }

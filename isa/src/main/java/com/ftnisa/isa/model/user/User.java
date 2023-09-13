@@ -1,6 +1,7 @@
 package com.ftnisa.isa.model.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ftnisa.isa.model.notification.UserNotification;
 import com.ftnisa.isa.model.vehicle.Vehicle;
 import com.ftnisa.isa.model.user.UserType;
 import org.springframework.security.core.GrantedAuthority;
@@ -67,6 +68,11 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(name = "user_type")
     private UserType userType;
+
+
+    @OneToMany(mappedBy = "user")
+    private List<UserNotification> notifications;
+
 
 
 
@@ -207,5 +213,13 @@ public class User implements UserDetails {
 
     public void setUserType(UserType userType) {
         this.userType = userType;
+    }
+
+    public List<UserNotification> getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(List<UserNotification> notifications) {
+        this.notifications = notifications;
     }
 }

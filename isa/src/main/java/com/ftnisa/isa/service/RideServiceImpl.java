@@ -41,8 +41,11 @@ public class RideServiceImpl implements RideService {
 
     private final RouteRepository routeRepository;
 
+    private final NotificationService notificationService;
+
     private final VehicleTypeRepository vehicleTypeRepository;
 
+  
     @Override
     public Ride bookARide(RideBookingRequestDto rideBookingRequestDTO) {
         var route = routeRepository.findById(rideBookingRequestDTO.getRouteId())
@@ -64,10 +67,10 @@ public class RideServiceImpl implements RideService {
         } else {
             requestQuickRideBooking(ride);
         }
-
         return ride;
     }
 
+  
     @Override
     public Ride requestQuickRideBooking(Ride ride) {
         // set the ride passenger
@@ -231,9 +234,12 @@ public class RideServiceImpl implements RideService {
 
         // save and return
         rideRepository.save(ride);
+
+        notificationService.createScheduledDriveReminders(passenger, ride.getStartTime());
         return ride;
     }
 
+  
     @Override
     @Transactional
     public Ride recreateRide(Integer rideId) {
@@ -261,6 +267,12 @@ public class RideServiceImpl implements RideService {
         Ride ride = rideRepository.findOneById(rideId);
         if (isRideAccepted) {
             ride.setRideStatus(RideStatus.ACCEPTED);
+            Long minutesUntilArrival = LocalDateTime.now().until(ride.getStartTime(), ChronoUnit.MINUTES);
+            String passengerNotificationMessage = String.format("Vaša vožnja je upravo zakazana. Vozilo stiže za %d minuta. Status vožnje možete pratiti na Vašem dešbordu.", minutesUntilArrival);
+            String driverNotificationMessage = String.format("Zakazana Vam je nova vožnja. Putnik Vas očekuje za %d minuta. Detalje vožnje možete proveriti na Vašem dešbordu.", minutesUntilArrival);
+
+            notificationService.createInstantNotification(ride.getPassenger(), passengerNotificationMessage);
+            notificationService.createInstantNotification(ride.getDriver(), driverNotificationMessage);
         } else {
             ride.setRideStatus(RideStatus.REJECTED);
             ride.setRejection(
@@ -277,6 +289,7 @@ public class RideServiceImpl implements RideService {
         ride.setRideStatus(RideStatus.ACTIVE);
         ride.getDriver().setOccupied(true);
         rideRepository.save(ride);
+        notificationService.createInstantNotification(ride.getPassenger(), "Vaša vožnja je započeta.");
     }
 
     @Override
@@ -286,6 +299,7 @@ public class RideServiceImpl implements RideService {
         ride.setRideStatus(RideStatus.FINISHED);
         ride.getDriver().setOccupied(false);
         rideRepository.save(ride);
+        notificationService.createInstantNotification(ride.getPassenger(), "Vaša vožnja je završena.");
     }
 
     @Override
@@ -303,6 +317,7 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
+    @Transactional
     public void rejectRideByDriver(Integer rideId, String rejectionReason) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Ride ride = rideRepository.findOneById(rideId);
@@ -310,6 +325,10 @@ public class RideServiceImpl implements RideService {
         Rejection rejection = new Rejection(rejectionReason, user, LocalDateTime.now());
         ride.setRejection(rejection);
         rideRepository.save(ride);
+
+        // notification
+        User passenger = ride.getPassenger();
+        notificationService.createInstantNotification(passenger, "Vašu vožnju je vozač nažalost morao da otkaže.");
     }
 
     @Override

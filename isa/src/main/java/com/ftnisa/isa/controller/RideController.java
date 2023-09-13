@@ -6,9 +6,12 @@ import com.ftnisa.isa.mapper.LocationMapper;
 import com.ftnisa.isa.mapper.RideMapper;
 import com.ftnisa.isa.model.ride.Panic;
 import com.ftnisa.isa.model.ride.Ride;
+import com.ftnisa.isa.repository.VehicleTypeRepository;
 import com.ftnisa.isa.service.RideService;
 import com.ftnisa.isa.service.RouteService;
+import com.ftnisa.isa.service.VehicleService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,18 +29,27 @@ public class RideController {
 
     private final RideService rideService;
 
+    private final VehicleTypeRepository vehicleTypeRepository;
+
     private final RouteService routeService;
 
     private final RideMapper rideMapper;
 
     private final LocationMapper locationMapper;
 
-    public RideController(RideService rideService, RouteService routeService, RideMapper rideMapper, LocationMapper locationMapper) {
+
+    @Autowired
+    public RideController(RideService rideService, VehicleTypeRepository vehicleTypeRepository, RouteService routeService, RideMapper rideMapper, LocationMapper locationMapper) {
+        super();
         this.rideService = rideService;
+        this.vehicleTypeRepository = vehicleTypeRepository;
         this.routeService = routeService;
         this.rideMapper = rideMapper;
         this.locationMapper = locationMapper;
     }
+
+
+
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/booking")

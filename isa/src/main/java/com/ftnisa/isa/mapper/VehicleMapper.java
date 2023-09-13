@@ -16,6 +16,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface VehicleMapper {
+
     Vehicle vehicleResponseToVehicle(VehicleRequest vehicleRequest);
 
     VehicleResponse vehicleToVehicleResponse(Vehicle vehicle);
