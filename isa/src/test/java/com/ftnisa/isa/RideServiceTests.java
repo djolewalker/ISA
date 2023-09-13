@@ -1,6 +1,7 @@
 package com.ftnisa.isa;
 
 
+import com.ftnisa.isa.repository.UserRepository;
 import com.ftnisa.isa.service.RideService;
 import com.ftnisa.isa.service.RideServiceImpl;
 import org.junit.jupiter.api.AfterEach;
@@ -22,7 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 
+@SpringBootTest
 public class RideServiceTests {
+
+    @Autowired
+    private UserRepository userRepository;
 
 
     @BeforeEach
@@ -38,7 +43,7 @@ public class RideServiceTests {
 
     @Test
     public void testQuickRideBookingOnePassenger(){
-        assertThat(1).isGreaterThan(0) ;
+        assertThat(userRepository.findAll().size()).isGreaterThan(0) ;
 
 
     }
