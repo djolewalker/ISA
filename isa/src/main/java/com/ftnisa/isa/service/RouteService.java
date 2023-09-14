@@ -35,7 +35,7 @@ public interface RouteService {
 
     Location getRidesStartLocation(Ride ride);
 
-    List<Route> cloneRoutes(List<Route> oldRoutes);
+    int cloneRoutes(Route oldRoute);
 
     GeoJSONRouteResponse searchRoute(Double[][] coordinates) throws Exception;
 

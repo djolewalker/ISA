@@ -1,5 +1,6 @@
 package com.ftnisa.isa.service;
 
+import com.ftnisa.isa.dto.ride.RecreateRideDto;
 import com.ftnisa.isa.dto.ride.RideBookingRequestDto;
 import com.ftnisa.isa.exception.TempRouteExpired;
 import com.ftnisa.isa.model.ride.Panic;
@@ -249,19 +250,25 @@ public class RideServiceImpl implements RideService {
   
     @Override
     @Transactional
-    public Ride recreateRide(Integer rideId) {
-        Ride oldRide = rideRepository.findById(rideId).orElse(null);
+    public Ride recreateRide(RecreateRideDto recreateRideDto) throws Exception{
+        Ride oldRide = rideRepository.findById(recreateRideDto.getRideId()).orElse(null);
         if (oldRide == null) {
             return null;
         }
-        Ride newRide = new Ride();
-        newRide.setNumberOfPassengers(oldRide.getNumberOfPassengers());
-        newRide.setRouteOptimizationCriteria(oldRide.getRouteOptimizationCriteria());
-        newRide.setPetTransportFlag(oldRide.getPetTransportFlag());
-        newRide.setBabyTransportFlag(oldRide.getBabyTransportFlag());
-        newRide.setVehicleType(new VehicleType(oldRide.getVehicleType().getVehicleTypeName(),
-                oldRide.getVehicleType().getPricePerKm()));
-        newRide.setRoutes(routeService.cloneRoutes(oldRide.getRoutes()));
+        int routeId = routeService.cloneRoutes(oldRide.getRoutes().get(0));
+
+        RideBookingRequestDto rideBookingRequestDto = new RideBookingRequestDto();
+
+        rideBookingRequestDto.setRouteId(routeId);
+        rideBookingRequestDto.setNumberOfPassengers(oldRide.getNumberOfPassengers());
+        rideBookingRequestDto.setRouteOptimizationCriteria(oldRide.getRouteOptimizationCriteria());
+        rideBookingRequestDto.setPetTransportFlag(oldRide.getPetTransportFlag());
+        rideBookingRequestDto.setBabyTransportFlag(oldRide.getBabyTransportFlag());
+        rideBookingRequestDto.setVehicleTypeId(oldRide.getVehicleType().getId());
+        rideBookingRequestDto.setScheduled(recreateRideDto.getScheduled());
+        rideBookingRequestDto.setScheduledStartTime(recreateRideDto.getScheduledStartTime());
+
+        Ride newRide = bookARide(rideBookingRequestDto);
 
         return newRide;
 
@@ -378,7 +385,8 @@ public class RideServiceImpl implements RideService {
 
     @Override
     public boolean checkIfRidesOverlap(Ride ride1, Ride ride2) throws Exception{
-        if (ride1.getFinishTime()
+        if (
+                ride1.getFinishTime()
                 .plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(routeService.getRidesFinishLocation(ride1),
                         routeService.getRidesStartLocation(ride2)))
                 .isBefore(ride2.getStartTime())
@@ -386,7 +394,8 @@ public class RideServiceImpl implements RideService {
                 (ride2.getFinishTime()
                         .plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(
                                 routeService.getRidesFinishLocation(ride2), routeService.getRidesStartLocation(ride1)))
-                        .isBefore(ride1.getStartTime()))) {
+                        .isBefore(ride1.getStartTime()))
+        ) {
             return false;
         } else {
             return true;
