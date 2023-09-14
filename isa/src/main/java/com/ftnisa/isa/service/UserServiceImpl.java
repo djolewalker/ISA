@@ -2,27 +2,28 @@ package com.ftnisa.isa.service;
 
 import com.ftnisa.isa.dto.auth.RegisterRequest;
 import com.ftnisa.isa.dto.user.CreateDriverRequest;
-import com.ftnisa.isa.dto.user.DriverRequest;
+import com.ftnisa.isa.dto.user.DriverChangeRequestDto;
 import com.ftnisa.isa.dto.user.UserRequest;
 import com.ftnisa.isa.event.resetPasswordRequested.OnResetPasswordRequestedEvent;
 import com.ftnisa.isa.event.verificationRequested.OnVerificationRequestedEvent;
 import com.ftnisa.isa.exception.ResourceConflictException;
-import com.ftnisa.isa.model.location.Location;
+import com.ftnisa.isa.mapper.UserMapper;
 import com.ftnisa.isa.model.token.TokenType;
 import com.ftnisa.isa.model.user.Driver;
+import com.ftnisa.isa.model.user.DriverChangeRequest;
 import com.ftnisa.isa.model.user.Role;
 import com.ftnisa.isa.model.user.User;
 import com.ftnisa.isa.model.vehicle.Vehicle;
-import com.ftnisa.isa.repository.DriverRepository;
-import com.ftnisa.isa.repository.UserRepository;
-import com.ftnisa.isa.repository.VehicleRepository;
-import com.ftnisa.isa.repository.VehicleTypeRepository;
+import com.ftnisa.isa.model.vehicle.VehicleType;
+import com.ftnisa.isa.repository.*;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -36,12 +37,19 @@ public class UserServiceImpl implements UserService {
     private final VehicleRepository vehicleRepository;
     private final DriverRepository driverRepository;
 
+    private final UserMapper userMapper;
+
+    private final DriverChangeRequestRepository driverChangeRequestRepository;
+
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
             RoleService roleService, TokenService tokenService,
             ApplicationEventPublisher eventPublisher,
                            VehicleTypeRepository vehicleTypeRepository,
                            VehicleRepository vehicleRepository,
-                           DriverRepository driverRepository) {
+                           DriverRepository driverRepository,
+                           DriverChangeRequestRepository driverChangeRequestRepository,
+                           UserMapper userMapper
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleService = roleService;
@@ -50,6 +58,8 @@ public class UserServiceImpl implements UserService {
         this.vehicleTypeRepository = vehicleTypeRepository;
         this.vehicleRepository = vehicleRepository;
         this.driverRepository = driverRepository;
+        this.driverChangeRequestRepository = driverChangeRequestRepository;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -190,5 +200,51 @@ public class UserServiceImpl implements UserService {
         user.setPhone(userRequest.getPhone());
         user.setImage(userRequest.getImage());
         user.setAddress(userRequest.getAddress());
+    }
+
+    @Override
+    @Transactional
+    public void createDriverChangeRequest(DriverChangeRequestDto driverChangeRequestDto){
+        DriverChangeRequest driverChangeRequest = userMapper.driverChangeRequestDtoToDriverChangeRequest(driverChangeRequestDto);
+        driverChangeRequestRepository.save(driverChangeRequest);
+    }
+
+
+    @Override
+    @Transactional
+    public Driver approveDriverChangeRequest(Integer driverChangeRequestId){
+
+        DriverChangeRequest driverChangeRequest = driverChangeRequestRepository.findById(driverChangeRequestId).orElseThrow();
+        Driver driver = driverRepository.findById(driverChangeRequest.getDriverId()).orElseThrow();
+        Vehicle vehicle = driver.getVehicle();
+        User admin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        VehicleType vehicleType = vehicleTypeRepository.findById(driverChangeRequest.getVehicleTypeId()).orElseThrow();
+
+        driver.setUsername(driverChangeRequest.getUsername());
+        driver.setPassword(driverChangeRequest.getPassword());
+        driver.setEmail(driverChangeRequest.getEmail());
+        driver.setFirstname(driverChangeRequest.getFirstname());
+        driver.setLastname(driverChangeRequest.getLastname());
+        driver.setImage(driverChangeRequest.getImage());
+        driver.setPhone(driverChangeRequest.getPhone());
+        driver.setAddress(driverChangeRequest.getAddress());
+        driver.setDriverLicense(driverChangeRequest.getDriverLicense());
+
+        vehicle.setVehicleModel(driverChangeRequest.getVehicleModel());
+        vehicle.setRegistrationNumber(driverChangeRequest.getRegistrationNumber());
+        vehicle.setNumberOfSeats(driverChangeRequest.getNumberOfSeats());
+        vehicle.setBabyFriendly(driverChangeRequest.isBabyFriendly());
+        vehicle.setPetFriendly(driverChangeRequest.isPetFriendly());
+        vehicle.setVehicleType(vehicleType);
+
+        driverChangeRequest.setApproved(true);
+        driverChangeRequest.setApprovedBy(admin);
+        driverChangeRequest.setApprovalTime(LocalDateTime.now());
+
+        driverRepository.save(driver);
+        vehicleRepository.save(vehicle);
+        driverChangeRequestRepository.save(driverChangeRequest);
+
+        return driver;
     }
 }

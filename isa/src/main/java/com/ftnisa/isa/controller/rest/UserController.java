@@ -7,6 +7,7 @@ import com.ftnisa.isa.dto.user.*;
 import com.ftnisa.isa.mapper.UserMapper;
 import com.ftnisa.isa.service.DriverService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -63,6 +64,31 @@ public class UserController {
     public ResponseEntity<UserResponse> updateUser(@PathVariable Integer id, @RequestBody UserRequest userRequest) {
         var user = this.userService.updateUser(id, userRequest);
         return ResponseEntity.ok(mapper.toUserResponse(user));
+    }
+
+
+    @PutMapping("/driver-change-request")
+    @PreAuthorize("hasAnyRole('DRIVER')")
+    public ResponseEntity<Void> createDriverChangeRequest(@RequestBody DriverChangeRequestDto driverChangeRequestDto) {
+        try {
+            this.userService.createDriverChangeRequest(driverChangeRequestDto);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+
+    }
+
+    @PutMapping("/driver-change-approve")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<DriverResponse> approveDriverChangeRequest(@PathVariable Integer driverChangeRequestId) {
+        try {
+            var driver = userService.approveDriverChangeRequest(driverChangeRequestId);
+            return ResponseEntity.ok(mapper.driverToDriverResponse(driver));
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping("/driver")
