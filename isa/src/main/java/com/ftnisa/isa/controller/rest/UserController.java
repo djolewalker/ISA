@@ -9,6 +9,7 @@ import com.ftnisa.isa.service.DriverService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,7 @@ public class UserController {
     private final UserService userService;
     private final DriverService driverService;
     private final UserMapper mapper;
+    private SimpMessagingTemplate template;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -50,6 +52,7 @@ public class UserController {
     }
 
     @PutMapping("/profile")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<UserResponse> updateUserProfile(Principal principal, @RequestBody UserRequest userRequest) {
         var user = this.userService.updateUserProfile(principal.getName(), userRequest);
         return ResponseEntity.ok(mapper.toUserResponse(user));
@@ -80,5 +83,28 @@ public class UserController {
     public ResponseEntity<List<DriverLocationDto>> getDriversLocation() {
         var drivers = this.driverService.getActiveDrivers();
         return ResponseEntity.ok(mapper.driversToDriversLocationDto(drivers));
+    }
+
+    @PutMapping("/driver/deactivate")
+    @PreAuthorize("hasRole('DRIVER')")
+    public ResponseEntity deactivateDriver(Principal principal) {
+        var driver = this.driverService.deactivateDriver(principal.getName());
+        template.convertAndSend("/topic/driver/deactivated", driver.getId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/driver/activate")
+    @PreAuthorize("hasRole('DRIVER')")
+    public ResponseEntity activateDriver(Principal principal) {
+        var driver = this.driverService.activateDriver(principal.getName());
+        template.convertAndSend("/topic/driver/activated", driver.getId());
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/driver/status")
+    @PreAuthorize("hasRole('DRIVER')")
+    public ResponseEntity<DriverStatusDTO> isDriverActive(Principal principal) {
+        var driver = this.driverService.activateDriver(principal.getName());
+        return ResponseEntity.ok(mapper.driverToDriverStatusDto(driver));
     }
 }

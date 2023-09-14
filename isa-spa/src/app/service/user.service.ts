@@ -1,7 +1,7 @@
 import { Driver, User, Vehicle } from 'app/model/User';
 import { getRequest, postRequest, putRequest } from 'app/service/base.service';
 import { RegisterUser } from 'app/service/auth.service';
-import { DriverLocation } from 'app/model/Location';
+import { DriverLocation, DriverStatus } from 'app/model/Location';
 
 const CONTROLLER = 'user';
 
@@ -44,3 +44,10 @@ export const getActiveDriversLocations = async () =>
   getRequest(`${CONTROLLER}/driver/location`)
     .then((response) => response.data as DriverLocation[])
     .catch(() => []);
+
+export const getIsCurrentDriverActive = async () =>
+  getRequest(`${CONTROLLER}/driver/status`).then((response) => response.data as DriverStatus);
+
+export const activateCurrentDriver = async () => putRequest(`${CONTROLLER}/driver/activate`);
+
+export const deactivateCurrentDriver = async () => putRequest(`${CONTROLLER}/driver/deactivate`);

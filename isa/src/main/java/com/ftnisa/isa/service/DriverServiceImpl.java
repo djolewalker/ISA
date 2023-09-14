@@ -139,18 +139,20 @@ public class DriverServiceImpl implements DriverService{
     }
 
     @Override
-    public void activateDriver(String username) {
+    public Driver activateDriver(String username) {
         var driver = driverRepository.findByUsername(username);
         driver.setActive(true);
         driverRepository.save(driver);
+        return driver;
     }
 
     @Override
-    public void deactivateDriver(String username) {
+    public Driver deactivateDriver(String username) {
         var driver = driverRepository.findByUsername(username);
         driver.setOccupied(false);
         driver.setActive(false);
         driverRepository.save(driver);
+        return driver;
     }
 
     @Override

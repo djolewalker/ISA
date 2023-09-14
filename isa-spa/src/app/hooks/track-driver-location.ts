@@ -7,18 +7,20 @@ import { useAppDispatch } from 'app/hooks/common';
 import { getExampleCoordinate } from 'app/utils/coordinate.utils';
 import { DriverLocation } from 'app/model/Location';
 import { remvoveActiveDriverLocation, updateDriversLocation } from 'app/pages/common.slice';
+import { useDriverStatusContext } from 'app/contexts/driver-status/driver-status-provider';
 
 export const useDriverLocations = () => {
   const dispatch = useAppDispatch();
+  const { active } = useDriverStatusContext();
   const { hasAnyRole } = useAuthContext();
   const { client, connected } = useWs();
 
   const publishDriverLocation = useCallback(() => {
-    if (hasAnyRole(['ROLE_DRIVER']) && connected) {
+    if (hasAnyRole(['ROLE_DRIVER']) && active && connected) {
       const [latitude, longitude] = getExampleCoordinate();
       client.send('/app/driver/location', {}, JSON.stringify({ latitude, longitude }));
     }
-  }, [client, connected, hasAnyRole]);
+  }, [active, client, connected, hasAnyRole]);
 
   useEffect(() => {
     publishDriverLocation();

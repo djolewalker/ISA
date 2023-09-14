@@ -1,15 +1,29 @@
 import { useEffect, useState } from 'react';
-import { LatLngTuple, geoJson, GeoJSON, icon, marker, Marker } from 'leaflet';
+import { LatLngTuple, geoJson, GeoJSON, icon, marker, Marker, Point } from 'leaflet';
 import { useMap } from 'react-leaflet';
 
 import { useAppSelector } from 'app/hooks/common';
 import { selectRoutes, selectSelectedRouteId } from 'app/pages/routes/routes-page.slice';
 
+import redIcon from 'assets/car-red.png';
+import greenIcon from 'assets/car-green.png';
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 import { selectActiveDriversLocations } from 'app/pages/common.slice';
+import { useDriverStatusContext } from 'app/contexts/driver-status/driver-status-provider';
+import { useAuthContext } from 'app/contexts/auth/auth-context-provider';
 
-const Icon = icon({
+const redCarIcon = icon({
+  iconUrl: redIcon,
+  iconSize: [25, 25]
+});
+
+const greenCarIcon = icon({
+  iconUrl: greenIcon,
+  iconSize: [25, 25]
+});
+
+const locationIcon = icon({
   iconUrl,
   shadowUrl
 });
@@ -29,6 +43,8 @@ type GeoJSONRoutes = { [key: string | number]: GeoJSON };
 export const MainMapContent = () => {
   const map = useMap();
 
+  const { active } = useDriverStatusContext();
+  const { user } = useAuthContext();
   const routes = useAppSelector(selectRoutes);
   const selectedRouteId = useAppSelector(selectSelectedRouteId);
   const locations = useAppSelector(selectActiveDriversLocations);
@@ -71,16 +87,18 @@ export const MainMapContent = () => {
   }, [displayedRoutes, selectedRouteId]);
 
   useEffect(() => {
-    console.log(locations);
-    const markers: Marker[] = locations.map(({ longitude, latitude, occupied }) =>
-      marker([latitude, longitude], { icon: Icon })
-    );
+    const markers: Marker[] = locations.map(({ longitude, latitude, occupied, id }) => {
+      const carIcon = occupied ? redCarIcon : greenCarIcon;
+      const icon = active && id === user?.id ? locationIcon : carIcon;
+      const newMarker = marker([latitude, longitude], { icon });
+      return newMarker;
+    });
     markers.forEach((m) => m.addTo(map));
 
     return () => {
       markers.forEach((m) => m.remove());
     };
-  }, [map, locations]);
+  }, [map, locations, active, user?.id]);
 
   return <></>;
 };

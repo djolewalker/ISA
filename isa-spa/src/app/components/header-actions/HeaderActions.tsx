@@ -2,10 +2,12 @@ import { Avatar, Dropdown, MenuProps } from 'antd';
 import { ItemType } from 'antd/es/menu/hooks/useItems';
 import { IsaButton } from 'app/components/isa-button/IsaButton';
 import { useAuthContext } from 'app/contexts/auth/auth-context-provider';
+import { useDriverStatusContext } from 'app/contexts/driver-status/driver-status-provider';
 import { useNavigate } from 'react-router-dom';
 
 export const HeaderActions = () => {
   const { isAuthorized, user, logOut, hasAnyRole } = useAuthContext();
+  const { active, loading, activate, deactivate } = useDriverStatusContext();
   const navigate = useNavigate();
 
   const handleRegisterClicked = () => navigate('/register');
@@ -22,15 +24,33 @@ export const HeaderActions = () => {
     }
   ];
 
+  const driverMenu: ItemType[] = [
+    active
+      ? {
+          key: 'status',
+          label: 'Postani neaktivan',
+          disabled: loading,
+          danger: true,
+          onClick: deactivate
+        }
+      : {
+          key: 'status',
+          label: 'Postani aktivan',
+          disabled: loading,
+          onClick: activate
+        }
+  ];
+
   const menu: MenuProps = {
     items: [
       {
         label: 'Profil',
         key: 'profile',
 
-        onClick: () => navigate('/profile')
+        onClick: () => (hasAnyRole(['ROLE_DRIVER']) ? navigate('/driver/profile') : navigate('/profile'))
       },
       ...(hasAnyRole(['ROLE_ADMIN']) ? adminMenu : []),
+      ...(hasAnyRole(['ROLE_DRIVER']) ? driverMenu : []),
       {
         type: 'divider'
       },

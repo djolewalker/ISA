@@ -15,6 +15,8 @@ import { useLoader } from 'app/contexts/loader/loader-context-provider';
 import { useNotifications } from 'app/contexts/notifications/notifications-provider';
 import { AxiosError } from 'axios';
 import { resetSearch } from 'app/pages/search/search-page.slice';
+import { VehicleType } from 'app/model/User';
+import { useAuthContext } from 'app/contexts/auth/auth-context-provider';
 
 type BookRideForm = Omit<BookRide, 'routeId' | 'routeOptimizationCriteria'>;
 
@@ -25,6 +27,7 @@ export const CreateRidePage = () => {
   const dispatch = useAppDispatch();
   const notifications = useNotifications();
   const { activateTransparentLoader, deactivateLoader } = useLoader();
+  const { hasAnyRole } = useAuthContext();
 
   const [bookRideForm] = useForm<BookRideForm>();
   const selectedRoute = useAppSelector(selectSelectedRoute);
@@ -79,53 +82,68 @@ export const CreateRidePage = () => {
       .finally(deactivateLoader);
   };
 
+  const buildVechileTypeOption = (vechicleType: VehicleType) => {
+    const price = selectedRoute?.properties?.summary.distance * vechicleType.pricePerKm;
+    const label = price
+      ? `${vechicleType.vehicleTypeName} - ${price.toLocaleString()} RSD`
+      : vechicleType.vehicleTypeName;
+    return { label, value: vechicleType.id };
+  };
+
   return (
     <div className="d-flex flex-column flex-grow-1">
       <MainHeader>
         <HeaderActions />
       </MainHeader>
       <div className="my-3 d-flex flex-column justify-content-center flex-grow-1">
-        <h2 className="h2 mb-4 text-center">Unesite detalje vožnje:</h2>
-        <Form form={bookRideForm} onFinish={handleBookRide} className="w-75 mx-auto" layout="vertical">
-          <Form.Item<BookRideForm> label="Tip Vozila" name="vehicleTypeId" rules={requiredRules}>
-            <Select
-              options={vehicleTypes?.map((vechicleType) => ({
-                label: vechicleType.vehicleTypeName,
-                value: vechicleType.id
-              }))}
-            />
-          </Form.Item>
+        {hasAnyRole(['ROLE_DRIVER']) ? (
+          <h2 className="h2 mb-4 text-center">Vozač nema mogućnost kreiranja vožnje!</h2>
+        ) : (
+          <>
+            <h2 className="h2 mb-4 text-center">Unesite detalje vožnje:</h2>
+            <Form form={bookRideForm} onFinish={handleBookRide} className="w-75 mx-auto" layout="vertical">
+              <Form.Item<BookRideForm> label="Tip Vozila" name="vehicleTypeId" rules={requiredRules}>
+                <Select options={vehicleTypes?.map(buildVechileTypeOption)} />
+              </Form.Item>
 
-          <Form.Item<BookRideForm> label="Broj putnika" name="numberOfPassengers" rules={requiredRules}>
-            <InputNumber />
-          </Form.Item>
+              <Form.Item<BookRideForm> label="Broj putnika" name="numberOfPassengers" rules={requiredRules}>
+                <InputNumber />
+              </Form.Item>
 
-          <Form.Item<BookRideForm> valuePropName="checked" label="Prevozi se beba" name="babyTransportFlag">
-            <Switch />
-          </Form.Item>
+              <Form.Item<BookRideForm> valuePropName="checked" label="Prevozi se beba" name="babyTransportFlag">
+                <Switch />
+              </Form.Item>
 
-          <Form.Item<BookRideForm> valuePropName="checked" label="Prevoze se ljubimci" name="petTransportFlag">
-            <Switch />
-          </Form.Item>
+              <Form.Item<BookRideForm> valuePropName="checked" label="Prevoze se ljubimci" name="petTransportFlag">
+                <Switch />
+              </Form.Item>
 
-          <Form.Item<BookRideForm> valuePropName="checked" label="Zakaži u tačno vreme" name="scheduled">
-            <Switch />
-          </Form.Item>
+              <Form.Item<BookRideForm> valuePropName="checked" label="Zakaži u tačno vreme" name="scheduled">
+                <Switch />
+              </Form.Item>
 
-          {isScheduled && (
-            <Form.Item<BookRideForm> label="Zakazano vreme" name="scheduledStartTime">
-              <DatePicker showTime={{ format: 'DD-MM-YYYY HH:mm' }} placeholder="Unesite datum i vreme" />
-            </Form.Item>
-          )}
+              {isScheduled && (
+                <Form.Item<BookRideForm> label="Zakazano vreme" name="scheduledStartTime">
+                  <DatePicker showTime={{ format: 'DD-MM-YYYY HH:mm' }} placeholder="Unesite datum i vreme" />
+                </Form.Item>
+              )}
 
-          <Form.Item<BookRideForm> className="d-flex justify-content-center" shouldUpdate={true}>
-            {({ isFieldsTouched }) => (
-              <IsaButton disabled={!isFieldsTouched()} className="mt-2" type="primary" htmlType="submit" size="large">
-                Zakaži vožnju
-              </IsaButton>
-            )}
-          </Form.Item>
-        </Form>
+              <Form.Item<BookRideForm> className="d-flex justify-content-center" shouldUpdate={true}>
+                {({ isFieldsTouched }) => (
+                  <IsaButton
+                    disabled={!isFieldsTouched()}
+                    className="mt-2"
+                    type="primary"
+                    htmlType="submit"
+                    size="large"
+                  >
+                    Zakaži vožnju
+                  </IsaButton>
+                )}
+              </Form.Item>
+            </Form>
+          </>
+        )}
       </div>
     </div>
   );

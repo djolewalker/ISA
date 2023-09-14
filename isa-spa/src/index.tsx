@@ -12,6 +12,7 @@ import AuthContextProvider from 'app/contexts/auth/auth-context-provider';
 import NotificationsProvider from 'app/contexts/notifications/notifications-provider';
 
 import 'styles/index.scss';
+import DriverStatusProvider from 'app/contexts/driver-status/driver-status-provider';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
@@ -20,9 +21,11 @@ root.render(
     <WsProvider>
       <Provider store={store}>
         <AuthContextProvider>
-          <NotificationsProvider>
-            <AppRoot />
-          </NotificationsProvider>
+          <DriverStatusProvider>
+            <NotificationsProvider>
+              <AppRoot />
+            </NotificationsProvider>
+          </DriverStatusProvider>
         </AuthContextProvider>
       </Provider>
     </WsProvider>

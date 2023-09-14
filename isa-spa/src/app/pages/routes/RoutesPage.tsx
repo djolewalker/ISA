@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Form, Select } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
+import { Form, Input, Select } from 'antd';
 import { DefaultOptionType } from 'antd/es/select';
 
 import { HeaderActions } from 'app/components/header-actions/HeaderActions';
@@ -16,6 +16,7 @@ import {
   setSelectedRouteId
 } from 'app/pages/routes/routes-page.slice';
 import { IsaButton } from 'app/components/isa-button/IsaButton';
+import { useAuthContext } from 'app/contexts/auth/auth-context-provider';
 
 const routePriorityOptions: DefaultOptionType[] = [
   { label: 'Udaljenost', value: 'BY_LENGTH' },
@@ -26,6 +27,7 @@ const routePriorityOptions: DefaultOptionType[] = [
 export const RoutesPage = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { isAuthorized } = useAuthContext();
 
   const routes = useAppSelector(selectRoutes);
   const prioritizedRouteId = useAppSelector(selectPrioritizedRouteId);
@@ -97,13 +99,16 @@ export const RoutesPage = () => {
             </>
           )}
         </div>
-        <div className="mt-4 w-75 mx-auto d-flex justify-content-center">
+        <div className="mt-4 w-75 mx-auto d-flex justify-content-center align-items-center">
           <IsaButton className="mx-4" size="large" onClick={handleModifyLocations}>
             Izmeni
           </IsaButton>
-          <IsaButton className="mx-4" type="primary" size="large" onClick={handleProceedBooking}>
-            Nastavi
-          </IsaButton>
+          {isAuthorized && (
+            <IsaButton className="mx-4" type="primary" size="large" onClick={handleProceedBooking}>
+              Nastavi
+            </IsaButton>
+          )}
+          {!isAuthorized && <Link to={'/login'}>Prijavi se kako bi zakazao vožnju</Link>}
         </div>
       </div>
     </div>

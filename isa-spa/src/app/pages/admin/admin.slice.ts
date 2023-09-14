@@ -1,5 +1,5 @@
 import { PayloadAction, createSelector, createSlice } from '@reduxjs/toolkit';
-import { User, VehicleType } from 'app/model/User';
+import { User } from 'app/model/User';
 import { RootState } from 'app/redux/store';
 
 export type AdminState = {
