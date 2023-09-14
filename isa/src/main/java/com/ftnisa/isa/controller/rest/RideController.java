@@ -53,6 +53,7 @@ public class RideController {
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/booking")
+    @Transactional
     public ResponseEntity<RideDto> rideBooking(@RequestBody RideBookingRequestDto rideBookingRequestDTO){
         try {
             var ride = rideService.bookARide(rideBookingRequestDTO);

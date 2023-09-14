@@ -47,6 +47,7 @@ public class RideServiceImpl implements RideService {
 
   
     @Override
+    @Transactional
     public Ride bookARide(RideBookingRequestDto rideBookingRequestDTO) throws Exception{
         var route = routeRepository.findById(rideBookingRequestDTO.getRouteId())
                 .orElseThrow(TempRouteExpired::new);
@@ -72,6 +73,7 @@ public class RideServiceImpl implements RideService {
 
   
     @Override
+    @Transactional
     public Ride requestQuickRideBooking(Ride ride) throws Exception{
         // set the ride passenger
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -80,7 +82,7 @@ public class RideServiceImpl implements RideService {
 
         // check if passenger has an active ride, if yes, reject
         if (!rideRepository.findByPassengerAndRideStatus(passenger, RideStatus.ACTIVE).isEmpty()) {
-            Rejection rejection = new Rejection("Sorry, new ride cant be booked while having an active ride",
+            Rejection rejection = new Rejection("Izvinite, ne možete zakazati novu vožnju, dok imate drugu aktivnu vožnju.",
                     LocalDateTime.now());
             ride.setRejection(rejection);
             ride.setRideStatus(RideStatus.REJECTED);
@@ -92,7 +94,7 @@ public class RideServiceImpl implements RideService {
         List<Driver> activeDrivers = driverService.getActiveDrivers();
 
         if (activeDrivers.isEmpty()) {
-            Rejection rejection = new Rejection("Sorry, there are no active drivers currently", LocalDateTime.now());
+            Rejection rejection = new Rejection("Nažalost, trenutno nema aktivnih vozača.", LocalDateTime.now());
             ride.setRejection(rejection);
             ride.setRideStatus(RideStatus.REJECTED);
             rideRepository.save(ride);
@@ -106,7 +108,7 @@ public class RideServiceImpl implements RideService {
 
         if (freeActiveDrivers.isEmpty() && driversWithoutNextBooking.isEmpty()) {
             Rejection rejection = new Rejection(
-                    "Sorry, there are no available drivers for this ride. Try again a bit later.", LocalDateTime.now());
+                    "Nažalost, trenutno nema dostupnih vozača za Vašu vožnju. Pokušajte malo kasnije.", LocalDateTime.now());
             ride.setRejection(rejection);
             ride.setRideStatus(RideStatus.REJECTED);
             rideRepository.save(ride);
@@ -135,7 +137,7 @@ public class RideServiceImpl implements RideService {
                     ride.getNumberOfPassengers(),
                     rideDurationMinutes);
             if (appropriateDrivers.isEmpty()) {
-                Rejection rejection = new Rejection("Sorry, we don't have car with required conditions!",
+                Rejection rejection = new Rejection("Nažalost, trenutno nemamo dostupnih vozila sa zadatim kriterijumima.",
                         LocalDateTime.now());
                 ride.setRejection(rejection);
                 ride.setRideStatus(RideStatus.REJECTED);
@@ -166,11 +168,14 @@ public class RideServiceImpl implements RideService {
 
         // save and return
         rideRepository.save(ride);
+        route.setRide(ride);
+        routeRepository.save(route);
         return ride;
     }
 
-    @Transactional
+
     @Override
+    @Transactional
     public Ride scheduledRideBooking(Ride ride) throws Exception{
         // set the ride passenger
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -179,7 +184,7 @@ public class RideServiceImpl implements RideService {
 
         // check if passenger has an active ride, if yes, reject
         if (!rideRepository.findByPassengerAndRideStatus(passenger, RideStatus.ACTIVE).isEmpty()) {
-            Rejection rejection = new Rejection("Sorry, new ride cant be booked while having an active ride",
+            Rejection rejection = new Rejection("Izvinite, ne možete zakazati novu vožnju, dok imate drugu aktivnu vožnju.",
                     LocalDateTime.now());
             ride.setRejection(rejection);
             ride.setRideStatus(RideStatus.REJECTED);
@@ -189,7 +194,7 @@ public class RideServiceImpl implements RideService {
 
         // if ride start time is more than 5 hours later reject
         if (ride.getStartTime().isAfter(LocalDateTime.now().plusHours(5))) {
-            Rejection rejection = new Rejection("Sorry, the ride cant be scheduled more than 5 hours in advance",
+            Rejection rejection = new Rejection("Izvinite, ne možete zakazati vožnju više od 5 sati unapred.",
                     LocalDateTime.now());
             ride.setRejection(rejection);
             ride.setRideStatus(RideStatus.REJECTED);
@@ -201,7 +206,7 @@ public class RideServiceImpl implements RideService {
         List<Driver> activeDrivers = driverService.getActiveDrivers();
 
         if (activeDrivers.isEmpty()) {
-            Rejection rejection = new Rejection("Sorry, there are no active drivers currently", LocalDateTime.now());
+            Rejection rejection = new Rejection("Nažalost, trenutno nema aktivnih vozača.", LocalDateTime.now());
             ride.setRejection(rejection);
             ride.setRideStatus(RideStatus.REJECTED);
             rideRepository.save(ride);
@@ -209,12 +214,9 @@ public class RideServiceImpl implements RideService {
         }
 
         // get the distances for the routes from openstreetmaps
-        long rideLengthMeters = 0;
-        float rideDurationMinutes = 0;
-        for (Route route : ride.getRoutes()) {
-            rideLengthMeters = rideLengthMeters + routeService.fetchRouteLengthMeters(route);
-            rideDurationMinutes = rideDurationMinutes + routeService.fetchRouteDurationMinutes(route);
-        }
+        var route = ride.getRoutes().get(0);
+        long rideLengthMeters = routeService.fetchRouteLengthMeters(route);
+        float rideDurationMinutes = routeService.fetchRouteDurationMinutes(route);
 
         // choose the driver
         List<Driver> appropriateDrivers = filterDriversByRideCriteria(
@@ -237,6 +239,8 @@ public class RideServiceImpl implements RideService {
 
         // save and return
         rideRepository.save(ride);
+        route.setRide(ride);
+        routeRepository.save(route);
 
         notificationService.createScheduledDriveReminders(passenger, ride.getStartTime());
         return ride;
@@ -364,8 +368,7 @@ public class RideServiceImpl implements RideService {
         Driver driver = ride.getDriver();
 
         if (!driver.isOccupied()) {
-            return LocalDateTime.now().plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(
-                    driver.getVehicle().getCurrentLocation(), routeService.getRidesStartLocation(ride)));
+            return LocalDateTime.now().plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(driver.getVehicle().getCurrentLocation(), routeService.getRidesStartLocation(ride)));
         } else {
             Ride driversCurrentRide = driverService.getDriversCurrentRide(driver);
             return driversCurrentRide.getFinishTime().plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(
