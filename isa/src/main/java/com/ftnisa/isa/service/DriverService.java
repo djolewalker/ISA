@@ -29,9 +29,9 @@ public interface DriverService {
 
     Driver findDriverById(int id);
 
-    void activateDriver(String username);
+    Driver activateDriver(String username);
 
-    void deactivateDriver(String username);
+    Driver deactivateDriver(String username);
 
     Driver updateDriverLocation(int id, float lon, float lat);
 }

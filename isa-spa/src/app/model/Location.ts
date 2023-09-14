@@ -9,3 +9,7 @@ export type DriverLocation = {
   id: number;
   occupied: boolean;
 } & ISALocation;
+
+export type DriverStatus = {
+  active: boolean;
+};

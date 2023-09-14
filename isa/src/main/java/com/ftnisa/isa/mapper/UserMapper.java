@@ -39,4 +39,5 @@ public interface UserMapper {
     @Named("latitude")
     default float driverToLatitude(Vehicle vehicle) { return vehicle.getCurrentLocation().getLatitude();}
 
+    DriverStatusDTO driverToDriverStatusDto(Driver driver);
 }

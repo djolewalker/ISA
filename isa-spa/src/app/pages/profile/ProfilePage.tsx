@@ -16,8 +16,6 @@ export const ProfilePage = () => {
   const { user, setUser } = useAuthContext();
   const { activateTransparentLoader, deactivateLoader } = useLoader();
 
-  if (!user) return <></>;
-
   const handleOnFinish = (data: UpdateUserForm) => {
     activateTransparentLoader();
     updateUserProfile(data)
@@ -47,7 +45,7 @@ export const ProfilePage = () => {
             onFinish={handleOnFinish}
             autoComplete="off"
             validateTrigger="onSubmit"
-            initialValues={user}
+            initialValues={user || {}}
           >
             <Form.Item<UpdateUserForm>
               label="Email adresa"

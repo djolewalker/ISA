@@ -16,6 +16,7 @@ import { UsersPage } from 'app/pages/admin/users/UsersPage';
 import { UserPage } from 'app/pages/admin/user/UserPage';
 import { CreateRidePage } from 'app/pages/create-ride/CreateRidePage';
 import { RidePage } from 'app/pages/ride/RidePage';
+import { DriverProfilePage } from 'app/pages/driver-profile/DriverProfilePage';
 
 export const useMapLayoutRoutes = () => {
   const { isAuthorized } = useAuthContext();
@@ -37,7 +38,23 @@ export const useMapLayoutRoutes = () => {
       children: [
         {
           path: '/profile',
-          element: <ProfilePage />
+          element: <PermittedRoute roles={['ROLE_ADMIN', 'ROLE_USER']} />,
+          children: [
+            {
+              path: '/profile',
+              element: <ProfilePage />
+            }
+          ]
+        },
+        {
+          path: '/driver',
+          element: <PermittedRoute roles={['ROLE_DRIVER']} />,
+          children: [
+            {
+              path: '/driver/profile',
+              element: <DriverProfilePage />
+            }
+          ]
         },
         {
           path: '/admin',
