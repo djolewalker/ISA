@@ -2,6 +2,7 @@ package com.ftnisa.isa.service;
 
 import com.ftnisa.isa.dto.auth.RegisterRequest;
 import com.ftnisa.isa.dto.user.CreateDriverRequest;
+import com.ftnisa.isa.dto.user.DriverChangeRequestDto;
 import com.ftnisa.isa.dto.user.UserRequest;
 import com.ftnisa.isa.model.user.Driver;
 import com.ftnisa.isa.model.user.User;
@@ -28,4 +29,9 @@ public interface UserService {
     User updateUser(int id, UserRequest userRequest);
 
     Driver registerDriver(CreateDriverRequest driverRequest);
+
+
+    Driver approveDriverChangeRequest(Integer driverChangeRequestId);
+
+    void createDriverChangeRequest(DriverChangeRequestDto driverChangeRequestDto);
 }

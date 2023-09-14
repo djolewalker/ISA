@@ -2,6 +2,7 @@ package com.ftnisa.isa.mapper;
 
 import com.ftnisa.isa.dto.user.*;
 import com.ftnisa.isa.model.user.Driver;
+import com.ftnisa.isa.model.user.DriverChangeRequest;
 import com.ftnisa.isa.model.user.Role;
 import com.ftnisa.isa.model.user.User;
 import com.ftnisa.isa.model.vehicle.Vehicle;
@@ -24,6 +25,8 @@ public interface UserMapper {
     DriverResponse driverToDriverResponse(Driver driver);
 
     DriverInfoDto driverToDriverInfoDto(Driver driver);
+
+    DriverChangeRequest driverChangeRequestDtoToDriverChangeRequest(DriverChangeRequestDto driverChangeRequestDto);
 
     @Mapping(target = "longitude", source = "vehicle", qualifiedByName = "longitude")
     @Mapping(target = "latitude", source = "vehicle", qualifiedByName = "latitude")
