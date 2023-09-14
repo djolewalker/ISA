@@ -52,7 +52,7 @@ public class Route {
     @Column(name = "route_price")
     private float routePrice;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "ride_id")
     private Ride ride;
 

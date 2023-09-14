@@ -65,7 +65,7 @@ public class Ride {
     @JoinColumn(name = "passenger")
     private User passenger;
 
-    @OneToMany(mappedBy = "ride")
+    @OneToMany(mappedBy = "ride", cascade = CascadeType.ALL)
     private List<Route> routes;
 
     @OneToOne(cascade = CascadeType.ALL)
