@@ -69,4 +69,16 @@ public class Route {
     public void onPrePersist() {
         createdAt = Instant.now();
     }
+
+    public Route(Location startLocation, Location finishLocation, List<IntermediateStop> stops, float length, Duration estimatedDuration, float routePrice, Ride ride, Instant createdAt, GeoJSONIndividualRouteResponse geo) {
+        this.startLocation = startLocation;
+        this.finishLocation = finishLocation;
+        this.stops = stops;
+        this.length = length;
+        this.estimatedDuration = estimatedDuration;
+        this.routePrice = routePrice;
+        this.ride = ride;
+        this.createdAt = createdAt;
+        this.geo = geo;
+    }
 }

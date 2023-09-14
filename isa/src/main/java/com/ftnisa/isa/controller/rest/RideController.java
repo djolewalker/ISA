@@ -69,16 +69,9 @@ public class RideController {
     @PostMapping("/clone")
     public ResponseEntity<RideDto> recreateRide(@RequestBody RecreateRideDto recreateRideDto){
         try {
-            Ride ride = rideService.recreateRide(recreateRideDto.getRideId());
-
-            if (recreateRideDto.getScheduled()){
-                ride.setStartTime(recreateRideDto.getScheduledStartTime());
-                rideService.scheduledRideBooking(ride);
-            } else {
-                rideService.requestQuickRideBooking(ride);
-            }
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(rideMapper.rideToRideDto(ride));
+            var ride = rideService.recreateRide(recreateRideDto);
+            var rideBookingResponseDto = rideMapper.rideToRideDto(ride);
+            return ResponseEntity.status(HttpStatus.CREATED).body(rideBookingResponseDto);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }

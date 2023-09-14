@@ -19,7 +19,7 @@ public interface RideService {
 
     Ride requestQuickRideBooking(Ride ride) throws Exception;
 
-    Ride recreateRide(Integer rideId);
+    Ride recreateRide(RecreateRideDto recreateRideDto) throws Exception;
 
     void finalizeRideBooking(boolean isRideAccepted, int rideId);
 

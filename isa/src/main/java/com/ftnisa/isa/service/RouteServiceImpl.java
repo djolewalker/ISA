@@ -165,15 +165,33 @@ public class RouteServiceImpl implements RouteService {
     }
 
     @Override
-    public List<Route> cloneRoutes(List<Route> oldRoutes) {
-        List<Route> newRoutes = new ArrayList<>();
-        for (Route r : oldRoutes) {
-            Route newRoute = new Route();
-            newRoute.setStartLocation(new Location(r.getStartLocation()));
-            newRoute.setFinishLocation(new Location(r.getFinishLocation()));
-            newRoutes.add(newRoute);
+    @Transactional
+    public int cloneRoutes(Route oldRoute) {
+        Route newRoute = new Route();
+
+        //stops + stops.route + locations
+        List<IntermediateStop> stops = new ArrayList<>();
+        for (IntermediateStop s : oldRoute.getStops()){
+            var intermediateStop = new IntermediateStop();
+            intermediateStop.setRoute(newRoute);
+            var location = new Location();
+            location.setName(s.getLocation().getName());
+            location.setLatitude(s.getLocation().getLatitude());
+            location.setLongitude(s.getLocation().getLongitude());
+            intermediateStop.setLocation(location);
+            stops.add(intermediateStop);
         }
-        return newRoutes;
+        newRoute.setStops(stops);
+
+        newRoute.setStartLocation(oldRoute.getStartLocation());
+        newRoute.setFinishLocation(oldRoute.getFinishLocation());
+        newRoute.setEstimatedDuration(oldRoute.getEstimatedDuration());
+        newRoute.setLength(oldRoute.getLength());
+        newRoute.setGeo(oldRoute.getGeo());
+
+        routeRepository.save(newRoute);
+
+        return newRoute.getId();
     }
 
     @Override
@@ -223,7 +241,13 @@ public class RouteServiceImpl implements RouteService {
     public int cleanOrphanRoutes() {
         var timeInPastToSaveUntil = Instant.now().minus(10, ChronoUnit.MINUTES);
         var routes = routeRepository.findAllWithCreationDateTimeBefore(timeInPastToSaveUntil);
-        routeRepository.deleteAll(routes);
-        return routes.size();
+        int counter = 0;
+        for (Route route : routes){
+            if (route.getRide() != null) {
+                routeRepository.delete(route);
+                counter++;
+            }
+        }
+        return counter;
     }
 }
