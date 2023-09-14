@@ -15,9 +15,9 @@ import java.util.List;
 
 public interface RideService {
 
-    Ride bookARide(RideBookingRequestDto rideDto);
+    Ride bookARide(RideBookingRequestDto rideDto) throws Exception;
 
-    Ride requestQuickRideBooking(Ride ride);
+    Ride requestQuickRideBooking(Ride ride) throws Exception;
 
     Ride recreateRide(Integer rideId);
 
@@ -29,7 +29,7 @@ public interface RideService {
 
     Panic panic(Integer userId, Integer rideId, String panicReason);
 
-    Ride scheduledRideBooking(Ride ride);
+    Ride scheduledRideBooking(Ride ride) throws Exception;
 
     void rejectRideByDriver(Integer rideId, String rejectionReason);
 
@@ -41,11 +41,13 @@ public interface RideService {
 //
 //    Location getRidesStartLocation(Ride ride);
 
-    LocalDateTime estimateDriversTimeOfArrival(Ride ride);
+    LocalDateTime estimateDriversTimeOfArrival(Ride ride) throws Exception;
 
-    boolean checkIfRidesOverlap(Ride ride1, Ride ride2);
+    boolean checkIfRidesOverlap(Ride ride1, Ride ride2) throws Exception;
 
-    boolean checkIfRideIsSchedulableForDriver(Ride ride, Driver driver);
+    List<Driver> filterDriversBySchedule(List<Driver> drivers, Ride ride) throws Exception;
+
+    boolean checkIfRideIsSchedulableForDriver(Ride ride, Driver driver) throws Exception;
 
 
     List<Ride> getUsersWholeRideHistory(Integer userId);

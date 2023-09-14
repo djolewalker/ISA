@@ -19,12 +19,10 @@ public interface RouteService {
     // DUMMY returns 2500 meters
     long fetchRouteLengthMeters(Route route);
 
-    // calculates the estimated route duration based on the length, and an average speed of 50km/h
-    Duration estimateRouteDuration(long routeLength);
 
     float fetchRouteDurationMinutes(Route route);
 
-    // DUMMMY
+
     Double[][] convertLocationsToCoordinateArray(Location location1, Location location2);
 
     float fetchDistanceInMetersBetweenLocations(Location location1, Location location2) throws Exception;

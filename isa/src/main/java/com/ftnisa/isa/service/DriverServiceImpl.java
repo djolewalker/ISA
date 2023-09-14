@@ -99,8 +99,14 @@ public class DriverServiceImpl implements DriverService{
 
 
     @Override
-    public Driver selectCurrentlyClosestDriver(List<Driver> drivers, Location location) {
-        Driver driver = drivers.stream().min(Comparator.comparing(d -> routeService.fetchDistanceInMetersBetweenLocations(d.getVehicle().getCurrentLocation(), location))).get();
+    public Driver selectCurrentlyClosestDriver(List<Driver> drivers, Location location)  {
+        Driver driver = drivers.stream().min(Comparator.comparing(d -> {
+            try {
+                return routeService.fetchDistanceInMetersBetweenLocations(d.getVehicle().getCurrentLocation(), location);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        })).get();
         return driver;
     }
 
@@ -110,7 +116,13 @@ public class DriverServiceImpl implements DriverService{
         Driver driver = drivers
                 .stream()
                 .min(
-                        Comparator.comparing(d -> routeService.fetchDistanceInMetersBetweenLocations(routeService.getRidesFinishLocation(getDriversCurrentRide(d)), location))
+                        Comparator.comparing(d -> {
+                            try {
+                                return routeService.fetchDistanceInMetersBetweenLocations(routeService.getRidesFinishLocation(getDriversCurrentRide(d)), location);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        })
                 ).get();
 
         return driver;

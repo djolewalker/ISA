@@ -47,7 +47,7 @@ public class RideServiceImpl implements RideService {
 
   
     @Override
-    public Ride bookARide(RideBookingRequestDto rideBookingRequestDTO) {
+    public Ride bookARide(RideBookingRequestDto rideBookingRequestDTO) throws Exception{
         var route = routeRepository.findById(rideBookingRequestDTO.getRouteId())
                 .orElseThrow(TempRouteExpired::new);
         var vehicleType = vehicleTypeRepository.findById(rideBookingRequestDTO.getVehicleTypeId())
@@ -72,7 +72,7 @@ public class RideServiceImpl implements RideService {
 
   
     @Override
-    public Ride requestQuickRideBooking(Ride ride) {
+    public Ride requestQuickRideBooking(Ride ride) throws Exception{
         // set the ride passenger
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User passenger = userRepository.findByUsername(user.getUsername());
@@ -114,12 +114,16 @@ public class RideServiceImpl implements RideService {
         }
 
         // get the distances for the routes from openstreetmaps
-        long rideLengthMeters = 0;
-        float rideDurationMinutes = 0;
-        for (Route route : ride.getRoutes()) {
-            rideLengthMeters = rideLengthMeters + routeService.fetchRouteLengthMeters(route);
-            rideDurationMinutes = rideDurationMinutes + routeService.fetchRouteDurationMinutes(route);
-        }
+//        long rideLengthMeters = 0;
+//        float rideDurationMinutes = 0;
+//        for (Route route : ride.getRoutes()) {
+//            rideLengthMeters = rideLengthMeters + routeService.fetchRouteLengthMeters(route);
+//            rideDurationMinutes = rideDurationMinutes + routeService.fetchRouteDurationMinutes(route);
+//        }
+        var route = ride.getRoutes().get(0);
+        long rideLengthMeters = routeService.fetchRouteLengthMeters(route);
+        float rideDurationMinutes = routeService.fetchRouteDurationMinutes(route);
+
 
         // choose the driver and find his estimated arrival time
         if (!freeActiveDrivers.isEmpty()) {
@@ -138,8 +142,7 @@ public class RideServiceImpl implements RideService {
                 rideRepository.save(ride);
                 return ride;
             }
-            Driver chosenDriver = driverService.selectCurrentlyClosestDriver(appropriateDrivers,
-                    routeService.getRidesStartLocation(ride));
+            Driver chosenDriver = driverService.selectCurrentlyClosestDriver(appropriateDrivers, routeService.getRidesStartLocation(ride));
             ride.setDriver(chosenDriver);
         } else {
             List<Driver> appropriateDrivers = filterDriversByRideCriteria(
@@ -158,7 +161,7 @@ public class RideServiceImpl implements RideService {
         // calculate the price and the estimated finish time
         ride.setTotalPrice(calculateRidePrice(rideLengthMeters, ride.getVehicleType()));
         ride.setFinishTime(ride.getStartTime().plusMinutes((long) rideDurationMinutes));
-        ride.setEstimatedDuration(Duration.of((long) rideDurationMinutes, ChronoUnit.MINUTES));
+        ride.setEstimatedDuration(Duration.of((long) rideDurationMinutes, ChronoUnit.SECONDS));
         ride.setRideStatus(RideStatus.PENDING);
 
         // save and return
@@ -168,7 +171,7 @@ public class RideServiceImpl implements RideService {
 
     @Transactional
     @Override
-    public Ride scheduledRideBooking(Ride ride) {
+    public Ride scheduledRideBooking(Ride ride) throws Exception{
         // set the ride passenger
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User passenger = userRepository.findByUsername(user.getUsername());
@@ -357,7 +360,7 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public LocalDateTime estimateDriversTimeOfArrival(Ride ride) {
+    public LocalDateTime estimateDriversTimeOfArrival(Ride ride) throws Exception{
         Driver driver = ride.getDriver();
 
         if (!driver.isOccupied()) {
@@ -371,7 +374,7 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public boolean checkIfRidesOverlap(Ride ride1, Ride ride2) {
+    public boolean checkIfRidesOverlap(Ride ride1, Ride ride2) throws Exception{
         if (ride1.getFinishTime()
                 .plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(routeService.getRidesFinishLocation(ride1),
                         routeService.getRidesStartLocation(ride2)))
@@ -387,7 +390,8 @@ public class RideServiceImpl implements RideService {
         }
     }
 
-    public List<Driver> filterDriversBySchedule(List<Driver> drivers, Ride ride) {
+    @Override
+    public List<Driver> filterDriversBySchedule(List<Driver> drivers, Ride ride) throws Exception {
         List<Driver> schedulableDrivers = new ArrayList<>();
         for (Driver d : drivers) {
             if (checkIfRideIsSchedulableForDriver(ride, d)) {
@@ -398,7 +402,7 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public boolean checkIfRideIsSchedulableForDriver(Ride ride, Driver driver) {
+    public boolean checkIfRideIsSchedulableForDriver(Ride ride, Driver driver) throws Exception {
         List<Ride> rides = new ArrayList<>();
         rides.addAll(rideRepository.findByDriverAndRideStatus(driver, RideStatus.ACTIVE));
         rides.addAll(rideRepository.findByDriverAndRideStatus(driver, RideStatus.ACCEPTED));

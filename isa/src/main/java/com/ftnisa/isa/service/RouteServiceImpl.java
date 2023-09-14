@@ -93,24 +93,18 @@ public class RouteServiceImpl implements RouteService {
         return returnValue;
     }
 
-    // DUMMMY returns 2500 meters
+
     @Override
     public long fetchRouteLengthMeters(Route route) {
-        return 2500;
+        return (long) (route.getLength()*1000);
     }
 
-    // DUMMMY
+
     @Override
     public float fetchRouteDurationMinutes(Route route) {
-        return 15;
+        return (float) route.getEstimatedDuration().toMinutes()/60;
     }
 
-    // DUMMMY calculates the estimated route duration based on the length, and an
-    // average speed of 50km/h
-    @Override
-    public Duration estimateRouteDuration(long routeLength) {
-        return Duration.of((long) (routeLength / 13.889), ChronoUnit.SECONDS);
-    }
 
 
     @Override
@@ -130,7 +124,7 @@ public class RouteServiceImpl implements RouteService {
 
         var routeResponse = directionService.findRoutes(coordinates).block();
         routeResponse.getRoutes().stream().forEach(geoJSONIndividualRouteResponse -> {
-            distances.add(geoJSONIndividualRouteResponse.getProperties().getSummary().getDistance().longValue());
+            distances.add(geoJSONIndividualRouteResponse.getProperties().getSummary().getDistance().longValue()*1000);
         });
 
         return (float) Collections.min(distances);
@@ -144,7 +138,7 @@ public class RouteServiceImpl implements RouteService {
 
         var routeResponse = directionService.findRoutes(coordinates).block();
         routeResponse.getRoutes().stream().forEach(geoJSONIndividualRouteResponse -> {
-            durations.add(geoJSONIndividualRouteResponse.getProperties().getSummary().getDuration().longValue());
+            durations.add(geoJSONIndividualRouteResponse.getProperties().getSummary().getDuration().longValue()/60);
         });
 
         return Collections.min(durations);
@@ -188,18 +182,18 @@ public class RouteServiceImpl implements RouteService {
         var routeResponse = directionService.findRoutes(coordinates).block();
         routeResponse.getRoutes().stream().forEach(geoJSONIndividualRouteResponse -> {
             var route = new Route();
-            route.setStartLocation(new Location(coordinates[0][0].longValue(), coordinates[0][1].longValue(),
+            route.setStartLocation(new Location( coordinates[0][0].floatValue(), coordinates[0][1].floatValue(),
                     geoJSONIndividualRouteResponse.startLocationName()));
-            route.setFinishLocation(new Location(coordinates[coordinates.length - 1][0].longValue(),
-                    coordinates[coordinates.length - 1][1].longValue(),
+            route.setFinishLocation(new Location(coordinates[coordinates.length - 1][0].floatValue(),
+                    coordinates[coordinates.length - 1][1].floatValue(),
                     geoJSONIndividualRouteResponse.destinationLocationName()));
 
             if (coordinates.length > 2) {
                 var stops = new ArrayList<IntermediateStop>(coordinates.length - 2);
                 for (var i = 1; i < coordinates.length - 1; i++) {
                     var location = new Location();
-                    location.setLongitude(coordinates[i][0].longValue());
-                    location.setLatitude(coordinates[i][1].longValue());
+                    location.setLongitude(coordinates[i][0].floatValue());
+                    location.setLatitude(coordinates[i][1].floatValue());
                     location.setName(geoJSONIndividualRouteResponse.stopLocationName(i));
 
                     var intermediateStop = new IntermediateStop();
@@ -213,7 +207,7 @@ public class RouteServiceImpl implements RouteService {
             route.setEstimatedDuration(
                     Duration.of(geoJSONIndividualRouteResponse.getProperties().getSummary().getDuration().longValue(),
                             ChronoUnit.MINUTES));
-            route.setLength(geoJSONIndividualRouteResponse.getProperties().getSummary().getDistance().longValue());
+            route.setLength(geoJSONIndividualRouteResponse.getProperties().getSummary().getDistance().floatValue());
 
             geoJSONIndividualRouteResponse.clearSegments();
             route.setGeo(geoJSONIndividualRouteResponse);
