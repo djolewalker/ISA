@@ -81,7 +81,7 @@ public class UserController {
     }
 
     @PutMapping("/driver-change-approve")
-    //@PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<DriverResponse> approveDriverChangeRequest(@RequestBody Integer driverChangeRequestId) {
         try {
             var driver = userService.approveDriverChangeRequest(driverChangeRequestId);

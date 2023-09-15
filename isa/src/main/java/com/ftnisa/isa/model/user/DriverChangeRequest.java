@@ -34,7 +34,7 @@ public class DriverChangeRequest {
     @JoinColumn(name = "approved_by")
     private User approvedBy;
 
-    @Column(name = "time")
+    @Column(name = "approval_time")
     private LocalDateTime approvalTime;
 
 
