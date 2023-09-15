@@ -8,6 +8,7 @@ import com.ftnisa.isa.event.resetPasswordRequested.OnResetPasswordRequestedEvent
 import com.ftnisa.isa.event.verificationRequested.OnVerificationRequestedEvent;
 import com.ftnisa.isa.exception.ResourceConflictException;
 import com.ftnisa.isa.mapper.UserMapper;
+import com.ftnisa.isa.model.ride.Panic;
 import com.ftnisa.isa.model.token.TokenType;
 import com.ftnisa.isa.model.user.Driver;
 import com.ftnisa.isa.model.user.DriverChangeRequest;
@@ -43,6 +44,8 @@ public class UserServiceImpl implements UserService {
 
     private final NotificationService notificationService;
 
+    private final PanicRepository panicRepository;
+
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
             RoleService roleService, TokenService tokenService,
             ApplicationEventPublisher eventPublisher,
@@ -51,7 +54,8 @@ public class UserServiceImpl implements UserService {
                            DriverRepository driverRepository,
                            DriverChangeRequestRepository driverChangeRequestRepository,
                            UserMapper userMapper,
-                           NotificationService notificationService
+                           NotificationService notificationService,
+                           PanicRepository panicRepository
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -64,6 +68,7 @@ public class UserServiceImpl implements UserService {
         this.driverChangeRequestRepository = driverChangeRequestRepository;
         this.userMapper = userMapper;
         this.notificationService = notificationService;
+        this.panicRepository = panicRepository;
     }
 
     @Override
@@ -252,5 +257,20 @@ public class UserServiceImpl implements UserService {
         driverChangeRequestRepository.save(driverChangeRequest);
 
         return driver;
+    }
+
+    @Override
+    @Transactional
+    public Panic resolvePanic(Integer panicId){
+        Panic panic = panicRepository.findById(panicId).orElseThrow();
+        User admin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        panic.setResolved(true);
+        panic.setResolvedBy(admin);
+        panic.setResolveTime(LocalDateTime.now());
+
+        panicRepository.save(panic);
+
+        return panic;
     }
 }

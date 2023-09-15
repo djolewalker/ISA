@@ -4,8 +4,10 @@ import com.ftnisa.isa.dto.auth.RegisterRequest;
 import com.ftnisa.isa.dto.user.CreateDriverRequest;
 import com.ftnisa.isa.dto.user.DriverChangeRequestDto;
 import com.ftnisa.isa.dto.user.UserRequest;
+import com.ftnisa.isa.model.ride.Panic;
 import com.ftnisa.isa.model.user.Driver;
 import com.ftnisa.isa.model.user.User;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -34,4 +36,7 @@ public interface UserService {
     Driver approveDriverChangeRequest(Integer driverChangeRequestId);
 
     void createDriverChangeRequest(DriverChangeRequestDto driverChangeRequestDto);
+
+    @Transactional
+    Panic resolvePanic(Integer panicId);
 }
