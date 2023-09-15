@@ -96,19 +96,18 @@ public class RouteServiceImpl implements RouteService {
 
     @Override
     public long fetchRouteLengthMeters(Route route) {
-        return (long) (route.getLength()*1000);
+        return (long) (route.getLength() * 1000);
     }
 
 
     @Override
     public float fetchRouteDurationMinutes(Route route) {
-        return (float) route.getEstimatedDuration().toMinutes()/60;
+        return (float) route.getEstimatedDuration().toMinutes() / 60;
     }
 
 
-
     @Override
-    public Double[][] convertLocationsToCoordinateArray(Location location1, Location location2){
+    public Double[][] convertLocationsToCoordinateArray(Location location1, Location location2) {
         Double[][] coordinates = new Double[2][2];
         coordinates[0][0] = (double) location1.getLongitude();
         coordinates[0][1] = (double) location1.getLatitude();
@@ -124,7 +123,7 @@ public class RouteServiceImpl implements RouteService {
 
         var routeResponse = directionService.findRoutes(coordinates).block();
         routeResponse.getRoutes().stream().forEach(geoJSONIndividualRouteResponse -> {
-            distances.add(geoJSONIndividualRouteResponse.getProperties().getSummary().getDistance().longValue()*1000);
+            distances.add(geoJSONIndividualRouteResponse.getProperties().getSummary().getDistance().longValue() * 1000);
         });
 
         return (float) Collections.min(distances);
@@ -138,7 +137,7 @@ public class RouteServiceImpl implements RouteService {
 
         var routeResponse = directionService.findRoutes(coordinates).block();
         routeResponse.getRoutes().stream().forEach(geoJSONIndividualRouteResponse -> {
-            durations.add(geoJSONIndividualRouteResponse.getProperties().getSummary().getDuration().longValue()/60);
+            durations.add(geoJSONIndividualRouteResponse.getProperties().getSummary().getDuration().longValue() / 60);
         });
 
         return Collections.min(durations);
@@ -171,7 +170,7 @@ public class RouteServiceImpl implements RouteService {
 
         //stops + stops.route + locations
         List<IntermediateStop> stops = new ArrayList<>();
-        for (IntermediateStop s : oldRoute.getStops()){
+        for (IntermediateStop s : oldRoute.getStops()) {
             var intermediateStop = new IntermediateStop();
             intermediateStop.setRoute(newRoute);
             var location = new Location();
@@ -200,7 +199,7 @@ public class RouteServiceImpl implements RouteService {
         var routeResponse = directionService.findRoutes(coordinates).block();
         routeResponse.getRoutes().stream().forEach(geoJSONIndividualRouteResponse -> {
             var route = new Route();
-            route.setStartLocation(new Location( coordinates[0][0].floatValue(), coordinates[0][1].floatValue(),
+            route.setStartLocation(new Location(coordinates[0][0].floatValue(), coordinates[0][1].floatValue(),
                     geoJSONIndividualRouteResponse.startLocationName()));
             route.setFinishLocation(new Location(coordinates[coordinates.length - 1][0].floatValue(),
                     coordinates[coordinates.length - 1][1].floatValue(),
@@ -217,6 +216,7 @@ public class RouteServiceImpl implements RouteService {
                     var intermediateStop = new IntermediateStop();
                     intermediateStop.setRoute(route);
                     intermediateStop.setLocation(location);
+                    intermediateStop.setOrder(i);
                     stops.add(intermediateStop);
                 }
                 route.setStops(stops);
@@ -242,7 +242,7 @@ public class RouteServiceImpl implements RouteService {
         var timeInPastToSaveUntil = Instant.now().minus(10, ChronoUnit.MINUTES);
         var routes = routeRepository.findAllWithCreationDateTimeBefore(timeInPastToSaveUntil);
         int counter = 0;
-        for (Route route : routes){
+        for (Route route : routes) {
             if (route.getRide() != null) {
                 routeRepository.delete(route);
                 counter++;

@@ -21,5 +21,4 @@ public class RideBookingRequestDto {
     private LocalDateTime scheduledStartTime;
     private RouteOptimizationCriteria routeOptimizationCriteria;
     private int routeId;
-
 }

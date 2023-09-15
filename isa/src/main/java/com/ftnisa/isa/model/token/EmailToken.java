@@ -1,7 +1,6 @@
 package com.ftnisa.isa.model.token;
 
 import com.ftnisa.isa.model.user.User;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

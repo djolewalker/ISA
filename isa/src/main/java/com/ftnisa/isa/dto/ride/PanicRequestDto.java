@@ -6,7 +6,5 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class PanicRequestDto {
-    private String panicReason;
-    private Integer rideId;
-    private Integer userId;
+    private String reason;
 }

@@ -1,17 +1,12 @@
 package com.ftnisa.isa.controller.rest;
 
-
 import com.ftnisa.isa.dto.ride.*;
-import com.ftnisa.isa.mapper.LocationMapper;
 import com.ftnisa.isa.mapper.RideMapper;
-import com.ftnisa.isa.model.ride.Panic;
 import com.ftnisa.isa.model.ride.Ride;
-import com.ftnisa.isa.repository.VehicleTypeRepository;
 import com.ftnisa.isa.service.RideService;
-import com.ftnisa.isa.service.RouteService;
-import com.ftnisa.isa.service.VehicleService;
+import com.ftnisa.isa.service.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,57 +14,36 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/ride", produces = MediaType.APPLICATION_JSON_VALUE)
 @SecurityRequirement(name = "isasec")
+@AllArgsConstructor
 public class RideController {
-
     private final RideService rideService;
-
-    private final VehicleTypeRepository vehicleTypeRepository;
-
-    private final RouteService routeService;
-
     private final RideMapper rideMapper;
 
-    private final LocationMapper locationMapper;
-
-
-    @Autowired
-    public RideController(RideService rideService, VehicleTypeRepository vehicleTypeRepository, RouteService routeService, RideMapper rideMapper, LocationMapper locationMapper) {
-        super();
-        this.rideService = rideService;
-        this.vehicleTypeRepository = vehicleTypeRepository;
-        this.routeService = routeService;
-        this.rideMapper = rideMapper;
-        this.locationMapper = locationMapper;
-    }
-
-
-
+    private final UserService userService;
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/booking")
     @Transactional
-    public ResponseEntity<RideDto> rideBooking(@RequestBody RideBookingRequestDto rideBookingRequestDTO){
+    public ResponseEntity<RideDto> rideBooking(@RequestBody RideBookingRequestDto rideBookingRequestDTO) {
         try {
             var ride = rideService.bookARide(rideBookingRequestDTO);
-            var rideBookingResponseDto = rideMapper.rideToRideDto(ride);
-            return ResponseEntity.status(HttpStatus.CREATED).body(rideBookingResponseDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(rideMapper.rideToRideDto(ride));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
-
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/clone")
-    public ResponseEntity<RideDto> recreateRide(@RequestBody RecreateRideDto recreateRideDto){
+    @PostMapping("/{id}/clone")
+    public ResponseEntity<RideDto> recreateRide(@PathVariable int id, @RequestBody RecreateRideDto recreateRideDto) {
         try {
-            var ride = rideService.recreateRide(recreateRideDto);
+            var ride = rideService.recreateRide(id, recreateRideDto);
             var rideBookingResponseDto = rideMapper.rideToRideDto(ride);
             return ResponseEntity.status(HttpStatus.CREATED).body(rideBookingResponseDto);
         } catch (Exception e) {
@@ -78,113 +52,101 @@ public class RideController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PutMapping("/acceptance")
-    public ResponseEntity<Void> acceptOrRejectRideByPassenger(@RequestBody RideAcceptanceDto rideAcceptanceDto){
+    @PutMapping("/{id}/accept")
+    public ResponseEntity<Void> acceptOrRejectRideByPassenger(@PathVariable int id,
+                                                              @RequestBody RideAcceptanceDto rideAcceptanceDto) {
         try {
-            rideService.finalizeRideBooking(rideAcceptanceDto.isRideAccepted(), rideAcceptanceDto.getRideId());
-            return new ResponseEntity<>(HttpStatus.OK);
+            rideService.finalizeRideBooking(rideAcceptanceDto.isAccepted(), id);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         }
     }
 
     @PreAuthorize("hasRole('DRIVER')")
-    @PutMapping("/reject")
-    public ResponseEntity<Void> rejectRideByDriver(@RequestBody RideRejectionRequestDto rideRejectionRequestDto){
-        rideService.rejectRideByDriver(rideRejectionRequestDto.getRideId(), rideRejectionRequestDto.getRejectionReason());
-        return new ResponseEntity<>(HttpStatus.OK);
+    @PutMapping("/{id}/reject")
+    public ResponseEntity<Void> rejectRideByDriver(@PathVariable int id,
+                                                   @RequestBody RideRejectionRequestDto rideRejectionRequestDto) {
+        rideService.rejectRideByDriver(id, rideRejectionRequestDto.getReason());
+        return ResponseEntity.ok().build();
     }
 
     @PreAuthorize("hasRole('DRIVER')")
-    @PutMapping("/start")
-    public ResponseEntity<Void> startRideByDriver(@RequestBody Integer rideId){
-        rideService.startRideByDriver(rideId);
-        return new ResponseEntity<>(HttpStatus.OK);
+    @PutMapping("/{id}/start")
+    public ResponseEntity<Void> startRideByDriver(@PathVariable int id) {
+        rideService.startRideByDriver(id);
+        return ResponseEntity.ok().build();
     }
 
     @PreAuthorize("hasRole('DRIVER')")
-    @PutMapping("/finish")
-    public ResponseEntity<Void> finishRideByDriver(@RequestBody Integer rideId){
-        rideService.finishRideByDriver(rideId);
-        return new ResponseEntity<>(HttpStatus.OK);
+    @PutMapping("/{id}/finish")
+    public ResponseEntity<Void> finishRideByDriver(@PathVariable int id) {
+        rideService.finishRideByDriver(id);
+        return ResponseEntity.ok().build();
     }
 
-
-
-
-    @PostMapping("/panic")
-    public ResponseEntity<Void> panic(@RequestBody PanicRequestDto panicRequestDto){
-        Panic panic = rideService.panic(panicRequestDto.getUserId(), panicRequestDto.getRideId(), panicRequestDto.getPanicReason());
-        if (panic == null){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    @PreAuthorize("hasAnyRole('DRIVER','USER')")
+    @PostMapping("/{id}/panic")
+    public ResponseEntity<Void> panic(@PathVariable int id, @RequestBody PanicRequestDto panicRequestDto,
+                                      Principal principal) {
+        var user = userService.findByUsername(principal.getName());
+        var panic = rideService.panic(user, id, panicRequestDto.getReason());
+        if (panic == null) {
+            return ResponseEntity.badRequest().build();
         }
-        return new ResponseEntity<>( HttpStatus.OK);
+        return ResponseEntity.ok().build();
+    }
+
+    @Transactional
+    @GetMapping("/{id}")
+    public ResponseEntity<RideDto> getRide(@PathVariable Integer id) {
+        var ride = rideService.findRideById(id);
+        if (ride == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(rideMapper.rideToRideDto(ride));
     }
 
     @PreAuthorize("hasRole('USER')")
     @Transactional
     @GetMapping("/ride-history")
-    public ResponseEntity<List<RideDto>> rideHistory(@RequestParam Integer userId){
+    public ResponseEntity<List<RideDto>> rideHistory(@RequestParam Integer userId) {
         try {
             List<Ride> rides = rideService.getUsersWholeRideHistory(userId);
-            List<RideDto> rideDtos = rides.stream().map(r -> rideMapper.rideToRideDto(r)).toList();
-            return new ResponseEntity<>(rideDtos, HttpStatus.OK);
+            return ResponseEntity.ok(rideMapper.ridesToRidesDto(rides));
         } catch (Exception e) {
-            return new ResponseEntity<>( HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         }
     }
-
 
     @PreAuthorize("hasRole('USER')")
     @Transactional
     @PostMapping("/ride-history-by-date")
-    public ResponseEntity<List<RideDto>> rideHistoryByDate(@RequestBody RideHistoryByDateRequestDto rideHistoryByDateRequestDto){
+    public ResponseEntity<List<RideDto>> rideHistoryByDate(
+            @RequestBody RideHistoryByDateRequestDto rideHistoryByDateRequestDto) {
         try {
             List<Ride> rides = rideService.getUsersRidesBetweenDates(
                     rideHistoryByDateRequestDto.getUserId(),
                     rideHistoryByDateRequestDto.getDate1(),
-                    rideHistoryByDateRequestDto.getDate2()
-            );
-            if (rides == null){
+                    rideHistoryByDateRequestDto.getDate2());
+            if (rides == null) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            List<RideDto> rideDtos = rides.stream().map(r -> rideMapper.rideToRideDto(r)).toList();
-            return new ResponseEntity<>(rideDtos, HttpStatus.OK);
+            return ResponseEntity.ok(rideMapper.ridesToRidesDto(rides));
         } catch (Exception e) {
-            return new ResponseEntity<>( HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         }
     }
-
 
     @PreAuthorize("hasRole('USER')")
     @Transactional
-    @PutMapping("/add-ride-to-favourites")
-    public ResponseEntity<Void> rideHistoryByDate(@RequestParam Integer rideId){
+    @PutMapping("/{id}/add-ride-to-favourites")
+    public ResponseEntity<Void> rideHistoryByDate(@PathVariable int id) {
         try {
-            rideService.addRideToFavourites(rideId);
-            return new ResponseEntity<>(HttpStatus.OK);
+            rideService.addRideToFavourites(id);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
-            return new ResponseEntity<>( HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

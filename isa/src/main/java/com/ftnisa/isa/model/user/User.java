@@ -2,8 +2,6 @@ package com.ftnisa.isa.model.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ftnisa.isa.model.notification.UserNotification;
-import com.ftnisa.isa.model.vehicle.Vehicle;
-import com.ftnisa.isa.model.user.UserType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

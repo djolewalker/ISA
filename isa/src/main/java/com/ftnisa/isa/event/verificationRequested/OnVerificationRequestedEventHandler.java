@@ -26,7 +26,7 @@ public class OnVerificationRequestedEventHandler implements ApplicationListener<
 
         var recipientAddress = user.getEmail();
         var subject = "Registration Confirmation";
-        var confirmationUrl = appConfiguration.getAppUrl() + "/verify-email?token=" + token;
+        var confirmationUrl = appConfiguration.getAppUrl()  + "api/auth/verify-email/verify-email?token=" + token;
         var message = "Confirm your email address by clicking following url:";
 
         emailService.sendSimpleMessage(recipientAddress, "no-reply@isa-uber.com",

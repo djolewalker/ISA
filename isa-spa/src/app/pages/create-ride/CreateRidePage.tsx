@@ -56,17 +56,7 @@ export const CreateRidePage = () => {
       .then((ride) => {
         if (ride.rejection) {
           notifications.info({ message: 'Vožnja nije zakazana!', description: ride.rejection.rejectionReason });
-        } else if (isScheduled) {
-          notifications.success({
-            message: 'Vožnja je zakazana!'
-          });
-          dispatch(resetSearch());
         } else {
-          notifications.success({
-            message: 'Vožnja pokrenuta!',
-            description: 'Vozilo je krenulo ka dogovorenoj lokaciji!'
-          });
-          dispatch(resetSearch());
           navigate(`/ride/${ride.id}`);
         }
       })
@@ -137,7 +127,7 @@ export const CreateRidePage = () => {
                     htmlType="submit"
                     size="large"
                   >
-                    Zakaži vožnju
+                    Pronađi vožnju
                   </IsaButton>
                 )}
               </Form.Item>

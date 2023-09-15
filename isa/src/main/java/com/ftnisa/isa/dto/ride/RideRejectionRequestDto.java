@@ -6,6 +6,5 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class RideRejectionRequestDto {
-    private Integer rideId;
-    private String rejectionReason;
+    private String reason;
 }

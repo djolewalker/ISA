@@ -1,9 +1,6 @@
 package com.ftnisa.isa.model.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
@@ -16,11 +13,11 @@ public class Role implements GrantedAuthority {
     public static final String ADMIN = "ROLE_ADMIN";
 
     @Id
-    @Column(name="id")
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    @Column(name="name", unique = true)
+    @Column(name = "name", unique = true)
     String name;
 
     @JsonIgnore

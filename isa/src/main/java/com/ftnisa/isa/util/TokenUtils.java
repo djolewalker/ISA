@@ -1,6 +1,5 @@
 package com.ftnisa.isa.util;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
@@ -203,11 +202,13 @@ public class TokenUtils {
     }
 
     /**
-     * Funkcija proverava da li je lozinka korisnika izmenjena nakon izdavanja tokena.
+     * Funkcija proverava da li je lozinka korisnika izmenjena nakon izdavanja
+     * tokena.
      *
      * @param created           Datum kreiranja tokena.
      * @param lastPasswordReset Datum poslednje izmene lozinke.
-     * @return Informacija da li je token kreiran pre poslednje izmene lozinke ili ne.
+     * @return Informacija da li je token kreiran pre poslednje izmene lozinke ili
+     *         ne.
      */
     private Boolean isCreatedBeforeLastPasswordReset(Date created, Date lastPasswordReset) {
         return (lastPasswordReset != null && created.before(lastPasswordReset));

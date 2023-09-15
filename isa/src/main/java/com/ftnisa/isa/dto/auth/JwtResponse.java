@@ -1,7 +1,6 @@
 package com.ftnisa.isa.dto.auth;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 public class JwtResponse {
