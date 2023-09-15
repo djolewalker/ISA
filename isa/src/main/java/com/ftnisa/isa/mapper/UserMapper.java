@@ -26,7 +26,9 @@ public interface UserMapper {
 
     DriverInfoDto driverToDriverInfoDto(Driver driver);
 
+
     DriverChangeRequest driverChangeRequestDtoToDriverChangeRequest(DriverChangeRequestDto driverChangeRequestDto);
+
 
     @Mapping(target = "longitude", source = "vehicle", qualifiedByName = "longitude")
     @Mapping(target = "latitude", source = "vehicle", qualifiedByName = "latitude")

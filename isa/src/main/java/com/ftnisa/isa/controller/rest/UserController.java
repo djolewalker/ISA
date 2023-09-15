@@ -67,7 +67,7 @@ public class UserController {
     }
 
 
-    @PutMapping("/driver-change-request")
+    @PostMapping("/driver-change-request")
     @PreAuthorize("hasAnyRole('DRIVER')")
     public ResponseEntity<Void> createDriverChangeRequest(@RequestBody DriverChangeRequestDto driverChangeRequestDto) {
         try {
@@ -81,8 +81,8 @@ public class UserController {
     }
 
     @PutMapping("/driver-change-approve")
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<DriverResponse> approveDriverChangeRequest(@PathVariable Integer driverChangeRequestId) {
+    //@PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<DriverResponse> approveDriverChangeRequest(@RequestBody Integer driverChangeRequestId) {
         try {
             var driver = userService.approveDriverChangeRequest(driverChangeRequestId);
             return ResponseEntity.ok(mapper.driverToDriverResponse(driver));

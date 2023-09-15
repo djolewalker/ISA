@@ -1,8 +1,16 @@
 package com.ftnisa.isa.dto.user;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.criteria.CriteriaBuilder;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class DriverChangeRequestDto {
+    private String username;
     private String email;
     private String firstname;
     private String lastname;

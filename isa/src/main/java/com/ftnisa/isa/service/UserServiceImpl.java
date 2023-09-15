@@ -221,7 +221,7 @@ public class UserServiceImpl implements UserService {
         VehicleType vehicleType = vehicleTypeRepository.findById(driverChangeRequest.getVehicleTypeId()).orElseThrow();
 
         driver.setUsername(driverChangeRequest.getUsername());
-        driver.setPassword(driverChangeRequest.getPassword());
+        //driver.setPassword(driverChangeRequest.getPassword());
         driver.setEmail(driverChangeRequest.getEmail());
         driver.setFirstname(driverChangeRequest.getFirstname());
         driver.setLastname(driverChangeRequest.getLastname());
