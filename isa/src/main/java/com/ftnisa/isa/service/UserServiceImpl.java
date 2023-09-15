@@ -41,6 +41,8 @@ public class UserServiceImpl implements UserService {
 
     private final DriverChangeRequestRepository driverChangeRequestRepository;
 
+    private final NotificationService notificationService;
+
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
             RoleService roleService, TokenService tokenService,
             ApplicationEventPublisher eventPublisher,
@@ -48,7 +50,8 @@ public class UserServiceImpl implements UserService {
                            VehicleRepository vehicleRepository,
                            DriverRepository driverRepository,
                            DriverChangeRequestRepository driverChangeRequestRepository,
-                           UserMapper userMapper
+                           UserMapper userMapper,
+                           NotificationService notificationService
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -60,6 +63,7 @@ public class UserServiceImpl implements UserService {
         this.driverRepository = driverRepository;
         this.driverChangeRequestRepository = driverChangeRequestRepository;
         this.userMapper = userMapper;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -240,6 +244,8 @@ public class UserServiceImpl implements UserService {
         driverChangeRequest.setApproved(true);
         driverChangeRequest.setApprovedBy(admin);
         driverChangeRequest.setApprovalTime(LocalDateTime.now());
+
+        notificationService.createInstantNotification(driver, "Vaš zahtev za izmenu podataka na profilu je odobren.");
 
         driverRepository.save(driver);
         vehicleRepository.save(vehicle);
