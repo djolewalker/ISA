@@ -41,9 +41,10 @@ public class DriverChangeRequest {
 
     @Column(name = "username")
     private String username;
-    @JsonIgnore
-    @Column(name = "password")
-    private String password;
+
+//    @JsonIgnore
+//    @Column(name = "password")
+//    private String password;
 
     @Column(name = "email", nullable = false)
     private String email;
@@ -91,13 +92,13 @@ public class DriverChangeRequest {
     public DriverChangeRequest() {
     }
 
-    public DriverChangeRequest(Integer driverId, boolean isApproved, User approvedBy, LocalDateTime approvalTime, String username, String password, String email, String firstname, String lastname, String image, String phone, String address, String driverLicense, String vehicleModel, String registrationNumber, int numberOfSeats, boolean babyFriendly, boolean petFriendly, Integer vehicleTypeId) {
+    public DriverChangeRequest(Integer driverId, boolean isApproved, User approvedBy, LocalDateTime approvalTime, String username, String email, String firstname, String lastname, String image, String phone, String address, String driverLicense, String vehicleModel, String registrationNumber, int numberOfSeats, boolean babyFriendly, boolean petFriendly, Integer vehicleTypeId) {
         this.driverId = driverId;
         this.isApproved = isApproved;
         this.approvedBy = approvedBy;
         this.approvalTime = approvalTime;
         this.username = username;
-        this.password = password;
+        //this.password = password;
         this.email = email;
         this.firstname = firstname;
         this.lastname = lastname;
@@ -153,13 +154,13 @@ public class DriverChangeRequest {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
+//    public String getPassword() {
+//        return password;
+//    }
+//
+//    public void setPassword(String password) {
+//        this.password = password;
+//    }
 
     public String getEmail() {
         return email;
