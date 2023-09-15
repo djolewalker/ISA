@@ -21,5 +21,6 @@ public interface RideMapper {
 
     List<RouteDto> routesToRoutesDto(List<Route> routes);
 
+
     PanicResponse panicToPanicResponse(Panic panic);
 }

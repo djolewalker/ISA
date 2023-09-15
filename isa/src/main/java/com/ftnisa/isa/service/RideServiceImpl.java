@@ -183,6 +183,7 @@ public class RideServiceImpl implements RideService {
         User passenger = userRepository.findByUsername(user.getUsername());
         ride.setPassenger(passenger);
 
+
         // check if passenger has an active ride, if yes, reject
         if (!rideRepository.findByPassengerAndRideStatus(passenger, RideStatus.ACTIVE).isEmpty()) {
             Rejection rejection = new Rejection("Izvinite, ne možete zakazati novu vožnju, dok imate drugu aktivnu vožnju.",
@@ -218,6 +219,8 @@ public class RideServiceImpl implements RideService {
         var route = ride.getRoutes().get(0);
         long rideLengthMeters = routeService.fetchRouteLengthMeters(route);
         float rideDurationMinutes = routeService.fetchRouteDurationMinutes(route);
+        ride.setFinishTime(ride.getStartTime().plusMinutes((long) rideDurationMinutes));
+
 
         // choose the driver
         List<Driver> appropriateDrivers = filterDriversByRideCriteria(
@@ -229,13 +232,20 @@ public class RideServiceImpl implements RideService {
                 rideDurationMinutes);
 
         List<Driver> schedulableAppropriateDrivers = filterDriversBySchedule(appropriateDrivers, ride);
+        if (schedulableAppropriateDrivers.isEmpty()){
+            Rejection rejection = new Rejection("Za zadati termin nemamo dostupne vozace sa traženim kriterijumima.", LocalDateTime.now());
+            ride.setRejection(rejection);
+            ride.setRideStatus(RideStatus.REJECTED);
+            rideRepository.save(ride);
+            return ride;
+        }
 
         Driver chosenDriver = driverService.selectCurrentlyClosestDriver(schedulableAppropriateDrivers,
                 routeService.getRidesStartLocation(ride));
         ride.setDriver(chosenDriver);
 
         ride.setTotalPrice(calculateRidePrice(rideLengthMeters, ride.getVehicleType()));
-        ride.setFinishTime(ride.getStartTime().plusMinutes((long) rideDurationMinutes));
+
         ride.setRideStatus(RideStatus.PENDING);
 
         // save and return
@@ -327,6 +337,9 @@ public class RideServiceImpl implements RideService {
         panicRepository.save(panic);
         ride.setPanicFlag(true);
         rideRepository.save(ride);
+
+        notificationService.createAdminNotification(rideId, userId, panicReason);
+
         return panic;
     }
 
@@ -385,13 +398,21 @@ public class RideServiceImpl implements RideService {
 
     @Override
     public boolean checkIfRidesOverlap(Ride ride1, Ride ride2) throws Exception{
+
+
+        var route = ride2.getRoutes().get(0);
+        float rideDurationMinutes = routeService.fetchRouteDurationMinutes(route);
+
+        var supposedStartTime = ride2.getStartTime()!=null ? ride2.getStartTime() : estimateDriversTimeOfArrival(ride2);
+        var supposedFinishTime = ride2.getFinishTime() !=null ? ride2.getFinishTime() : supposedStartTime.plusMinutes((long) rideDurationMinutes);
+
         if (
-                ride1.getFinishTime()
+                (ride1.getFinishTime()
                 .plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(routeService.getRidesFinishLocation(ride1),
                         routeService.getRidesStartLocation(ride2)))
-                .isBefore(ride2.getStartTime())
+                .isBefore(supposedStartTime))
                 ||
-                (ride2.getFinishTime()
+                (supposedFinishTime
                         .plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(
                                 routeService.getRidesFinishLocation(ride2), routeService.getRidesStartLocation(ride1)))
                         .isBefore(ride1.getStartTime()))
