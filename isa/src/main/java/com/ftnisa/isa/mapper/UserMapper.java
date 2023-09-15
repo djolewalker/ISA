@@ -39,6 +39,7 @@ public interface UserMapper {
 
     List<DriverLocationDto> driversToDriversLocationDto(List<Driver> driver);
 
+
     @Named("longitude")
     default float driverToLongitude(Vehicle vehicle) { return vehicle.getCurrentLocation().getLongitude();}
 

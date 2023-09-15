@@ -4,10 +4,7 @@ import com.ftnisa.isa.integrations.ors.responses.routing.geojson.GeoJSONIndividu
 import com.ftnisa.isa.model.location.Location;
 import com.ftnisa.isa.model.ride.Ride;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.springframework.data.annotation.CreatedDate;
@@ -21,7 +18,8 @@ import java.util.List;
 @Entity
 @Table(name = "isa_route")
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Route {

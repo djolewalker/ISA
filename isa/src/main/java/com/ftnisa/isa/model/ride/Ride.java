@@ -69,7 +69,6 @@ public class Ride {
     private User passenger;
 
     @OneToMany(mappedBy = "ride", cascade = CascadeType.ALL)
-    @JsonIgnore
     private List<Route> routes;
 
     @OneToOne(cascade = CascadeType.ALL)
