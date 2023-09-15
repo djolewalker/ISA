@@ -2,14 +2,16 @@ package com.ftnisa.isa.model.user;
 
 import com.ftnisa.isa.model.vehicle.Vehicle;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "isa_driver")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Driver extends User {

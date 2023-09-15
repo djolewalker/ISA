@@ -13,6 +13,7 @@ import NotificationsProvider from 'app/contexts/notifications/notifications-prov
 
 import 'styles/index.scss';
 import DriverStatusProvider from 'app/contexts/driver-status/driver-status-provider';
+import UserNotificationsProvider from 'app/contexts/user-notifications/user.notfications-provider';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
@@ -23,7 +24,9 @@ root.render(
         <AuthContextProvider>
           <DriverStatusProvider>
             <NotificationsProvider>
-              <AppRoot />
+              <UserNotificationsProvider>
+                <AppRoot />
+              </UserNotificationsProvider>
             </NotificationsProvider>
           </DriverStatusProvider>
         </AuthContextProvider>

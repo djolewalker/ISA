@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 public class RecreateRideDto {
-    private Integer rideId;
     private Boolean scheduled;
     private LocalDateTime scheduledStartTime;
 }

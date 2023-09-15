@@ -1,10 +1,10 @@
 package com.ftnisa.isa.dto.user;
 
 import com.ftnisa.isa.dto.vehicle.VehicleRequest;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class DriverRequest extends UserRequest {
     private String driverLicense;

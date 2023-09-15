@@ -19,7 +19,7 @@ public class RouteTask {
     @Scheduled(fixedRate = 300000)
     public void reportCurrentTime() {
         var removedItems = routeService.cleanOrphanRoutes();
-        if (removedItems > 0){
+        if (removedItems > 0) {
             log.info(removedItems + " orphan routes removed!");
         } else {
             log.info("No orphan routes found!");

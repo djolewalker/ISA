@@ -42,6 +42,7 @@
     "file-loader": "^6.2.0",
     "fs-extra": "^10.0.0",
     "html-webpack-plugin": "^5.5.0",
+    "humanize-duration": "^3.29.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.4.3",
     "jest-resolve": "^27.4.2",
@@ -110,6 +111,7 @@
     ]
   },
   "devDependencies": {
+    "@types/humanize-duration": "^3.27.1",
     "@types/leaflet": "^1.9.3",
     "@types/sockjs-client": "^1.5.1",
     "@types/stompjs": "^2.3.5",

@@ -19,7 +19,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import com.ftnisa.isa.service.UserService;
 
-
 @RestController
 @RequestMapping(value = "/api/user", produces = MediaType.APPLICATION_JSON_VALUE)
 @SecurityRequirement(name = "isasec")

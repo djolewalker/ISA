@@ -15,8 +15,16 @@ export const RoutePriorityTypeMeasuresMap = {
   BY_TIME: 'duration'
 };
 
+export type IntermediateStop = {
+  id: number;
+  location: ISALocation;
+  order: number;
+};
+
 export type Route = {
   id: number;
   startLocation: ISALocation;
   finishLocation: ISALocation;
+  stops: IntermediateStop[];
+  geo: GeoJSON.Feature;
 };

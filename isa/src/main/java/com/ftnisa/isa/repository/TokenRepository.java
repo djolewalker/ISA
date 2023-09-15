@@ -7,6 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TokenRepository extends JpaRepository<EmailToken, Integer> {
     EmailToken findByTokenAndType(String token, TokenType type);
-
     EmailToken findByUserAndType(User user, TokenType type);
 }
