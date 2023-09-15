@@ -220,4 +220,25 @@ public class User implements UserDetails {
         var roles = getRoles().stream().map(Role::getName).toList();
         return roles.contains(role);
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", email='" + email + '\'' +
+                ", enabled=" + enabled +
+                ", lastPasswordResetDate=" + lastPasswordResetDate +
+                ", firstname='" + firstname + '\'' +
+                ", lastname='" + lastname + '\'' +
+                ", image='" + image + '\'' +
+                ", phone='" + phone + '\'' +
+                ", address='" + address + '\'' +
+                ", isBlocked=" + isBlocked +
+                ", roles=" + roles +
+                ", userType=" + userType +
+                ", notifications=" + notifications +
+                '}';
+    }
 }
