@@ -64,6 +64,8 @@ public class NotificationServiceImpl implements NotificationService {
         createScheduledNotification(user, "Vaše vozilo je na adresi.", driveStartTime);
     }
 
+
+
     @Override
     public void createAdminNotification(Integer rideId, Integer userId, String reason){
 

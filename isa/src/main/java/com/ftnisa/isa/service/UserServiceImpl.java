@@ -46,6 +46,8 @@ public class UserServiceImpl implements UserService {
 
     private final PanicRepository panicRepository;
 
+
+
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
             RoleService roleService, TokenService tokenService,
             ApplicationEventPublisher eventPublisher,
@@ -215,6 +217,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void createDriverChangeRequest(DriverChangeRequestDto driverChangeRequestDto){
         DriverChangeRequest driverChangeRequest = userMapper.driverChangeRequestDtoToDriverChangeRequest(driverChangeRequestDto);
+        User driver = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        driverChangeRequest.setDriverId(driver.getId());
         driverChangeRequestRepository.save(driverChangeRequest);
     }
 
