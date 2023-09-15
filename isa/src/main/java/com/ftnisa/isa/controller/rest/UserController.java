@@ -4,6 +4,7 @@ import java.security.Principal;
 import java.util.List;
 
 import com.ftnisa.isa.dto.user.*;
+import com.ftnisa.isa.mapper.RideMapper;
 import com.ftnisa.isa.mapper.UserMapper;
 import com.ftnisa.isa.service.DriverService;
 import lombok.AllArgsConstructor;
@@ -28,6 +29,8 @@ public class UserController {
     private final DriverService driverService;
     private final UserMapper mapper;
     private SimpMessagingTemplate template;
+
+    private final RideMapper rideMapper;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -76,12 +79,10 @@ public class UserController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
-
     }
 
     @PutMapping("/driver-change-approve")
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DriverResponse> approveDriverChangeRequest(@RequestBody Integer driverChangeRequestId) {
         try {
             var driver = userService.approveDriverChangeRequest(driverChangeRequestId);
@@ -90,6 +91,8 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+
 
     @PostMapping("/driver")
     @PreAuthorize("hasAnyRole('ADMIN')")
@@ -110,6 +113,7 @@ public class UserController {
         var drivers = this.driverService.getActiveDrivers();
         return ResponseEntity.ok(mapper.driversToDriversLocationDto(drivers));
     }
+
 
     @PutMapping("/driver/deactivate")
     @PreAuthorize("hasRole('DRIVER')")
@@ -132,5 +136,16 @@ public class UserController {
     public ResponseEntity<DriverStatusDTO> isDriverActive(Principal principal) {
         var driver = this.driverService.activateDriver(principal.getName());
         return ResponseEntity.ok(mapper.driverToDriverStatusDto(driver));
+    }
+
+    @PutMapping("/resolve-panic")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PanicResponse> resolvePanic(@RequestBody Integer panicId) {
+        try {
+            var panic = userService.resolvePanic(panicId);
+            return ResponseEntity.ok(rideMapper.panicToPanicResponse(panic));
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 }
