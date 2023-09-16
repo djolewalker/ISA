@@ -19,6 +19,8 @@ public interface RideRepository extends JpaRepository<Ride, Integer> {
 
     public List<Ride> findByDriverAndStartTimeBetween(Driver driver, LocalDateTime beginning, LocalDateTime end);
 
+    public List<Ride> findByDriverAndStartTimeBetweenAndRideStatus(Driver driver, LocalDateTime beginning, LocalDateTime end, RideStatus rideStatus);
+
     public Ride findOneByDriverAndRideStatus(Driver driver, RideStatus rideStatus);
 
     public List<Ride> findByDriverAndRideStatus(Driver driver, RideStatus rideStatus);
@@ -31,4 +33,7 @@ public interface RideRepository extends JpaRepository<Ride, Integer> {
 
     public List<Ride> findByPassengerAndStartTimeBetween(User passenger, LocalDateTime date1, LocalDateTime date2);
 
+    public List<Ride> findByPassengerAndStartTimeBetweenAndRideStatus(User passenger, LocalDateTime date1, LocalDateTime date2, RideStatus rideStatus);
+
+    public List<Ride> findByStartTimeBetweenAndRideStatus(LocalDateTime date1, LocalDateTime date2, RideStatus rideStatus);
 }
