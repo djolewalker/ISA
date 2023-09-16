@@ -154,6 +154,12 @@ public class RideServiceImpl implements RideService {
                     ride.getNumberOfPassengers(),
                     rideDurationMinutes);
 
+            if (appropriateDrivers.isEmpty()) {
+                rejectRide(ride, "Nažalost, trenutno nemamo dostupnih vozila sa zadatim kriterijumima.");
+                rideRepository.save(ride);
+                return ride;
+            }
+
             List<Driver> schedulableAppropriateDrivers = filterDriversBySchedule(appropriateDrivers, ride);
             if (schedulableAppropriateDrivers.isEmpty()){
                 rejectRide(ride, "Nažalost, trenutno nemamo dostupne vozace sa traženim kriterijumima.");
