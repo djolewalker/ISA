@@ -1,10 +1,12 @@
 package com.ftnisa.isa.dto.user;
 
 import com.ftnisa.isa.dto.vehicle.VehicleResponse;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class DriverResponse extends UserRequest {
     private boolean active;

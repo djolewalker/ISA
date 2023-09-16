@@ -33,18 +33,20 @@ public interface UserMapper {
 
     @Mapping(target = "longitude", source = "vehicle", qualifiedByName = "longitude")
     @Mapping(target = "latitude", source = "vehicle", qualifiedByName = "latitude")
-
-
     DriverLocationDto driverToDriverLocationDto(Driver driver);
 
     List<DriverLocationDto> driversToDriversLocationDto(List<Driver> driver);
 
 
     @Named("longitude")
-    default float driverToLongitude(Vehicle vehicle) { return vehicle.getCurrentLocation().getLongitude();}
+    default float driverToLongitude(Vehicle vehicle) {
+        return vehicle.getCurrentLocation().getLongitude();
+    }
 
     @Named("latitude")
-    default float driverToLatitude(Vehicle vehicle) { return vehicle.getCurrentLocation().getLatitude();}
+    default float driverToLatitude(Vehicle vehicle) {
+        return vehicle.getCurrentLocation().getLatitude();
+    }
 
     DriverStatusDTO driverToDriverStatusDto(Driver driver);
 }

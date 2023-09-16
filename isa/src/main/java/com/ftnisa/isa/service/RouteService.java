@@ -5,23 +5,21 @@ import com.ftnisa.isa.model.location.Location;
 import com.ftnisa.isa.model.ride.Ride;
 import com.ftnisa.isa.model.route.Route;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
 public interface RouteService {
     ArrayList<Route> generateRoutes(Location startLocation, Location finishLocation, List<Location> stops);
 
-    List<Route> generateAndOrganizeRoutes(Location startLocation, Location finishLocation, List<Location> stops, boolean optimizeOrder);
+    List<Route> generateAndOrganizeRoutes(Location startLocation, Location finishLocation, List<Location> stops,
+            boolean optimizeOrder);
 
     List<List<Location>> generateStopPermutations(List<Location> stops);
 
     // DUMMY returns 2500 meters
     long fetchRouteLengthMeters(Route route);
 
-
     float fetchRouteDurationMinutes(Route route);
-
 
     Double[][] convertLocationsToCoordinateArray(Location location1, Location location2);
 

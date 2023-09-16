@@ -18,7 +18,7 @@ public class Location {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "locationGen")
     private Integer id;
 
-    @Column(name = "name", nullable = true)
+    @Column(name = "name")
     private String name;
 
     @Column(name = "longitude", nullable = false)

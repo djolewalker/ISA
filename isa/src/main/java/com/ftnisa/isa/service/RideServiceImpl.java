@@ -7,7 +7,6 @@ import com.ftnisa.isa.model.ride.Panic;
 import com.ftnisa.isa.model.ride.Rejection;
 import com.ftnisa.isa.model.ride.Ride;
 import com.ftnisa.isa.model.ride.RideStatus;
-import com.ftnisa.isa.model.route.Route;
 import com.ftnisa.isa.model.user.Driver;
 
 import com.ftnisa.isa.model.user.User;
@@ -46,10 +45,9 @@ public class RideServiceImpl implements RideService {
 
     private final VehicleTypeRepository vehicleTypeRepository;
 
-  
     @Override
     @Transactional
-    public Ride bookARide(RideBookingRequestDto rideBookingRequestDTO) throws Exception{
+    public Ride bookARide(RideBookingRequestDto rideBookingRequestDTO) throws Exception {
         var route = routeRepository.findById(rideBookingRequestDTO.getRouteId())
                 .orElseThrow(TempRouteExpired::new);
         var vehicleType = vehicleTypeRepository.findById(rideBookingRequestDTO.getVehicleTypeId())
@@ -72,10 +70,9 @@ public class RideServiceImpl implements RideService {
         return ride;
     }
 
-  
     @Override
     @Transactional
-    public Ride requestQuickRideBooking(Ride ride) throws Exception{
+    public Ride requestQuickRideBooking(Ride ride) throws Exception {
         // set the ride passenger
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User passenger = userRepository.findByUsername(user.getUsername());
@@ -109,16 +106,17 @@ public class RideServiceImpl implements RideService {
         }
 
         // get the distances for the routes from openstreetmaps
-//        long rideLengthMeters = 0;
-//        float rideDurationMinutes = 0;
-//        for (Route route : ride.getRoutes()) {
-//            rideLengthMeters = rideLengthMeters + routeService.fetchRouteLengthMeters(route);
-//            rideDurationMinutes = rideDurationMinutes + routeService.fetchRouteDurationMinutes(route);
-//        }
+        // long rideLengthMeters = 0;
+        // float rideDurationMinutes = 0;
+        // for (Route route : ride.getRoutes()) {
+        // rideLengthMeters = rideLengthMeters +
+        // routeService.fetchRouteLengthMeters(route);
+        // rideDurationMinutes = rideDurationMinutes +
+        // routeService.fetchRouteDurationMinutes(route);
+        // }
         var route = ride.getRoutes().get(0);
         long rideLengthMeters = routeService.fetchRouteLengthMeters(route);
         float rideDurationMinutes = routeService.fetchRouteDurationMinutes(route);
-
 
         // choose the driver and find his estimated arrival time
         if (!freeActiveDrivers.isEmpty()) {
@@ -186,15 +184,13 @@ public class RideServiceImpl implements RideService {
         return ride;
     }
 
-
     @Override
     @Transactional
-    public Ride scheduledRideBooking(Ride ride) throws Exception{
+    public Ride scheduledRideBooking(Ride ride) throws Exception {
         // set the ride passenger
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User passenger = userRepository.findByUsername(user.getUsername());
         ride.setPassenger(passenger);
-
 
         // check if passenger has an active ride, if yes, reject
         if (!rideRepository.findByPassengerAndRideStatus(passenger, RideStatus.ACTIVE).isEmpty()) {
@@ -224,7 +220,6 @@ public class RideServiceImpl implements RideService {
         long rideLengthMeters = routeService.fetchRouteLengthMeters(route);
         float rideDurationMinutes = routeService.fetchRouteDurationMinutes(route);
         ride.setFinishTime(ride.getStartTime().plusMinutes((long) rideDurationMinutes));
-
 
         // choose the driver
         List<Driver> appropriateDrivers = filterDriversByRideCriteria(
@@ -264,11 +259,11 @@ public class RideServiceImpl implements RideService {
         ride.setRideStatus(RideStatus.REJECTED);
     }
 
-  
+
     @Override
     @Transactional
-    public Ride recreateRide(RecreateRideDto recreateRideDto) throws Exception{
-        Ride oldRide = rideRepository.findById(recreateRideDto.getRideId()).orElse(null);
+    public Ride recreateRide(int id, RecreateRideDto recreateRideDto) throws Exception {
+        Ride oldRide = rideRepository.findById(id).orElse(null);
         if (oldRide == null) {
             return null;
         }
@@ -299,8 +294,12 @@ public class RideServiceImpl implements RideService {
         if (isRideAccepted) {
             ride.setRideStatus(RideStatus.ACCEPTED);
             Long minutesUntilArrival = LocalDateTime.now().until(ride.getStartTime(), ChronoUnit.MINUTES);
-            String passengerNotificationMessage = String.format("Vaša vožnja je upravo zakazana. Vozilo stiže za %d minuta. Status vožnje možete pratiti na Vašem dešbordu.", minutesUntilArrival);
-            String driverNotificationMessage = String.format("Zakazana Vam je nova vožnja. Putnik Vas očekuje za %d minuta. Detalje vožnje možete proveriti na Vašem dešbordu.", minutesUntilArrival);
+            String passengerNotificationMessage = String.format(
+                    "Vaša vožnja je upravo zakazana. Vozilo stiže za %d minuta. Status vožnje možete pratiti na Vašem dešbordu.",
+                    minutesUntilArrival);
+            String driverNotificationMessage = String.format(
+                    "Zakazana Vam je nova vožnja. Putnik Vas očekuje za %d minuta. Detalje vožnje možete proveriti na Vašem dešbordu.",
+                    minutesUntilArrival);
 
             notificationService.createInstantNotification(ride.getPassenger(), passengerNotificationMessage);
             notificationService.createInstantNotification(ride.getDriver(), driverNotificationMessage);
@@ -334,8 +333,7 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public Panic panic(Integer userId, Integer rideId, String panicReason) {
-        User user = userRepository.findById(userId).orElse(null);
+    public Panic panic(User user, Integer rideId, String panicReason) {
         Ride ride = rideRepository.findById(rideId).orElse(null);
         if (user == null || ride == null) {
             return null;
@@ -345,7 +343,7 @@ public class RideServiceImpl implements RideService {
         ride.setPanicFlag(true);
         rideRepository.save(ride);
 
-        notificationService.createAdminNotification(rideId, userId, panicReason);
+        notificationService.createAdminNotification(rideId, user.getId(), panicReason);
 
         return panic;
     }
@@ -391,10 +389,12 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
+
     public LocalDateTime estimateDriversTimeOfArrival(Ride ride, Driver driver) throws Exception{
 
         if (!driver.isOccupied()) {
-            return LocalDateTime.now().plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(driver.getVehicle().getCurrentLocation(), routeService.getRidesStartLocation(ride)));
+            return LocalDateTime.now().plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(
+                    driver.getVehicle().getCurrentLocation(), routeService.getRidesStartLocation(ride)));
         } else {
             Ride driversCurrentRide = driverService.getDriversCurrentRide(driver);
             return driversCurrentRide.getFinishTime().plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(
@@ -403,8 +403,8 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public boolean checkIfRidesOverlap(Ride oldRide, Ride newRide, Driver driver) throws Exception{
 
+    public boolean checkIfRidesOverlap(Ride oldRide, Ride newRide, Driver driver) throws Exception{
 
         var route = newRide.getRoutes().get(0);
         float rideDurationMinutes = routeService.fetchRouteDurationMinutes(route);
@@ -477,4 +477,8 @@ public class RideServiceImpl implements RideService {
         }
     }
 
+    @Override
+    public Ride findRideById(int id) {
+        return rideRepository.findById(id).orElse(null);
+    }
 }

@@ -1,9 +1,11 @@
 package com.ftnisa.isa.dto.user;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class CreateDriverRequest extends DriverRequest {
     private String username;

@@ -6,12 +6,14 @@ import common from 'app/pages/common.slice';
 import admin from 'app/pages/admin/admin.slice';
 import searchPage from 'app/pages/search/search-page.slice';
 import routesPage from 'app/pages/routes/routes-page.slice';
+import ridePage from 'app/pages/ride/ride-page.slice';
 
 const reducer = combineReducers({
   common,
   admin,
   searchPage,
-  routesPage
+  routesPage,
+  ridePage
 });
 
 const sagaMiddleware = createSagaMiddleware();

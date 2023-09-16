@@ -17,6 +17,9 @@ import com.ftnisa.isa.model.user.User;
 import com.ftnisa.isa.model.vehicle.Vehicle;
 import com.ftnisa.isa.model.vehicle.VehicleType;
 import com.ftnisa.isa.repository.*;
+
+import lombok.AllArgsConstructor;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +30,7 @@ import org.webjars.NotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@AllArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
@@ -37,41 +41,10 @@ public class UserServiceImpl implements UserService {
     private final VehicleTypeRepository vehicleTypeRepository;
     private final VehicleRepository vehicleRepository;
     private final DriverRepository driverRepository;
-
     private final UserMapper userMapper;
-
     private final DriverChangeRequestRepository driverChangeRequestRepository;
-
     private final NotificationService notificationService;
-
     private final PanicRepository panicRepository;
-
-
-
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
-            RoleService roleService, TokenService tokenService,
-            ApplicationEventPublisher eventPublisher,
-                           VehicleTypeRepository vehicleTypeRepository,
-                           VehicleRepository vehicleRepository,
-                           DriverRepository driverRepository,
-                           DriverChangeRequestRepository driverChangeRequestRepository,
-                           UserMapper userMapper,
-                           NotificationService notificationService,
-                           PanicRepository panicRepository
-    ) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.roleService = roleService;
-        this.tokenService = tokenService;
-        this.eventPublisher = eventPublisher;
-        this.vehicleTypeRepository = vehicleTypeRepository;
-        this.vehicleRepository = vehicleRepository;
-        this.driverRepository = driverRepository;
-        this.driverChangeRequestRepository = driverChangeRequestRepository;
-        this.userMapper = userMapper;
-        this.notificationService = notificationService;
-        this.panicRepository = panicRepository;
-    }
 
     @Override
     public User findById(Integer id) {
@@ -215,26 +188,27 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void createDriverChangeRequest(DriverChangeRequestDto driverChangeRequestDto){
-        DriverChangeRequest driverChangeRequest = userMapper.driverChangeRequestDtoToDriverChangeRequest(driverChangeRequestDto);
+    public void createDriverChangeRequest(DriverChangeRequestDto driverChangeRequestDto) {
+        DriverChangeRequest driverChangeRequest = userMapper
+                .driverChangeRequestDtoToDriverChangeRequest(driverChangeRequestDto);
         User driver = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         driverChangeRequest.setDriverId(driver.getId());
         driverChangeRequestRepository.save(driverChangeRequest);
     }
 
-
     @Override
     @Transactional
-    public Driver approveDriverChangeRequest(Integer driverChangeRequestId){
+    public Driver approveDriverChangeRequest(Integer driverChangeRequestId) {
 
-        DriverChangeRequest driverChangeRequest = driverChangeRequestRepository.findById(driverChangeRequestId).orElseThrow();
+        DriverChangeRequest driverChangeRequest = driverChangeRequestRepository.findById(driverChangeRequestId)
+                .orElseThrow();
         Driver driver = driverRepository.findById(driverChangeRequest.getDriverId()).orElseThrow();
         Vehicle vehicle = driver.getVehicle();
         User admin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         VehicleType vehicleType = vehicleTypeRepository.findById(driverChangeRequest.getVehicleTypeId()).orElseThrow();
 
         driver.setUsername(driverChangeRequest.getUsername());
-        //driver.setPassword(driverChangeRequest.getPassword());
+        // driver.setPassword(driverChangeRequest.getPassword());
         driver.setEmail(driverChangeRequest.getEmail());
         driver.setFirstname(driverChangeRequest.getFirstname());
         driver.setLastname(driverChangeRequest.getLastname());
@@ -265,7 +239,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public Panic resolvePanic(Integer panicId){
+    public Panic resolvePanic(Integer panicId) {
         Panic panic = panicRepository.findById(panicId).orElseThrow();
         User admin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 

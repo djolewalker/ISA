@@ -24,6 +24,9 @@ public class IntermediateStop {
     @NotNull
     private Location location;
 
+    @Column(name = "isa_order")
+    private int order;
+
     @ManyToOne
     @JoinColumn(name = "route")
     @NotNull
