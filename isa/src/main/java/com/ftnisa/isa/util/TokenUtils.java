@@ -70,6 +70,7 @@ public class TokenUtils {
         return ResponseCookie.from(AUTH_COOKIE, token)
                 .maxAge(expTime)
                 .httpOnly(true)
+                .sameSite("None")
                 .path("/")
                 .build();
     }
