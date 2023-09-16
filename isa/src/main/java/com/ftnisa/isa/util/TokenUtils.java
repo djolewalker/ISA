@@ -30,6 +30,9 @@ public class TokenUtils {
     @Value("${jwt.cookie}")
     private String AUTH_COOKIE;
 
+    @Value("${jwt.cookie.secure}")
+    private String AUTH_COOKIE_SECURED;
+
     private static final String AUDIENCE_WEB = "web";
     private static final String ROLES_CLAIM = "roles";
 
@@ -71,6 +74,7 @@ public class TokenUtils {
                 .maxAge(expTime)
                 .httpOnly(true)
                 .sameSite("None")
+                .secure(Boolean.getBoolean(AUTH_COOKIE_SECURED))
                 .path("/")
                 .build();
     }
