@@ -94,6 +94,7 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/isa:latest
 
       - name: 🚀 Deploy server application to the DigitalOcean Platform
+        if: github.event_name == 'push'
         uses: digitalocean/app_action@v1.1.5
         with:
           app_name: isa-server
@@ -111,6 +112,7 @@ jobs:
             ]'
 
       - name: 🚀 Deploy client application to the GitHub Pages
+        if: github.event_name == 'push'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: ${{ env.PROJ_DIR_FE }}/build
