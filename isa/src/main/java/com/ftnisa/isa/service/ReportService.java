@@ -5,5 +5,10 @@ import com.ftnisa.isa.dto.reports.Report;
 import java.time.LocalDate;
 
 public interface ReportService {
-    Report cumulativeAdminReport(LocalDate startDate, LocalDate endDate);
+
+
+    Report getIndividualAdminReport(LocalDate startDate, LocalDate endDate, Integer userId);
+
+    Report getReport(LocalDate startDate, LocalDate endDate);
+
 }
