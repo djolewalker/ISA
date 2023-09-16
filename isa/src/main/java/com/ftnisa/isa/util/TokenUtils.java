@@ -30,8 +30,11 @@ public class TokenUtils {
     @Value("${jwt.cookie}")
     private String AUTH_COOKIE;
 
+    @Value("${jwt.cookie.samesite}")
+    private String AUTH_COOKIE_SAMESITE;
+
     @Value("${jwt.cookie.secure}")
-    private String AUTH_COOKIE_SECURED;
+    private Boolean AUTH_COOKIE_SECURED;
 
     private static final String AUDIENCE_WEB = "web";
     private static final String ROLES_CLAIM = "roles";
@@ -73,8 +76,8 @@ public class TokenUtils {
         return ResponseCookie.from(AUTH_COOKIE, token)
                 .maxAge(expTime)
                 .httpOnly(true)
-                .sameSite("None")
-                .secure(Boolean.getBoolean(AUTH_COOKIE_SECURED))
+                .sameSite(AUTH_COOKIE_SAMESITE)
+                .secure(AUTH_COOKIE_SECURED)
                 .path("/")
                 .build();
     }
@@ -83,6 +86,8 @@ public class TokenUtils {
         return ResponseCookie.from(AUTH_COOKIE, "")
                 .maxAge(0)
                 .httpOnly(true)
+                .sameSite(AUTH_COOKIE_SAMESITE)
+                .secure(AUTH_COOKIE_SECURED)
                 .path("/")
                 .build();
     }
