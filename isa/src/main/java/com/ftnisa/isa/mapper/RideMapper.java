@@ -27,4 +27,5 @@ public interface RideMapper {
     IntermediateStopDto intermediateStopToIntermediateStopDto(IntermediateStop intermediateStop);
 
     List<IntermediateStopDto> intermediateStopsToIntermediateStopsDto(List<IntermediateStop> intermediateStops);
+
 }

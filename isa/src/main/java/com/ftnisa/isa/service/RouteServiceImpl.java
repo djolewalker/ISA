@@ -102,7 +102,7 @@ public class RouteServiceImpl implements RouteService {
 
     @Override
     public float fetchRouteDurationMinutes(Route route) {
-        return (float) route.getEstimatedDuration().toMinutes() / 60;
+        return (float) route.getEstimatedDuration().toMinutes();
     }
 
 
@@ -137,7 +137,7 @@ public class RouteServiceImpl implements RouteService {
 
         var routeResponse = directionService.findRoutes(coordinates).block();
         routeResponse.getRoutes().stream().forEach(geoJSONIndividualRouteResponse -> {
-            durations.add(geoJSONIndividualRouteResponse.getProperties().getSummary().getDuration().longValue() / 60);
+            durations.add(geoJSONIndividualRouteResponse.getProperties().getSummary().getDuration().longValue()/60);
         });
 
         return Collections.min(durations);
@@ -154,8 +154,8 @@ public class RouteServiceImpl implements RouteService {
 
     @Override
     public Location getRidesFinishLocation(Ride ride) {
-        List<Route> routes = ride.getRoutes();
-        return routes.get(routes.size() - 1).getFinishLocation();
+        Route route = ride.getRoutes().get(0);
+        return route.getFinishLocation();
     }
 
     @Override
@@ -224,7 +224,7 @@ public class RouteServiceImpl implements RouteService {
 
             route.setEstimatedDuration(
                     Duration.of(geoJSONIndividualRouteResponse.getProperties().getSummary().getDuration().longValue(),
-                            ChronoUnit.MINUTES));
+                            ChronoUnit.SECONDS));
             route.setLength(geoJSONIndividualRouteResponse.getProperties().getSummary().getDistance().floatValue());
 
             geoJSONIndividualRouteResponse.clearSegments();
