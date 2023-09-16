@@ -10,7 +10,7 @@ import { fetchRide, selectIsLoadingRide, selectRide } from 'app/pages/ride/ride-
 import { humanizeMiliseconds } from 'app/utils/humanize.utlis';
 import { IsaButton } from 'app/components/isa-button/IsaButton';
 import { setRoutes } from 'app/pages/routes/routes-page.slice';
-import { acceptRide, rejectRide, ridePanic } from 'app/service/ride.service';
+import { acceptRide, finishRide, rejectRide, ridePanic, startRide } from 'app/service/ride.service';
 import { useAuthContext } from 'app/contexts/auth/auth-context-provider';
 
 export const RidePage = () => {
@@ -78,6 +78,28 @@ export const RidePage = () => {
       .catch(deactivateLoader);
   };
 
+  const handleFinishRide = () => {
+    if (!rideId) return;
+
+    activateTransparentLoader();
+    finishRide(parseInt(rideId))
+      .then(() => {
+        dispatch(fetchRide(parseInt(rideId)));
+      })
+      .catch(deactivateLoader);
+  };
+
+  const hanldeStartRide = () => {
+    if (!rideId) return;
+
+    activateTransparentLoader();
+    startRide(parseInt(rideId))
+      .then(() => {
+        dispatch(fetchRide(parseInt(rideId)));
+      })
+      .catch(deactivateLoader);
+  };
+
   return (
     <div className="d-flex flex-column flex-grow-1">
       <MainHeader>
@@ -92,7 +114,8 @@ export const RidePage = () => {
               {ride?.rideStatus === 'PENDING' && !isDriver && 'Potvrdite vožnju:'}
               {ride?.rideStatus === 'PENDING' && isDriver && 'Vožnja ponuđena korisniku:'}
               {ride?.rideStatus === 'REJECTED' && 'Odbijena vožnja:'}
-              {ride?.rideStatus === 'ACCEPTED' && 'Započeta vožnja:'}
+              {ride?.rideStatus === 'ACCEPTED' && !isDriver && 'Započeta vožnja:'}
+              {ride?.rideStatus === 'ACCEPTED' && isDriver && 'Pokrenuta vožnja:'}
               {ride?.rideStatus === 'ACTIVE' && 'Vožnja u toku:'}
               {ride?.rideStatus === 'FINISHED' && 'Završena vožnja:'}
             </h2>
@@ -143,6 +166,22 @@ export const RidePage = () => {
                     onClick={() => handleAcceptRejectRide(true)}
                   >
                     Prihvati vožnju
+                  </IsaButton>
+                </div>
+              )}
+
+              {ride?.rideStatus === 'ACCEPTED' && isDriver && (
+                <div className="d-flex justify-content-center">
+                  <IsaButton className="w-100 mt-2 mb-3" type="primary" size="large" onClick={hanldeStartRide}>
+                    Započni vožnju
+                  </IsaButton>
+                </div>
+              )}
+
+              {ride?.rideStatus === 'ACTIVE' && isDriver && (
+                <div className="d-flex justify-content-center">
+                  <IsaButton className="w-100 mt-2 mb-3" type="primary" size="large" onClick={handleFinishRide}>
+                    Završi vožnju
                   </IsaButton>
                 </div>
               )}

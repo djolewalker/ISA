@@ -67,6 +67,7 @@ export const HeaderActions = () => {
   };
 
   const notificationsMenu: MenuProps = {
+    style: { maxHeight: '500px', overflow: 'scroll' },
     items: userNotifications.length
       ? userNotifications.map(({ id, description }) => ({
           key: id,

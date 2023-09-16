@@ -15,3 +15,7 @@ export const acceptRide = async (id: number, accepted: boolean) =>
 export const rejectRide = async (id: number, reason: string) => putRequest(`${CONTROLLER}/${id}/reject`, { reason });
 
 export const ridePanic = async (id: number, reason: string) => putRequest(`${CONTROLLER}/${id}/panic`, { reason });
+
+export const startRide = async (id: number) => putRequest(`${CONTROLLER}/${id}/start`);
+
+export const finishRide = async (id: number) => putRequest(`${CONTROLLER}/${id}/finish`);

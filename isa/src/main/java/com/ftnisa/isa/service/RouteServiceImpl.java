@@ -241,13 +241,8 @@ public class RouteServiceImpl implements RouteService {
     public int cleanOrphanRoutes() {
         var timeInPastToSaveUntil = Instant.now().minus(10, ChronoUnit.MINUTES);
         var routes = routeRepository.findAllWithCreationDateTimeBefore(timeInPastToSaveUntil);
-        int counter = 0;
-        for (Route route : routes) {
-            if (route.getRide() != null) {
-                routeRepository.delete(route);
-                counter++;
-            }
-        }
-        return counter;
+        var orphanRoutes = routes.stream().filter(route -> route.getRide() == null).toList();
+        routeRepository.deleteAll(orphanRoutes);
+        return orphanRoutes.size();
     }
 }
