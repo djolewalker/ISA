@@ -41,9 +41,9 @@ public interface RideService {
 //
 //    Location getRidesStartLocation(Ride ride);
 
-    LocalDateTime estimateDriversTimeOfArrival(Ride ride) throws Exception;
+    LocalDateTime estimateDriversTimeOfArrival(Ride ride,Driver driver) throws Exception;
 
-    boolean checkIfRidesOverlap(Ride ride1, Ride ride2) throws Exception;
+    boolean checkIfRidesOverlap(Ride oldRide, Ride newRide, Driver driver) throws Exception;
 
     List<Driver> filterDriversBySchedule(List<Driver> drivers, Ride ride) throws Exception;
 

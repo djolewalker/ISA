@@ -83,10 +83,7 @@ public class RideServiceImpl implements RideService {
 
         // check if passenger has an active ride, if yes, reject
         if (!rideRepository.findByPassengerAndRideStatus(passenger, RideStatus.ACTIVE).isEmpty()) {
-            Rejection rejection = new Rejection("Izvinite, ne možete zakazati novu vožnju, dok imate drugu aktivnu vožnju.",
-                    LocalDateTime.now());
-            ride.setRejection(rejection);
-            ride.setRideStatus(RideStatus.REJECTED);
+            rejectRide(ride, "Izvinite, ne možete zakazati novu vožnju, dok imate drugu aktivnu vožnju.");
             rideRepository.save(ride);
             return ride;
         }
@@ -95,9 +92,7 @@ public class RideServiceImpl implements RideService {
         List<Driver> activeDrivers = driverService.getActiveDrivers();
 
         if (activeDrivers.isEmpty()) {
-            Rejection rejection = new Rejection("Nažalost, trenutno nema aktivnih vozača.", LocalDateTime.now());
-            ride.setRejection(rejection);
-            ride.setRideStatus(RideStatus.REJECTED);
+            rejectRide(ride, "Nažalost, trenutno nema aktivnih vozača.");
             rideRepository.save(ride);
             return ride;
         }
@@ -108,10 +103,7 @@ public class RideServiceImpl implements RideService {
         List<Driver> driversWithoutNextBooking = driverService.getDriversWithoutNextBooking(activeDrivers);
 
         if (freeActiveDrivers.isEmpty() && driversWithoutNextBooking.isEmpty()) {
-            Rejection rejection = new Rejection(
-                    "Nažalost, trenutno nema dostupnih vozača za Vašu vožnju. Pokušajte malo kasnije.", LocalDateTime.now());
-            ride.setRejection(rejection);
-            ride.setRideStatus(RideStatus.REJECTED);
+            rejectRide(ride, "Nažalost, trenutno nema dostupnih vozača za Vašu vožnju. Pokušajte malo kasnije.");
             rideRepository.save(ride);
             return ride;
         }
@@ -137,15 +129,21 @@ public class RideServiceImpl implements RideService {
                     ride.getVehicleType(),
                     ride.getNumberOfPassengers(),
                     rideDurationMinutes);
+
             if (appropriateDrivers.isEmpty()) {
-                Rejection rejection = new Rejection("Nažalost, trenutno nemamo dostupnih vozila sa zadatim kriterijumima.",
-                        LocalDateTime.now());
-                ride.setRejection(rejection);
-                ride.setRideStatus(RideStatus.REJECTED);
+                rejectRide(ride, "Nažalost, trenutno nemamo dostupnih vozila sa zadatim kriterijumima.");
                 rideRepository.save(ride);
                 return ride;
             }
-            Driver chosenDriver = driverService.selectCurrentlyClosestDriver(appropriateDrivers, routeService.getRidesStartLocation(ride));
+
+            List<Driver> schedulableAppropriateDrivers = filterDriversBySchedule(appropriateDrivers, ride);
+            if (schedulableAppropriateDrivers.isEmpty()){
+                rejectRide(ride, "Nažalost, trenutno nemamo dostupne vozace sa traženim kriterijumima.");
+                rideRepository.save(ride);
+                return ride;
+            }
+
+            Driver chosenDriver = driverService.selectCurrentlyClosestDriver(schedulableAppropriateDrivers, routeService.getRidesStartLocation(ride));
             ride.setDriver(chosenDriver);
         } else {
             List<Driver> appropriateDrivers = filterDriversByRideCriteria(
@@ -155,11 +153,19 @@ public class RideServiceImpl implements RideService {
                     ride.getVehicleType(),
                     ride.getNumberOfPassengers(),
                     rideDurationMinutes);
+
+            List<Driver> schedulableAppropriateDrivers = filterDriversBySchedule(appropriateDrivers, ride);
+            if (schedulableAppropriateDrivers.isEmpty()){
+                rejectRide(ride, "Nažalost, trenutno nemamo dostupne vozace sa traženim kriterijumima.");
+                rideRepository.save(ride);
+                return ride;
+            }
+
             Driver chosenDriver = driverService.selectClosestDriverAfterCurrentRide(appropriateDrivers,
                     routeService.getRidesStartLocation(ride));
             ride.setDriver(chosenDriver);
         }
-        ride.setStartTime(estimateDriversTimeOfArrival(ride));
+        ride.setStartTime(estimateDriversTimeOfArrival(ride, ride.getDriver()));
 
         // calculate the price and the estimated finish time
         ride.setTotalPrice(calculateRidePrice(rideLengthMeters, ride.getVehicleType()));
@@ -186,20 +192,14 @@ public class RideServiceImpl implements RideService {
 
         // check if passenger has an active ride, if yes, reject
         if (!rideRepository.findByPassengerAndRideStatus(passenger, RideStatus.ACTIVE).isEmpty()) {
-            Rejection rejection = new Rejection("Izvinite, ne možete zakazati novu vožnju, dok imate drugu aktivnu vožnju.",
-                    LocalDateTime.now());
-            ride.setRejection(rejection);
-            ride.setRideStatus(RideStatus.REJECTED);
+            rejectRide(ride, "Izvinite, ne možete zakazati novu vožnju, dok imate drugu aktivnu vožnju.");
             rideRepository.save(ride);
             return ride;
         }
 
         // if ride start time is more than 5 hours later reject
         if (ride.getStartTime().isAfter(LocalDateTime.now().plusHours(5))) {
-            Rejection rejection = new Rejection("Izvinite, ne možete zakazati vožnju više od 5 sati unapred.",
-                    LocalDateTime.now());
-            ride.setRejection(rejection);
-            ride.setRideStatus(RideStatus.REJECTED);
+            rejectRide(ride, "Izvinite, ne možete zakazati vožnju više od 5 sati unapred.");
             rideRepository.save(ride);
             return ride;
         }
@@ -208,9 +208,7 @@ public class RideServiceImpl implements RideService {
         List<Driver> activeDrivers = driverService.getActiveDrivers();
 
         if (activeDrivers.isEmpty()) {
-            Rejection rejection = new Rejection("Nažalost, trenutno nema aktivnih vozača.", LocalDateTime.now());
-            ride.setRejection(rejection);
-            ride.setRideStatus(RideStatus.REJECTED);
+            rejectRide(ride, "Nažalost, trenutno nema aktivnih vozača.");
             rideRepository.save(ride);
             return ride;
         }
@@ -233,9 +231,7 @@ public class RideServiceImpl implements RideService {
 
         List<Driver> schedulableAppropriateDrivers = filterDriversBySchedule(appropriateDrivers, ride);
         if (schedulableAppropriateDrivers.isEmpty()){
-            Rejection rejection = new Rejection("Za zadati termin nemamo dostupne vozace sa traženim kriterijumima.", LocalDateTime.now());
-            ride.setRejection(rejection);
-            ride.setRideStatus(RideStatus.REJECTED);
+            rejectRide(ride, "Za zadati termin nemamo dostupne vozace sa traženim kriterijumima.");
             rideRepository.save(ride);
             return ride;
         }
@@ -245,7 +241,6 @@ public class RideServiceImpl implements RideService {
         ride.setDriver(chosenDriver);
 
         ride.setTotalPrice(calculateRidePrice(rideLengthMeters, ride.getVehicleType()));
-
         ride.setRideStatus(RideStatus.PENDING);
 
         // save and return
@@ -255,6 +250,12 @@ public class RideServiceImpl implements RideService {
 
         notificationService.createScheduledDriveReminders(passenger, ride.getStartTime());
         return ride;
+    }
+
+    private void rejectRide(Ride ride, String reason){
+        Rejection rejection = new Rejection(reason, LocalDateTime.now());
+        ride.setRejection(rejection);
+        ride.setRideStatus(RideStatus.REJECTED);
     }
 
   
@@ -384,8 +385,7 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public LocalDateTime estimateDriversTimeOfArrival(Ride ride) throws Exception{
-        Driver driver = ride.getDriver();
+    public LocalDateTime estimateDriversTimeOfArrival(Ride ride, Driver driver) throws Exception{
 
         if (!driver.isOccupied()) {
             return LocalDateTime.now().plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(driver.getVehicle().getCurrentLocation(), routeService.getRidesStartLocation(ride)));
@@ -397,25 +397,25 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public boolean checkIfRidesOverlap(Ride ride1, Ride ride2) throws Exception{
+    public boolean checkIfRidesOverlap(Ride oldRide, Ride newRide, Driver driver) throws Exception{
 
 
-        var route = ride2.getRoutes().get(0);
+        var route = newRide.getRoutes().get(0);
         float rideDurationMinutes = routeService.fetchRouteDurationMinutes(route);
 
-        var supposedStartTime = ride2.getStartTime()!=null ? ride2.getStartTime() : estimateDriversTimeOfArrival(ride2);
-        var supposedFinishTime = ride2.getFinishTime() !=null ? ride2.getFinishTime() : supposedStartTime.plusMinutes((long) rideDurationMinutes);
+        var supposedStartTime = newRide.getStartTime()!=null ? newRide.getStartTime() : estimateDriversTimeOfArrival(newRide, driver);
+        var supposedFinishTime = newRide.getFinishTime() !=null ? newRide.getFinishTime() : supposedStartTime.plusMinutes((long) rideDurationMinutes);
 
         if (
-                (ride1.getFinishTime()
-                .plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(routeService.getRidesFinishLocation(ride1),
-                        routeService.getRidesStartLocation(ride2)))
+                (oldRide.getFinishTime()
+                .plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(routeService.getRidesFinishLocation(oldRide),
+                        routeService.getRidesStartLocation(newRide)))
                 .isBefore(supposedStartTime))
                 ||
                 (supposedFinishTime
                         .plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(
-                                routeService.getRidesFinishLocation(ride2), routeService.getRidesStartLocation(ride1)))
-                        .isBefore(ride1.getStartTime()))
+                                routeService.getRidesFinishLocation(newRide), routeService.getRidesStartLocation(oldRide)))
+                        .isBefore(oldRide.getStartTime()))
         ) {
             return false;
         } else {
@@ -442,7 +442,7 @@ public class RideServiceImpl implements RideService {
         rides.addAll(rideRepository.findByDriverAndRideStatus(driver, RideStatus.PENDING));
 
         for (Ride r : rides) {
-            if (checkIfRidesOverlap(r, ride)) {
+            if (checkIfRidesOverlap(r, ride, driver)) {
                 return false;
             }
         }
