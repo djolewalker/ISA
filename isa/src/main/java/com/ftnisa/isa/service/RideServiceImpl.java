@@ -174,7 +174,7 @@ public class RideServiceImpl implements RideService {
         // calculate the price and the estimated finish time
         ride.setTotalPrice(calculateRidePrice(rideLengthMeters, ride.getVehicleType()));
         ride.setFinishTime(ride.getStartTime().plusMinutes((long) rideDurationMinutes));
-        ride.setEstimatedDuration(Duration.of((long) rideDurationMinutes, ChronoUnit.SECONDS));
+        ride.setEstimatedDuration(Duration.of((long) rideDurationMinutes, ChronoUnit.MINUTES));
         ride.setRideStatus(RideStatus.PENDING);
 
         // save and return
@@ -219,6 +219,7 @@ public class RideServiceImpl implements RideService {
         var route = ride.getRoutes().get(0);
         long rideLengthMeters = routeService.fetchRouteLengthMeters(route);
         float rideDurationMinutes = routeService.fetchRouteDurationMinutes(route);
+        ride.setEstimatedDuration(Duration.of((long) rideDurationMinutes, ChronoUnit.MINUTES));
         ride.setFinishTime(ride.getStartTime().plusMinutes((long) rideDurationMinutes));
 
         // choose the driver
