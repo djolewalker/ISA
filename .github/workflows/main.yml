@@ -99,17 +99,17 @@ jobs:
         with:
           app_name: isa-server
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-          images: '[
-            {
-            "name": "server",
-            "image": {
-            "registry_type": "DOCKER_HUB",
-            "registry": "djolewalker",
-            "repository": "isa",
-            "tag": "latest"
-            }
-            }
-            ]'
+          # images: '[
+          #   {
+          #   "name": "server",
+          #   "image": {
+          #   "registry_type": "DOCKER_HUB",
+          #   "registry": "djolewalker",
+          #   "repository": "isa",
+          #   "tag": "latest"
+          #   }
+          #   }
+          #   ]'
 
       - name: 🚀 Deploy client application to the GitHub Pages
         if: github.event_name == 'push'
