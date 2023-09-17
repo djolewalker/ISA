@@ -57,7 +57,7 @@ public class AuthController {
     }
 
     @GetMapping("/signout")
-    public ResponseEntity signOut(Principal principal) {
+    public ResponseEntity<Void> signOut(Principal principal) {
         var user = this.userService.findByUsername(principal.getName());
 
         if (user.hasRole(Role.DRIVER)) {
@@ -67,6 +67,7 @@ public class AuthController {
 
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.add(HttpHeaders.SET_COOKIE, tokenUtils.deleteAccessTokenCookie().toString());
+
 
         return ResponseEntity.ok().headers(responseHeaders).build();
     }

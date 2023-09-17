@@ -38,5 +38,5 @@ public interface UserService {
     void createDriverChangeRequest(DriverChangeRequestDto driverChangeRequestDto);
 
     @Transactional
-    Panic resolvePanic(Integer panicId);
+    Panic resolvePanic(Integer rideId);
 }

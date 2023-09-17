@@ -51,5 +51,3 @@ export const getIsCurrentDriverActive = async () =>
 export const activateCurrentDriver = async () => putRequest(`${CONTROLLER}/driver/activate`);
 
 export const deactivateCurrentDriver = async () => putRequest(`${CONTROLLER}/driver/deactivate`);
-
-export const resolvePanic = async (id: number) => putRequest(`${CONTROLLER}/${id}/resolve-panic`);

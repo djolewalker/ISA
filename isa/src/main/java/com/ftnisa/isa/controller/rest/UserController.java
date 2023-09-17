@@ -4,7 +4,6 @@ import java.security.Principal;
 import java.util.List;
 
 import com.ftnisa.isa.dto.user.*;
-import com.ftnisa.isa.mapper.RideMapper;
 import com.ftnisa.isa.mapper.UserMapper;
 import com.ftnisa.isa.service.DriverService;
 import lombok.AllArgsConstructor;
@@ -28,7 +27,6 @@ public class UserController {
     private final DriverService driverService;
     private final UserMapper mapper;
     private SimpMessagingTemplate template;
-    private final RideMapper rideMapper;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -67,7 +65,6 @@ public class UserController {
         return ResponseEntity.ok(mapper.toUserResponse(user));
     }
 
-
     @PostMapping("/driver-change-request")
     @PreAuthorize("hasAnyRole('DRIVER')")
     public ResponseEntity<Void> createDriverChangeRequest(@RequestBody DriverChangeRequestDto driverChangeRequestDto) {
@@ -81,19 +78,17 @@ public class UserController {
 
     @PutMapping("/driver-change-resolve")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<DriverResponse> resolveDriverChangeRequest(@RequestBody DriverChangeResolveDto driverChangeResolveDto) {
+    public ResponseEntity<DriverResponse> resolveDriverChangeRequest(
+            @RequestBody DriverChangeResolveDto driverChangeResolveDto) {
         try {
             var driver = userService.resolveDriverChangeRequest(
                     driverChangeResolveDto.getDriverChangeId(),
-                    driverChangeResolveDto.isApproved()
-            );
+                    driverChangeResolveDto.isApproved());
             return ResponseEntity.ok(mapper.driverToDriverResponse(driver));
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
-
-
 
     @PostMapping("/driver")
     @PreAuthorize("hasAnyRole('ADMIN')")
@@ -115,10 +110,9 @@ public class UserController {
         return ResponseEntity.ok(mapper.driversToDriversLocationDto(drivers));
     }
 
-
     @PutMapping("/driver/deactivate")
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity deactivateDriver(Principal principal) {
+    public ResponseEntity<Void> deactivateDriver(Principal principal) {
         var driver = this.driverService.deactivateDriver(principal.getName());
         template.convertAndSend("/topic/driver/deactivated", driver.getId());
         return ResponseEntity.ok().build();
@@ -126,7 +120,7 @@ public class UserController {
 
     @PutMapping("/driver/activate")
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity activateDriver(Principal principal) {
+    public ResponseEntity<Void> activateDriver(Principal principal) {
         var driver = this.driverService.activateDriver(principal.getName());
         template.convertAndSend("/topic/driver/activated", driver.getId());
         return ResponseEntity.ok().build();
@@ -137,16 +131,5 @@ public class UserController {
     public ResponseEntity<DriverStatusDTO> isDriverActive(Principal principal) {
         var driver = this.driverService.activateDriver(principal.getName());
         return ResponseEntity.ok(mapper.driverToDriverStatusDto(driver));
-    }
-
-    @PutMapping("/{id}/resolve-panic")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PanicResponse> resolvePanic(@PathVariable Integer id) {
-        try {
-            var panic = userService.resolvePanic(id);
-            return ResponseEntity.ok(rideMapper.panicToPanicResponse(panic));
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
     }
 }

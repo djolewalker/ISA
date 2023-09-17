@@ -24,3 +24,5 @@ export const rideHistory = async () => getRequest(`${CONTROLLER}/ride-history`).
 
 export const accountRideHistory = async (id: string) =>
   getRequest(`${CONTROLLER}/ride-history/${id}`).then(({ data }) => data as Ride[]);
+
+export const resolvePanic = async (id: number) => putRequest(`${CONTROLLER}/${id}/panic/resolve`);
