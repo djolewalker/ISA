@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { redirect, useNavigate, useParams } from 'react-router-dom';
-import { Button, Form, Input, Popconfirm } from 'antd';
+import { Button, Form, Input, Popconfirm, Tooltip } from 'antd';
 
 import { useLoader } from 'app/contexts/loader/loader-context-provider';
 import { MainHeader } from 'app/components/main-header/MainHeader';
@@ -12,13 +12,15 @@ import { IsaButton } from 'app/components/isa-button/IsaButton';
 import { setRoutes } from 'app/pages/routes/routes-page.slice';
 import { acceptRide, finishRide, rejectRide, ridePanic, startRide } from 'app/service/ride.service';
 import { useAuthContext } from 'app/contexts/auth/auth-context-provider';
+import { useActiveRideContext } from 'app/contexts/active-ride/active-ride-provider';
 
 export const RidePage = () => {
   const { hasAnyRole } = useAuthContext();
-  const { activateTransparentLoader, deactivateLoader } = useLoader();
+  const { activateLoader, deactivateLoader } = useLoader();
   const { rideId } = useParams();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { driverWithPanicInCar } = useActiveRideContext();
 
   const isDriver = hasAnyRole(['ROLE_DRIVER']);
   const isLoading = useAppSelector(selectIsLoadingRide);
@@ -36,9 +38,9 @@ export const RidePage = () => {
   }, [dispatch, navigate, rideId]);
 
   useEffect(() => {
-    if (isLoading) activateTransparentLoader();
+    if (isLoading) activateLoader();
     else deactivateLoader();
-  }, [activateTransparentLoader, deactivateLoader, isLoading]);
+  }, [activateLoader, deactivateLoader, isLoading]);
 
   useEffect(() => {
     if (route?.geo) dispatch(setRoutes({ features: [route.geo], type: 'FeatureCollection', bbox: route.geo.bbox }));
@@ -47,11 +49,10 @@ export const RidePage = () => {
   const handleAcceptRejectRide = (accept: boolean) => {
     if (!rideId) return;
 
-    activateTransparentLoader();
+    activateLoader();
     acceptRide(parseInt(rideId), accept)
       .then(() => {
-        if (accept) dispatch(fetchRide(parseInt(rideId)));
-        else redirect('/');
+        dispatch(fetchRide(parseInt(rideId)));
       })
       .catch(deactivateLoader);
   };
@@ -59,7 +60,7 @@ export const RidePage = () => {
   const handlePanicButtonClick = () => {
     if (!rideId) return;
 
-    activateTransparentLoader();
+    activateLoader();
     ridePanic(parseInt(rideId), panicReason)
       .then(() => {
         dispatch(fetchRide(parseInt(rideId)));
@@ -70,7 +71,7 @@ export const RidePage = () => {
   const handleDriverCanceledRide = () => {
     if (!rideId) return;
 
-    activateTransparentLoader();
+    activateLoader();
     rejectRide(parseInt(rideId), rejectionReason)
       .then(() => {
         dispatch(fetchRide(parseInt(rideId)));
@@ -81,7 +82,7 @@ export const RidePage = () => {
   const handleFinishRide = () => {
     if (!rideId) return;
 
-    activateTransparentLoader();
+    activateLoader();
     finishRide(parseInt(rideId))
       .then(() => {
         dispatch(fetchRide(parseInt(rideId)));
@@ -92,7 +93,7 @@ export const RidePage = () => {
   const hanldeStartRide = () => {
     if (!rideId) return;
 
-    activateTransparentLoader();
+    activateLoader();
     startRide(parseInt(rideId))
       .then(() => {
         dispatch(fetchRide(parseInt(rideId)));
@@ -110,21 +111,35 @@ export const RidePage = () => {
           <h2 className="h2 mb-4 text-center">Vožnja nije nađena!</h2>
         ) : (
           <>
-            <h2 className="h2 mb-4 text-center">
-              {ride?.rideStatus === 'PENDING' && !isDriver && 'Potvrdite vožnju:'}
-              {ride?.rideStatus === 'PENDING' && isDriver && 'Vožnja ponuđena korisniku:'}
-              {ride?.rideStatus === 'REJECTED' && 'Odbijena vožnja:'}
-              {ride?.rideStatus === 'ACCEPTED' && !isDriver && 'Započeta vožnja:'}
-              {ride?.rideStatus === 'ACCEPTED' && isDriver && 'Pokrenuta vožnja:'}
-              {ride?.rideStatus === 'ACTIVE' && 'Vožnja u toku:'}
-              {ride?.rideStatus === 'FINISHED' && 'Završena vožnja:'}
-            </h2>
+            <Tooltip title={ride.panicFlag ? 'Panik taster pritisnut!' : ''}>
+              <h2 className={'h2 mb-4 text-center' + (ride.panicFlag ? ' text-danger' : '')}>
+                {ride?.rideStatus === 'PENDING' && !isDriver && 'Potvrdite vožnju:'}
+                {ride?.rideStatus === 'PENDING' && isDriver && 'Vožnja ponuđena korisniku:'}
+                {ride?.rideStatus === 'REJECTED' && 'Odbijena vožnja:'}
+                {ride?.rideStatus === 'ACCEPTED' && !isDriver && 'Započeta vožnja:'}
+                {ride?.rideStatus === 'ACCEPTED' && isDriver && 'Pokrenuta vožnja:'}
+                {ride?.rideStatus === 'ACTIVE' && 'Vožnja u toku:'}
+                {ride?.rideStatus === 'FINISHED' && 'Završena vožnja:'}
+              </h2>
+            </Tooltip>
 
             <Form className="w-75 mx-auto" layout="vertical">
               {ride?.rideStatus === 'REJECTED' && (
                 <Form.Item label="Razlog odbijanja:">
                   <Input value={ride.rejection?.rejectionReason ?? 'Razlog nije naveden'} readOnly />
                 </Form.Item>
+              )}
+
+              {hasAnyRole(['ROLE_ADMIN']) && (
+                <>
+                  <Form.Item label="Vozač:">
+                    <Input value={`${ride.driver?.firstname} ${ride.driver?.lastname}`} readOnly />
+                  </Form.Item>
+
+                  <Form.Item label="Broj putnika:">
+                    <Input value={ride?.numberOfPassengers || 0} readOnly />
+                  </Form.Item>
+                </>
               )}
 
               <Form.Item label="Procenjeno trajanje vožnje:">
@@ -213,28 +228,31 @@ export const RidePage = () => {
                     </Popconfirm>
                   )}
                   <div />
-                  <Popconfirm
-                    placement="topLeft"
-                    icon=""
-                    title={
-                      <Form layout="vertical">
-                        <Form.Item label="Navedite šta je izazvalo paniku!">
-                          <Input.TextArea
-                            value={panicReason}
-                            onChange={(value) => setPanicReason(value.target.value)}
-                          />
-                        </Form.Item>
-                      </Form>
-                    }
-                    okText="Potvrdi"
-                    cancelText="Odustani"
-                    okButtonProps={{ disabled: !panicReason, danger: true }}
-                    onCancel={handlePanicButtonClick}
-                  >
-                    <IsaButton className="my-3" type="primary" size="large" danger>
-                      PRIJAVI OPASNOST
-                    </IsaButton>
-                  </Popconfirm>
+
+                  {hasAnyRole(['ROLE_DRIVER', 'ROLE_USER']) && (
+                    <Popconfirm
+                      placement="topLeft"
+                      icon=""
+                      title={
+                        <Form layout="vertical">
+                          <Form.Item label="Navedite šta je izazvalo paniku!">
+                            <Input.TextArea
+                              value={panicReason}
+                              onChange={(value) => setPanicReason(value.target.value)}
+                            />
+                          </Form.Item>
+                        </Form>
+                      }
+                      okText="Potvrdi"
+                      cancelText="Odustani"
+                      okButtonProps={{ disabled: !panicReason, danger: true }}
+                      onConfirm={handlePanicButtonClick}
+                    >
+                      <IsaButton className="my-3" type="primary" size="large" danger disabled={!!driverWithPanicInCar}>
+                        {driverWithPanicInCar ? 'OPASNOST PRIJAVLJENA' : 'PRIJAVI OPASNOST'}
+                      </IsaButton>
+                    </Popconfirm>
+                  )}
                 </div>
               )}
             </Form>

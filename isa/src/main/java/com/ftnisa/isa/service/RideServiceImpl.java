@@ -14,6 +14,7 @@ import com.ftnisa.isa.model.vehicle.VehicleType;
 
 import com.ftnisa.isa.repository.*;
 import lombok.AllArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,8 @@ import org.webjars.NotFoundException;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,6 +47,8 @@ public class RideServiceImpl implements RideService {
     private final NotificationService notificationService;
 
     private final VehicleTypeRepository vehicleTypeRepository;
+
+    private final SimpMessagingTemplate template;
 
     @Override
     @Transactional
@@ -79,7 +84,7 @@ public class RideServiceImpl implements RideService {
         ride.setPassenger(passenger);
 
         // check if passenger has an active ride, if yes, reject
-        if (!rideRepository.findByPassengerAndRideStatus(passenger, RideStatus.ACTIVE).isEmpty()) {
+        if (!rideRepository.findAllByPassengerAndRideStatus(passenger, RideStatus.ACTIVE).isEmpty()) {
             rejectRide(ride, "Izvinite, ne možete zakazati novu vožnju, dok imate drugu aktivnu vožnju.");
             rideRepository.save(ride);
             return ride;
@@ -193,7 +198,7 @@ public class RideServiceImpl implements RideService {
         ride.setPassenger(passenger);
 
         // check if passenger has an active ride, if yes, reject
-        if (!rideRepository.findByPassengerAndRideStatus(passenger, RideStatus.ACTIVE).isEmpty()) {
+        if (!rideRepository.findAllByPassengerAndRideStatus(passenger, RideStatus.ACTIVE).isEmpty()) {
             rejectRide(ride, "Izvinite, ne možete zakazati novu vožnju, dok imate drugu aktivnu vožnju.");
             rideRepository.save(ride);
             return ride;
@@ -279,7 +284,7 @@ public class RideServiceImpl implements RideService {
         rideBookingRequestDto.setBabyTransportFlag(oldRide.getBabyTransportFlag());
         rideBookingRequestDto.setVehicleTypeId(oldRide.getVehicleType().getId());
         rideBookingRequestDto.setScheduled(recreateRideDto.getScheduled());
-        rideBookingRequestDto.setScheduledStartTime(recreateRideDto.getScheduledStartTime());
+        rideBookingRequestDto.setScheduledStartTime(recreateRideDto.getScheduledStartTime().atOffset(ZoneOffset.of(ZoneId.systemDefault().getId())));
 
         Ride newRide = bookARide(rideBookingRequestDto);
 
@@ -290,7 +295,7 @@ public class RideServiceImpl implements RideService {
     // if user confirmed the price and the reservation finalize the ride booking
     // (else abort)
     @Override
-    public void finalizeRideBooking(boolean isRideAccepted, int rideId) {
+    public Ride finalizeRideBooking(boolean isRideAccepted, int rideId) {
         Ride ride = rideRepository.findOneById(rideId);
         if (isRideAccepted) {
             ride.setRideStatus(RideStatus.ACCEPTED);
@@ -304,6 +309,8 @@ public class RideServiceImpl implements RideService {
 
             notificationService.createInstantNotification(ride.getPassenger(), passengerNotificationMessage);
             notificationService.createInstantNotification(ride.getDriver(), driverNotificationMessage);
+
+            template.convertAndSendToUser(ride.getDriver().getUsername(), "/queue/assigned-ride", ride.getId());
         } else {
             ride.setRideStatus(RideStatus.REJECTED);
             ride.setRejection(
@@ -311,6 +318,7 @@ public class RideServiceImpl implements RideService {
         }
         // save
         rideRepository.save(ride);
+        return ride;
     }
 
     @Override
@@ -325,12 +333,13 @@ public class RideServiceImpl implements RideService {
 
     @Override
     @Transactional
-    public void finishRideByDriver(Integer rideId) {
+    public Ride finishRideByDriver(Integer rideId) {
         Ride ride = rideRepository.findOneById(rideId);
         ride.setRideStatus(RideStatus.FINISHED);
         ride.getDriver().setOccupied(false);
         rideRepository.save(ride);
         notificationService.createInstantNotification(ride.getPassenger(), "Vaša vožnja je završena.");
+        return ride;
     }
 
     @Override
@@ -444,9 +453,9 @@ public class RideServiceImpl implements RideService {
     @Override
     public boolean checkIfRideIsSchedulableForDriver(Ride ride, Driver driver) throws Exception {
         List<Ride> rides = new ArrayList<>();
-        rides.addAll(rideRepository.findByDriverAndRideStatus(driver, RideStatus.ACTIVE));
-        rides.addAll(rideRepository.findByDriverAndRideStatus(driver, RideStatus.ACCEPTED));
-        rides.addAll(rideRepository.findByDriverAndRideStatus(driver, RideStatus.PENDING));
+        rides.addAll(rideRepository.findAllByDriverAndRideStatus(driver, RideStatus.ACTIVE));
+        rides.addAll(rideRepository.findAllByDriverAndRideStatus(driver, RideStatus.ACCEPTED));
+        rides.addAll(rideRepository.findAllByDriverAndRideStatus(driver, RideStatus.PENDING));
 
         for (Ride r : rides) {
             if (checkIfRidesOverlap(r, ride, driver)) {
@@ -481,5 +490,17 @@ public class RideServiceImpl implements RideService {
     @Override
     public Ride findRideById(int id) {
         return rideRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public Ride findDriversActiveRide(Driver driver) {
+        var statuses = List.of(new RideStatus[]{RideStatus.ACCEPTED, RideStatus.ACTIVE});
+        return rideRepository.findByDriverAndRideStatusIn(driver, statuses);
+    }
+
+    @Override
+    public Ride findUsersActiveRide(User user) {
+        var statuses = List.of(new RideStatus[]{RideStatus.ACCEPTED, RideStatus.ACTIVE});
+        return rideRepository.findByPassengerAndRideStatusIn(user, statuses);
     }
 }

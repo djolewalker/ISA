@@ -3,8 +3,6 @@ package com.ftnisa.isa.dto.reports;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @NoArgsConstructor

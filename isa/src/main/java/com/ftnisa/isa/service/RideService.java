@@ -18,11 +18,11 @@ public interface RideService {
 
     Ride recreateRide(int id, RecreateRideDto recreateRideDto) throws Exception;
 
-    void finalizeRideBooking(boolean isRideAccepted, int rideId);
+    Ride finalizeRideBooking(boolean isRideAccepted, int rideId);
 
     void startRideByDriver(Integer rideId);
 
-    void finishRideByDriver(Integer rideId);
+    Ride finishRideByDriver(Integer rideId);
 
     Panic panic(User user, Integer rideId, String panicReason);
 
@@ -54,4 +54,8 @@ public interface RideService {
     void addRideToFavourites(Integer rideId);
 
     Ride findRideById(int id);
+
+    Ride findDriversActiveRide(Driver driver);
+
+    Ride findUsersActiveRide(User user);
 }

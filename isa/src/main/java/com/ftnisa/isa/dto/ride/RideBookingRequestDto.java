@@ -6,8 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-
-
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 
 @Data
 @AllArgsConstructor
@@ -18,7 +18,11 @@ public class RideBookingRequestDto {
     private int vehicleTypeId;
     private int numberOfPassengers;
     private boolean isScheduled = false;
-    private LocalDateTime scheduledStartTime;
+    private OffsetDateTime scheduledStartTime;
     private RouteOptimizationCriteria routeOptimizationCriteria;
     private int routeId;
+
+    public LocalDateTime getScheduledStartTime() {
+        return scheduledStartTime.atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+    }
 }

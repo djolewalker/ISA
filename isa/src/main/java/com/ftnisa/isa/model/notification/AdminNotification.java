@@ -4,9 +4,12 @@ import com.ftnisa.isa.model.ride.Ride;
 import com.ftnisa.isa.model.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -32,13 +35,15 @@ public class AdminNotification {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "creation_time")
-    private LocalDateTime creationTime;
+    @CreatedDate
+    @Column(name = "creation_time", nullable = false, updatable = false)
+    @Getter
+    private Instant creationTime;
 
-    public AdminNotification(Ride ride, User user, String description, LocalDateTime creationTime) {
+    public AdminNotification(Ride ride, User user, String description) {
         this.ride = ride;
         this.user = user;
         this.description = description;
-        this.creationTime = creationTime;
+        this.creationTime = Instant.now();
     }
 }

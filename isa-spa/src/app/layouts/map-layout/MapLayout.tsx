@@ -8,6 +8,7 @@ import { clearNavigateTo, fetchActiveDriversLocations, selectNavigateTo } from '
 import { useDriverLocations } from 'app/hooks/track-driver-location';
 
 import './MapLayout.scss';
+import ActiveRideProvider from 'app/contexts/active-ride/active-ride-provider';
 
 export const MapLayout = () => {
   const dispatch = useAppDispatch();
@@ -29,14 +30,16 @@ export const MapLayout = () => {
   }, []);
 
   return (
-    <div className="map-layout-main-content">
-      <div className="map">
-        <MainMap />
+    <ActiveRideProvider>
+      <div className="map-layout-main-content">
+        <div className="map">
+          <MainMap />
+        </div>
+        <div className="content p-4 d-flex flex-column position-relative">
+          <Outlet />
+          <IsaLoader />
+        </div>
       </div>
-      <div className="content p-4 d-flex flex-column position-relative">
-        <Outlet />
-        <IsaLoader />
-      </div>
-    </div>
+    </ActiveRideProvider>
   );
 };

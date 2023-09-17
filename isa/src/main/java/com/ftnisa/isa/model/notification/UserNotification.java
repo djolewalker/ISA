@@ -2,8 +2,11 @@ package com.ftnisa.isa.model.notification;
 
 
 import com.ftnisa.isa.model.user.User;
+import lombok.Getter;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity

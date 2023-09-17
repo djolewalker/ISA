@@ -28,7 +28,6 @@ public class UserController {
     private final DriverService driverService;
     private final UserMapper mapper;
     private SimpMessagingTemplate template;
-
     private final RideMapper rideMapper;
 
     @GetMapping

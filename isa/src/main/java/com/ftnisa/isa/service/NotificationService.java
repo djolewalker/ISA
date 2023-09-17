@@ -1,5 +1,6 @@
 package com.ftnisa.isa.service;
 
+import com.ftnisa.isa.model.notification.AdminNotification;
 import com.ftnisa.isa.model.notification.UserNotification;
 import com.ftnisa.isa.model.user.User;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,4 +19,6 @@ public interface NotificationService {
     void createAdminNotification(Integer rideId, Integer userId, String reason);
 
     List<UserNotification> getUserNotifications(User user);
+
+    List<AdminNotification> getAdminNotifications();
 }

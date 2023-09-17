@@ -134,6 +134,11 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
+    public Driver findDriverByUsername(String username) {
+        return driverRepository.findByUsername(username);
+    }
+
+    @Override
     public Driver activateDriver(String username) {
         var driver = driverRepository.findByUsername(username);
         driver.setActive(true);
