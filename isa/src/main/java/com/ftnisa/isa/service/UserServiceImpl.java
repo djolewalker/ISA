@@ -198,17 +198,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public Driver approveDriverChangeRequest(Integer driverChangeRequestId) {
+    public Driver resolveDriverChangeRequest(Integer driverChangeRequestId, boolean isApproved) {
 
         DriverChangeRequest driverChangeRequest = driverChangeRequestRepository.findById(driverChangeRequestId)
                 .orElseThrow();
-        Driver driver = driverRepository.findById(driverChangeRequest.getDriverId()).orElseThrow();
-        Vehicle vehicle = driver.getVehicle();
         User admin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Driver driver = driverRepository.findById(driverChangeRequest.getDriverId()).orElseThrow();
+
+        if (!isApproved){
+            driverChangeRequest.setApproved(false);
+            driverChangeRequest.setResolvedBy(admin);
+            driverChangeRequest.setResolveTime(LocalDateTime.now());
+            driverChangeRequestRepository.save(driverChangeRequest);
+            notificationService.createInstantNotification(driver, "Vaš zahtev za izmenu podataka na profilu je odbijen.");
+            return driver;
+        }
+
+        Vehicle vehicle = driver.getVehicle();
         VehicleType vehicleType = vehicleTypeRepository.findById(driverChangeRequest.getVehicleTypeId()).orElseThrow();
 
         driver.setUsername(driverChangeRequest.getUsername());
-        // driver.setPassword(driverChangeRequest.getPassword());
         driver.setEmail(driverChangeRequest.getEmail());
         driver.setFirstname(driverChangeRequest.getFirstname());
         driver.setLastname(driverChangeRequest.getLastname());
@@ -225,9 +234,8 @@ public class UserServiceImpl implements UserService {
         vehicle.setVehicleType(vehicleType);
 
         driverChangeRequest.setApproved(true);
-        driverChangeRequest.setApprovedBy(admin);
-        driverChangeRequest.setApprovalTime(LocalDateTime.now());
-
+        driverChangeRequest.setResolvedBy(admin);
+        driverChangeRequest.setResolveTime(LocalDateTime.now());
         notificationService.createInstantNotification(driver, "Vaš zahtev za izmenu podataka na profilu je odobren.");
 
         driverRepository.save(driver);
