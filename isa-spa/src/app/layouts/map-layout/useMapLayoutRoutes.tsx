@@ -80,6 +80,10 @@ export const useMapLayoutRoutes = () => {
             {
               path: '/admin',
               element: <Navigate to="/" replace />
+            },
+            {
+              path: '/admin/ride/history/user/:userId',
+              element: <HistoryPage />
             }
           ]
         },

@@ -187,9 +187,9 @@ export const RidePage = ({ isHistory = false }: RidePageProps) => {
                     </Form.Item>
                   )}
 
-                  {ride?.finisTime && (
-                    <Form.Item label="Vreme zavrčetka:">
-                      <Input value={new Date(ride?.finisTime).toLocaleString()} readOnly />
+                  {ride?.finishTime && (
+                    <Form.Item label="Vreme završetka:">
+                      <Input value={new Date(ride?.finishTime).toLocaleString()} readOnly />
                     </Form.Item>
                   )}
                 </>

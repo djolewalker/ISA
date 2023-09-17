@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { IsaButton } from 'app/components/isa-button/IsaButton';
 
-const tableColumns: ColumnsType<User> = [
+const tableColumns = (navigate: any): ColumnsType<User> => [
   {
     title: 'Korisnik',
     dataIndex: 'username',
@@ -26,6 +26,21 @@ const tableColumns: ColumnsType<User> = [
     title: 'Prezime',
     dataIndex: 'lastname',
     key: 'lastname'
+  },
+  {
+    dataIndex: 'id',
+    key: 'actions',
+    render: (id) => (
+      <IsaButton
+        type="primary"
+        onClick={(event) => {
+          navigate(`/admin/ride/history/user/${id}`);
+          event.stopPropagation();
+        }}
+      >
+        Istorija
+      </IsaButton>
+    )
   }
 ];
 
@@ -63,7 +78,7 @@ export const UsersPage = () => {
           {Boolean(usersRows?.length) && (
             <Table
               dataSource={usersRows}
-              columns={tableColumns}
+              columns={tableColumns(navigate)}
               pagination={false}
               onRow={({ id, roles }) => ({ onClick: () => handleUserSelected(id, roles) })}
             />

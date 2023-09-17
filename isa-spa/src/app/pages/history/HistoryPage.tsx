@@ -50,9 +50,9 @@ export const HistoryPage = () => {
       <div className="my-3 d-flex flex-column flex-grow-1">
         <>
           <div className="mb-4 d-flex justify-content-between align-items-center">
-            <h3 className="h3 m-0">Istorija vožnji:</h3>
+            <h3 className="h3 m-0">Istorija vožnji: {userId ? `korisnik sa id-jem ${userId}` : ''}</h3>
           </div>
-          {Boolean(rides?.length) && (
+          {Boolean(rides?.length) ? (
             <Table<Ride>
               rowKey={({ id }) => id}
               dataSource={rides}
@@ -60,6 +60,10 @@ export const HistoryPage = () => {
               pagination={false}
               onRow={({ id }) => ({ onClick: () => handleRideSelected(id) })}
             />
+          ) : (
+            <div className="d-flex flex-grow-1 align-items-center">
+              <h2 className="h2 mb-4 text-center">Odabrani korisnik nije učestvovao u vožnjama!</h2>
+            </div>
           )}
         </>
       </div>
