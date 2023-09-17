@@ -43,18 +43,18 @@ const ActiveRideProvider = ({ children }: ActiveRideProviderProps) => {
     if (connected) {
       if (hasAnyRole(['ROLE_DRIVER'])) {
         subscriptions.push(
-          client.subscribe('/user/queue/assigned-ride', (message: Message) => {
-            setRideId(parseInt(message.body));
-            navigate(`/ride/${message.body}`);
+          client.subscribe('/user/queue/assigned-ride', ({ body }: Message) => {
+            setRideId(parseInt(body));
+            navigate(`/ride/${body}`);
           })
         );
       }
 
       if (hasAnyRole(['ROLE_USER'])) {
         subscriptions.push(
-          client.subscribe('/user/queue/active-ride', (message: Message) => {
-            setRideId(parseInt(message.body));
-            navigate(`/ride/${message.body}`);
+          client.subscribe('/user/queue/active-ride', ({ body }: Message) => {
+            setRideId(parseInt(body));
+            navigate(`/ride/${body}`);
           })
         );
       }
@@ -67,8 +67,14 @@ const ActiveRideProvider = ({ children }: ActiveRideProviderProps) => {
         );
 
         subscriptions.push(
-          client.subscribe('/user/queue/panic-car', (message: Message) => {
-            setDriverWithPanicInCar(parseInt(message.body));
+          client.subscribe('/user/queue/panic-car', ({ body }: Message) => {
+            setDriverWithPanicInCar(parseInt(body));
+          })
+        );
+
+        subscriptions.push(
+          client.subscribe('/user/queue/panic-car-resolved', ({ body }: Message) => {
+            setDriverWithPanicInCar((current) => (parseInt(body) === current ? undefined : current));
           })
         );
       }

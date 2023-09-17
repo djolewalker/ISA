@@ -220,7 +220,7 @@ public class RouteServiceImpl implements RouteService {
 
             route.setEstimatedDuration(
                     Duration.of(geoJSONIndividualRouteResponse.getProperties().getSummary().getDuration().longValue(),
-                            ChronoUnit.SECONDS));
+                            ChronoUnit.MINUTES));
             route.setLength(geoJSONIndividualRouteResponse.getProperties().getSummary().getDistance().floatValue());
 
             geoJSONIndividualRouteResponse.clearSegments();

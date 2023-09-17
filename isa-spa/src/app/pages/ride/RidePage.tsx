@@ -10,7 +10,7 @@ import { fetchRide, selectIsLoadingRide, selectRide } from 'app/pages/ride/ride-
 import { humanizeMiliseconds } from 'app/utils/humanize.utlis';
 import { IsaButton } from 'app/components/isa-button/IsaButton';
 import { setRoutes } from 'app/pages/routes/routes-page.slice';
-import { acceptRide, finishRide, rejectRide, ridePanic, startRide } from 'app/service/ride.service';
+import { acceptRide, finishRide, rejectRide, ridePanic, startRide, resolvePanic } from 'app/service/ride.service';
 import { useAuthContext } from 'app/contexts/auth/auth-context-provider';
 import { useActiveRideContext } from 'app/contexts/active-ride/active-ride-provider';
 
@@ -105,13 +105,24 @@ export const RidePage = ({ isHistory = false }: RidePageProps) => {
       .catch(deactivateLoader);
   };
 
+  const handleResolvePanic = () => {
+    if (!rideId) return;
+
+    activateLoader();
+    resolvePanic(parseInt(rideId))
+      .then(() => {
+        dispatch(fetchRide(parseInt(rideId)));
+      })
+      .catch(deactivateLoader);
+  };
+
   return (
     <div className="d-flex flex-column flex-grow-1">
       <MainHeader>
         <HeaderActions />
       </MainHeader>
       <div className="my-3 d-flex flex-column justify-content-center flex-grow-1">
-        {!route ? (
+        {!ride ? (
           <h2 className="h2 mb-4 text-center">Vožnja nije nađena!</h2>
         ) : (
           <>
@@ -262,7 +273,7 @@ export const RidePage = ({ isHistory = false }: RidePageProps) => {
                       )}
                       <div />
 
-                      {hasAnyRole(['ROLE_DRIVER', 'ROLE_USER']) && (
+                      {hasAnyRole(['ROLE_DRIVER', 'ROLE_USER']) ? (
                         <Popconfirm
                           placement="topLeft"
                           icon=""
@@ -291,6 +302,12 @@ export const RidePage = ({ isHistory = false }: RidePageProps) => {
                             {driverWithPanicInCar ? 'OPASNOST PRIJAVLJENA' : 'PRIJAVI OPASNOST'}
                           </IsaButton>
                         </Popconfirm>
+                      ) : (
+                        ride.panicFlag && (
+                          <IsaButton className="my-3" size="large" type="primary" onClick={handleResolvePanic}>
+                            Ukloni oznaku OPASNOSTI
+                          </IsaButton>
+                        )
                       )}
                     </div>
                   )}

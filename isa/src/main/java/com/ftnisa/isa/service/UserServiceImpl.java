@@ -45,6 +45,7 @@ public class UserServiceImpl implements UserService {
     private final DriverChangeRequestRepository driverChangeRequestRepository;
     private final NotificationService notificationService;
     private final PanicRepository panicRepository;
+    private final RideRepository rideRepository;
 
     @Override
     public User findById(Integer id) {
@@ -247,8 +248,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public Panic resolvePanic(Integer panicId) {
-        Panic panic = panicRepository.findById(panicId).orElseThrow();
+    public Panic resolvePanic(Integer rideId) {
+        var ride = rideRepository.findById(rideId).orElseThrow();
+        Panic panic = panicRepository.findByRide(ride);
+        if (ride == null) return null;
+
         User admin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         panic.setResolved(true);
@@ -256,6 +260,9 @@ public class UserServiceImpl implements UserService {
         panic.setResolveTime(LocalDateTime.now());
 
         panicRepository.save(panic);
+
+        ride.setPanicFlag(false);
+        rideRepository.save(ride);
 
         return panic;
     }

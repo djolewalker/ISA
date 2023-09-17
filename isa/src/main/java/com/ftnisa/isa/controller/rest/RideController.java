@@ -1,11 +1,10 @@
 package com.ftnisa.isa.controller.rest;
 
 import com.ftnisa.isa.dto.ride.*;
+import com.ftnisa.isa.dto.user.PanicResponse;
 import com.ftnisa.isa.mapper.RideMapper;
 import com.ftnisa.isa.model.ride.Ride;
-import com.ftnisa.isa.model.user.Driver;
 import com.ftnisa.isa.model.user.Role;
-import com.ftnisa.isa.model.user.User;
 import com.ftnisa.isa.service.DriverService;
 import com.ftnisa.isa.service.RideService;
 import com.ftnisa.isa.service.UserService;
@@ -16,7 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.parameters.P;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,7 +61,7 @@ public class RideController {
     @PreAuthorize("hasRole('USER')")
     @PutMapping("/{id}/accept")
     public ResponseEntity<Void> acceptOrRejectRideByPassenger(@PathVariable int id,
-                                                              @RequestBody RideAcceptanceDto rideAcceptanceDto) {
+            @RequestBody RideAcceptanceDto rideAcceptanceDto) {
         try {
             var ride = rideService.finalizeRideBooking(rideAcceptanceDto.isAccepted(), id);
             if (rideAcceptanceDto.isAccepted()) {
@@ -79,7 +77,7 @@ public class RideController {
     @PreAuthorize("hasRole('DRIVER')")
     @PutMapping("/{id}/reject")
     public ResponseEntity<Void> rejectRideByDriver(@PathVariable int id,
-                                                   @RequestBody RideRejectionRequestDto rideRejectionRequestDto) {
+            @RequestBody RideRejectionRequestDto rideRejectionRequestDto) {
         rideService.rejectRideByDriver(id, rideRejectionRequestDto.getReason());
         return ResponseEntity.ok().build();
     }
@@ -103,17 +101,38 @@ public class RideController {
     @PreAuthorize("hasAnyRole('DRIVER','USER')")
     @PutMapping("/{id}/panic")
     public ResponseEntity<Void> panic(@PathVariable int id, @RequestBody PanicRequestDto panicRequestDto,
-                                      Principal principal) {
+            Principal principal) {
         var user = userService.findByUsername(principal.getName());
         var panic = rideService.panic(user, id, panicRequestDto.getReason());
         if (panic == null) {
             return ResponseEntity.badRequest().build();
         }
 
-        template.convertAndSendToUser(panic.getRide().getPassenger().getUsername(), "/queue/panic-car", panic.getRide().getDriver().getId());
-        template.convertAndSendToUser(panic.getRide().getDriver().getUsername(), "/queue/panic-car", panic.getRide().getDriver().getId());
+        template.convertAndSendToUser(panic.getRide().getPassenger().getUsername(), "/queue/panic-car-resolved",
+                panic.getRide().getDriver().getId());
+        template.convertAndSendToUser(panic.getRide().getDriver().getUsername(), "/queue/panic-car-resolved",
+                panic.getRide().getDriver().getId());
 
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/panic/resolve")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PanicResponse> resolvePanic(@PathVariable Integer id) {
+        try {
+            var panic = userService.resolvePanic(id);
+            if (panic == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            template.convertAndSendToUser(panic.getRide().getPassenger().getUsername(), "/queue/panic-car",
+                    panic.getRide().getDriver().getId());
+            template.convertAndSendToUser(panic.getRide().getDriver().getUsername(), "/queue/panic-car",
+                    panic.getRide().getDriver().getId());
+
+            return ResponseEntity.ok(rideMapper.panicToPanicResponse(panic));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @Transactional
@@ -136,8 +155,7 @@ public class RideController {
             if (user.hasRole(Role.DRIVER)) {
                 var driver = driverService.findDriverById(user.getId());
                 rides = rideService.getDriversWholeRideHistory(driver);
-            }
-            else {
+            } else {
                 rides = rideService.getUsersWholeRideHistory(user);
             }
             return ResponseEntity.ok(rideMapper.ridesToRidesDto(rides));
@@ -156,8 +174,7 @@ public class RideController {
             if (user.hasRole(Role.DRIVER)) {
                 var driver = driverService.findDriverById(user.getId());
                 rides = rideService.getDriversWholeRideHistory(driver);
-            }
-            else if (user.hasRole(Role.USER)) {
+            } else if (user.hasRole(Role.USER)) {
                 rides = rideService.getUsersWholeRideHistory(user);
             }
             return ResponseEntity.ok(rideMapper.ridesToRidesDto(rides));
