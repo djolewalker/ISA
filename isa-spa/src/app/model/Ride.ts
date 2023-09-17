@@ -23,7 +23,7 @@ export type RideStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'ACTIVE' | 'FINIS
 export type Ride = {
   id: number;
   startTime?: Date;
-  finisTime?: Date;
+  finishTime?: Date;
   numberOfPassengers: number;
   totalPrice: number;
   estimatedDuration: number;

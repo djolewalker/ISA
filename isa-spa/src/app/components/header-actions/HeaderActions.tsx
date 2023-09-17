@@ -44,20 +44,22 @@ export const HeaderActions = () => {
         }
   ];
 
+  const nonAdminMenu = [
+    {
+      label: 'Istorija vožnji',
+      key: 'history',
+      onClick: () => (hasAnyRole(['ROLE_ADMIN']) ? navigate('/admin/ride/history') : navigate('/ride/history'))
+    }
+  ];
+
   const menu: MenuProps = {
     items: [
       {
         label: 'Profil',
         key: 'profile',
-
         onClick: () => (hasAnyRole(['ROLE_DRIVER']) ? navigate('/driver/profile') : navigate('/profile'))
       },
-      {
-        label: 'Istorija vožnji',
-        key: 'history',
-        onClick: () => (hasAnyRole(['ROLE_ADMIN']) ? navigate('/admin/ride/history') : navigate('/ride/history'))
-      },
-      ...(hasAnyRole(['ROLE_ADMIN']) ? adminMenu : []),
+      ...(hasAnyRole(['ROLE_ADMIN']) ? adminMenu : nonAdminMenu),
       ...(hasAnyRole(['ROLE_DRIVER']) ? driverMenu : []),
       {
         type: 'divider'

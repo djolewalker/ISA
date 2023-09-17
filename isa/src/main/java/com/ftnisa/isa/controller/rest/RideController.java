@@ -148,7 +148,7 @@ public class RideController {
 
     @PreAuthorize("hasAnyRole('ADMIN')")
     @Transactional
-    @GetMapping("/ride-history/${id}")
+    @GetMapping("/ride-history/{id}")
     public ResponseEntity<List<RideDto>> accountRideHistory(@PathVariable Integer id) {
         try {
             var user = userService.findById(id);
