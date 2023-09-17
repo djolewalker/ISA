@@ -19,3 +19,8 @@ export const ridePanic = async (id: number, reason: string) => putRequest(`${CON
 export const startRide = async (id: number) => putRequest(`${CONTROLLER}/${id}/start`);
 
 export const finishRide = async (id: number) => putRequest(`${CONTROLLER}/${id}/finish`);
+
+export const rideHistory = async () => getRequest(`${CONTROLLER}/ride-history`).then(({ data }) => data as Ride[]);
+
+export const accountRideHistory = async (id: string) =>
+  getRequest(`${CONTROLLER}/ride-history/${id}`).then(({ data }) => data as Ride[]);

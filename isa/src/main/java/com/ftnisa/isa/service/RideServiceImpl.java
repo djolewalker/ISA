@@ -49,6 +49,7 @@ public class RideServiceImpl implements RideService {
     private final VehicleTypeRepository vehicleTypeRepository;
 
     private final SimpMessagingTemplate template;
+    private final DriverRepository driverRepository;
 
     @Override
     @Transactional
@@ -466,17 +467,23 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public List<Ride> getUsersWholeRideHistory(Integer userId) {
-        return rideRepository.findByPassenger(userRepository.findById(userId).orElse(null));
+    public List<Ride> getUsersWholeRideHistory(User user) {
+        return rideRepository.findByPassenger(user);
     }
 
     @Override
-    public List<Ride> getUsersRidesBetweenDates(Integer userId, LocalDateTime date1, LocalDateTime date2) {
-        User user = userRepository.findById(userId).orElse(null);
-        if (user == null) {
-            return null;
-        }
+    public List<Ride> getDriversWholeRideHistory(Driver driver) {
+        return rideRepository.findByDriver(driver);
+    }
+
+    @Override
+    public List<Ride> getUsersRidesBetweenDates(User user, LocalDateTime date1, LocalDateTime date2) {
         return rideRepository.findByPassengerAndStartTimeBetween(user, date1, date2);
+    }
+
+    @Override
+    public List<Ride> getDriversRidesBetweenDates(Driver driver, LocalDateTime date1, LocalDateTime date2) {
+        return rideRepository.findByDriverAndStartTimeBetween(driver, date1, date2);
     }
 
     @Override
