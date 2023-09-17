@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react';
-import { LatLngTuple, geoJson, GeoJSON, icon, marker, Marker, Point } from 'leaflet';
+import { LatLngTuple, geoJson, GeoJSON, icon, marker, Marker, Point, Icon } from 'leaflet';
 import { useMap } from 'react-leaflet';
 
 import { useAppSelector } from 'app/hooks/common';
 import { selectRoutes, selectSelectedRouteId } from 'app/pages/routes/routes-page.slice';
 
-import redIcon from 'assets/car-red.png';
-import greenIcon from 'assets/car-green.png';
-import iconUrl from 'leaflet/dist/images/marker-icon.png';
-import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 import { selectActiveDriversLocations } from 'app/pages/common.slice';
 import { useDriverStatusContext } from 'app/contexts/driver-status/driver-status-provider';
 import { useAuthContext } from 'app/contexts/auth/auth-context-provider';
+import { useActiveRideContext } from 'app/contexts/active-ride/active-ride-provider';
+
+import redIcon from 'assets/car-red.png';
+import greenIcon from 'assets/car-green.png';
+import exclamationIcon from 'assets/exclamation-mark.png';
+import iconUrl from 'leaflet/dist/images/marker-icon.png';
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
 const redCarIcon = icon({
   iconUrl: redIcon,
@@ -28,6 +31,11 @@ const locationIcon = icon({
   shadowUrl
 });
 
+const exclamationMarkIcon = icon({
+  iconUrl: exclamationIcon,
+  iconSize: [25, 25]
+});
+
 const selectedRouteStyle = {
   color: 'blue',
   opacity: 0.8
@@ -42,8 +50,9 @@ type GeoJSONRoutes = { [key: string | number]: GeoJSON };
 
 export const MainMapContent = () => {
   const map = useMap();
+  const { driverWithPanicInCar } = useActiveRideContext();
 
-  const { active } = useDriverStatusContext();
+  const { active: isDriverActive } = useDriverStatusContext();
   const { user } = useAuthContext();
   const routes = useAppSelector(selectRoutes);
   const selectedRouteId = useAppSelector(selectSelectedRouteId);
@@ -89,7 +98,9 @@ export const MainMapContent = () => {
   useEffect(() => {
     const markers: Marker[] = locations.map(({ longitude, latitude, occupied, id }) => {
       const carIcon = occupied ? redCarIcon : greenCarIcon;
-      const icon = active && id === user?.id ? locationIcon : carIcon;
+      const locationCarIcon = isDriverActive && id === user?.id ? locationIcon : carIcon;
+
+      const icon = id === driverWithPanicInCar ? exclamationMarkIcon : locationCarIcon;
       const newMarker = marker([latitude, longitude], { icon });
       return newMarker;
     });
@@ -98,7 +109,7 @@ export const MainMapContent = () => {
     return () => {
       markers.forEach((m) => m.remove());
     };
-  }, [map, locations, active, user?.id]);
+  }, [map, locations, isDriverActive, user?.id, driverWithPanicInCar]);
 
   return <></>;
 };

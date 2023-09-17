@@ -10,7 +10,7 @@ import { BellTwoTone } from '@ant-design/icons';
 export const HeaderActions = () => {
   const { isAuthorized, user, logOut, hasAnyRole } = useAuthContext();
   const { active, loading, activate, deactivate } = useDriverStatusContext();
-  const { userNotifications } = useUserNotifications();
+  const { userNotifications, adminNotifications } = useUserNotifications();
   const navigate = useNavigate();
 
   const handleRegisterClicked = () => navigate('/register');
@@ -66,16 +66,29 @@ export const HeaderActions = () => {
     ]
   };
 
+  const notifications = hasAnyRole(['ROLE_ADMIN']) ? adminNotifications : userNotifications;
   const notificationsMenu: MenuProps = {
     style: { maxHeight: '500px', overflow: 'scroll' },
-    items: userNotifications.length
-      ? userNotifications.map(({ id, description }) => ({
-          key: id,
+    items: notifications.length
+      ? notifications.map((notification) => ({
+          key: notification.id,
           label: (
-            <div style={{ maxWidth: '350px' }} className="d-flex">
-              {description}
+            <div style={{ maxWidth: '350px' }} className="d-flex flex-column">
+              {notification.description}
+              <div className="text-end text-black-50">
+                {'activationTime' in notification && notification?.activationTime?.toLocaleString()}
+              </div>
+              <div className="text-end">
+                {'creationTime' in notification && notification?.creationTime?.toLocaleString()}
+              </div>
             </div>
-          )
+          ),
+          onClick: ({ key }) => {
+            if (hasAnyRole(['ROLE_ADMIN'])) {
+              const not = adminNotifications?.find((n) => n.id === parseInt(key));
+              if (not) navigate(`/ride/${not.ride.id}`);
+            }
+          }
         }))
       : [
           {
@@ -92,7 +105,7 @@ export const HeaderActions = () => {
         className="mx-2 cursor-pointer"
         menu={notificationsMenu}
         trigger={['click']}
-        placement="bottomCenter"
+        placement="bottom"
         arrow={{ pointAtCenter: true }}
       >
         <BellTwoTone style={{ fontSize: '32px' }} />

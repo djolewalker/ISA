@@ -22,16 +22,15 @@ import java.util.List;
 @Getter
 @Setter
 public class Ride {
-
     @Id
     @SequenceGenerator(name = "rideSeqGen", sequenceName = "rideSeq", initialValue = 1, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "rideSeqGen")
     private Integer id;
 
-    @Column(name = "start_time", nullable = true)
+    @Column(name = "start_time")
     private LocalDateTime startTime;
 
-    @Column(name = "finish_time", nullable = true)
+    @Column(name = "finish_time")
     private LocalDateTime finishTime;
 
     @Column(name = "number_of_passengers")
@@ -81,6 +80,4 @@ public class Ride {
 
     @Column(name = "favourite_flag")
     private Boolean favourite;
-
-
 }

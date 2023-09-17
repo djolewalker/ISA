@@ -55,6 +55,7 @@ public class SecurityConfiguration {
 
                 .authorizeRequests()
                 .antMatchers("/api/auth/**").permitAll()
+                .antMatchers("/api/auth/signout").authenticated()
                 .antMatchers("/api/route/**").permitAll()
                 .antMatchers("/api/user/driver/location").permitAll()
                 .antMatchers("/isa-ws/**").permitAll()

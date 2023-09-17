@@ -11,6 +11,5 @@ import java.util.List;
 
 @Repository
 public interface RouteRepository extends JpaRepository<Route, Integer> {
-    @Query("select r from Route r where r.createdAt <= :createdAt")
-    List<Route> findAllWithCreationDateTimeBefore(@Param("createdAt") Instant createdAt);
+    List<Route> findAllByCreatedAtBeforeAndRideIsNull(Instant createdAt);
 }

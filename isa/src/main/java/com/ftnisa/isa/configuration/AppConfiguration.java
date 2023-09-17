@@ -5,7 +5,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 
 @Component
-@EnableScheduling
 public class AppConfiguration {
     @Value("${isa.app.url}")
     private String appUrl;

@@ -32,7 +32,7 @@ public class RouteServiceImpl implements RouteService {
 
     @Override
     public List<Route> generateAndOrganizeRoutes(Location startLocation, Location finishLocation, List<Location> stops,
-                                                 boolean optimizeOrder) {
+            boolean optimizeOrder) {
         if (optimizeOrder) {
             List<List<Location>> stopPermutations = generateStopPermutations(stops);
             List<Location> optimalStopPermutation = stopPermutations.stream()
@@ -93,18 +93,15 @@ public class RouteServiceImpl implements RouteService {
         return returnValue;
     }
 
-
     @Override
     public long fetchRouteLengthMeters(Route route) {
         return (long) (route.getLength() * 1000);
     }
 
-
     @Override
     public float fetchRouteDurationMinutes(Route route) {
         return (float) route.getEstimatedDuration().toMinutes();
     }
-
 
     @Override
     public Double[][] convertLocationsToCoordinateArray(Location location1, Location location2) {
@@ -129,7 +126,6 @@ public class RouteServiceImpl implements RouteService {
         return (float) Collections.min(distances);
     }
 
-
     @Override
     public long fetchTimeInMinutesBetweenLocations(Location location1, Location location2) throws Exception {
         var coordinates = convertLocationsToCoordinateArray(location1, location2);
@@ -137,7 +133,7 @@ public class RouteServiceImpl implements RouteService {
 
         var routeResponse = directionService.findRoutes(coordinates).block();
         routeResponse.getRoutes().stream().forEach(geoJSONIndividualRouteResponse -> {
-            durations.add(geoJSONIndividualRouteResponse.getProperties().getSummary().getDuration().longValue()/60);
+            durations.add(geoJSONIndividualRouteResponse.getProperties().getSummary().getDuration().longValue() / 60);
         });
 
         return Collections.min(durations);
@@ -168,7 +164,7 @@ public class RouteServiceImpl implements RouteService {
     public int cloneRoutes(Route oldRoute) {
         Route newRoute = new Route();
 
-        //stops + stops.route + locations
+        // stops + stops.route + locations
         List<IntermediateStop> stops = new ArrayList<>();
         for (IntermediateStop s : oldRoute.getStops()) {
             var intermediateStop = new IntermediateStop();
@@ -240,9 +236,8 @@ public class RouteServiceImpl implements RouteService {
     @Override
     public int cleanOrphanRoutes() {
         var timeInPastToSaveUntil = Instant.now().minus(10, ChronoUnit.MINUTES);
-        var routes = routeRepository.findAllWithCreationDateTimeBefore(timeInPastToSaveUntil);
-        var orphanRoutes = routes.stream().filter(route -> route.getRide() == null).toList();
-        routeRepository.deleteAll(orphanRoutes);
-        return orphanRoutes.size();
+        var routes = routeRepository.findAllByCreatedAtBeforeAndRideIsNull(timeInPastToSaveUntil);
+        routeRepository.deleteAll(routes);
+        return routes.size();
     }
 }

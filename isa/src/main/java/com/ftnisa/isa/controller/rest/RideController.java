@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +25,9 @@ import java.util.List;
 public class RideController {
     private final RideService rideService;
     private final RideMapper rideMapper;
-
     private final UserService userService;
+
+    private final SimpMessagingTemplate template;
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/booking")
@@ -56,7 +58,11 @@ public class RideController {
     public ResponseEntity<Void> acceptOrRejectRideByPassenger(@PathVariable int id,
                                                               @RequestBody RideAcceptanceDto rideAcceptanceDto) {
         try {
-            rideService.finalizeRideBooking(rideAcceptanceDto.isAccepted(), id);
+            var ride = rideService.finalizeRideBooking(rideAcceptanceDto.isAccepted(), id);
+           if (rideAcceptanceDto.isAccepted()){
+               template.convertAndSendToUser(ride.getPassenger().getUsername(), "/queue/active-ride", id);
+               template.convertAndSendToUser(ride.getDriver().getUsername(), "/queue/assigned-ride", id);
+           }
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -81,12 +87,14 @@ public class RideController {
     @PreAuthorize("hasRole('DRIVER')")
     @PutMapping("/{id}/finish")
     public ResponseEntity<Void> finishRideByDriver(@PathVariable int id) {
-        rideService.finishRideByDriver(id);
+        var ride = rideService.finishRideByDriver(id);
+        template.convertAndSendToUser(ride.getPassenger().getUsername(), "/queue/finish-ride", id);
+        template.convertAndSendToUser(ride.getDriver().getUsername(), "/queue/finish-ride", id);
         return ResponseEntity.ok().build();
     }
 
     @PreAuthorize("hasAnyRole('DRIVER','USER')")
-    @PostMapping("/{id}/panic")
+    @PutMapping("/{id}/panic")
     public ResponseEntity<Void> panic(@PathVariable int id, @RequestBody PanicRequestDto panicRequestDto,
                                       Principal principal) {
         var user = userService.findByUsername(principal.getName());
@@ -94,6 +102,10 @@ public class RideController {
         if (panic == null) {
             return ResponseEntity.badRequest().build();
         }
+
+        template.convertAndSendToUser(panic.getRide().getPassenger().getUsername(), "/queue/panic-car", panic.getRide().getDriver().getId());
+        template.convertAndSendToUser(panic.getRide().getDriver().getUsername(), "/queue/panic-car", panic.getRide().getDriver().getId());
+
         return ResponseEntity.ok().build();
     }
 

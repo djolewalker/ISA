@@ -27,6 +27,8 @@ public interface DriverService {
 
     Driver findDriverById(int id);
 
+    Driver findDriverByUsername(String username);
+
     Driver activateDriver(String username);
 
     Driver deactivateDriver(String username);
