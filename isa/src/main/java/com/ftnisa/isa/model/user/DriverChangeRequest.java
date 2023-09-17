@@ -1,18 +1,7 @@
 package com.ftnisa.isa.model.user;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ftnisa.isa.model.location.Location;
-import com.ftnisa.isa.model.notification.UserNotification;
-import com.ftnisa.isa.model.vehicle.VehicleType;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import javax.persistence.*;
-import javax.persistence.criteria.CriteriaBuilder;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.List;
 
 
 @Entity
@@ -32,10 +21,10 @@ public class DriverChangeRequest {
 
     @ManyToOne
     @JoinColumn(name = "approved_by")
-    private User approvedBy;
+    private User resolvedBy;
 
     @Column(name = "approval_time")
-    private LocalDateTime approvalTime;
+    private LocalDateTime resolveTime;
 
 
 
@@ -92,11 +81,11 @@ public class DriverChangeRequest {
     public DriverChangeRequest() {
     }
 
-    public DriverChangeRequest(Integer driverId, boolean isApproved, User approvedBy, LocalDateTime approvalTime, String username, String email, String firstname, String lastname, String image, String phone, String address, String driverLicense, String vehicleModel, String registrationNumber, int numberOfSeats, boolean babyFriendly, boolean petFriendly, Integer vehicleTypeId) {
+    public DriverChangeRequest(Integer driverId, boolean isApproved, User resolvedBy, LocalDateTime resolveTime, String username, String email, String firstname, String lastname, String image, String phone, String address, String driverLicense, String vehicleModel, String registrationNumber, int numberOfSeats, boolean babyFriendly, boolean petFriendly, Integer vehicleTypeId) {
         this.driverId = driverId;
         this.isApproved = isApproved;
-        this.approvedBy = approvedBy;
-        this.approvalTime = approvalTime;
+        this.resolvedBy = resolvedBy;
+        this.resolveTime = resolveTime;
         this.username = username;
         this.email = email;
         this.firstname = firstname;
@@ -129,20 +118,20 @@ public class DriverChangeRequest {
         isApproved = approved;
     }
 
-    public User getApprovedBy() {
-        return approvedBy;
+    public User getResolvedBy() {
+        return resolvedBy;
     }
 
-    public void setApprovedBy(User approvedBy) {
-        this.approvedBy = approvedBy;
+    public void setResolvedBy(User approvedBy) {
+        this.resolvedBy = approvedBy;
     }
 
-    public LocalDateTime getApprovalTime() {
-        return approvalTime;
+    public LocalDateTime getResolveTime() {
+        return resolveTime;
     }
 
-    public void setApprovalTime(LocalDateTime approvalTime) {
-        this.approvalTime = approvalTime;
+    public void setResolveTime(LocalDateTime approvalTime) {
+        this.resolveTime = approvalTime;
     }
 
     public String getUsername() {

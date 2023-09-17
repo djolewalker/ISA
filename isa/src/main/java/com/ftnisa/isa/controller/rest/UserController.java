@@ -80,11 +80,14 @@ public class UserController {
         }
     }
 
-    @PutMapping("/driver-change-approve")
+    @PutMapping("/driver-change-resolve")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<DriverResponse> approveDriverChangeRequest(@RequestBody Integer driverChangeRequestId) {
+    public ResponseEntity<DriverResponse> resolveDriverChangeRequest(@RequestBody DriverChangeResolveDto driverChangeResolveDto) {
         try {
-            var driver = userService.approveDriverChangeRequest(driverChangeRequestId);
+            var driver = userService.resolveDriverChangeRequest(
+                    driverChangeResolveDto.getDriverChangeId(),
+                    driverChangeResolveDto.isApproved()
+            );
             return ResponseEntity.ok(mapper.driverToDriverResponse(driver));
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

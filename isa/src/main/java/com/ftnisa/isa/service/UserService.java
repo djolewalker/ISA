@@ -33,7 +33,7 @@ public interface UserService {
     Driver registerDriver(CreateDriverRequest driverRequest);
 
 
-    Driver approveDriverChangeRequest(Integer driverChangeRequestId);
+    Driver resolveDriverChangeRequest(Integer driverChangeRequestId, boolean isApproved);
 
     void createDriverChangeRequest(DriverChangeRequestDto driverChangeRequestDto);
 
