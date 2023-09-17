@@ -10,7 +10,6 @@ import java.time.ZoneId;
 @Data
 @NoArgsConstructor
 public class RideHistoryByDateRequestDto {
-    private Integer userId;
     private OffsetDateTime date1;
     private OffsetDateTime date2;
 

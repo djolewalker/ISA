@@ -139,11 +139,11 @@ public class UserController {
         return ResponseEntity.ok(mapper.driverToDriverStatusDto(driver));
     }
 
-    @PutMapping("/resolve-panic")
+    @PutMapping("/{id}/resolve-panic")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PanicResponse> resolvePanic(@RequestBody Integer panicId) {
+    public ResponseEntity<PanicResponse> resolvePanic(@PathVariable Integer id) {
         try {
-            var panic = userService.resolvePanic(panicId);
+            var panic = userService.resolvePanic(id);
             return ResponseEntity.ok(rideMapper.panicToPanicResponse(panic));
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

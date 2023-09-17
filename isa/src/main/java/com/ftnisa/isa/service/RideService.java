@@ -47,9 +47,13 @@ public interface RideService {
 
     boolean checkIfRideIsSchedulableForDriver(Ride ride, Driver driver) throws Exception;
 
-    List<Ride> getUsersWholeRideHistory(Integer userId);
+    List<Ride> getUsersWholeRideHistory(User user);
 
-    List<Ride> getUsersRidesBetweenDates(Integer userId, LocalDateTime date1, LocalDateTime date2);
+    List<Ride> getDriversWholeRideHistory(Driver driver);
+
+    List<Ride> getUsersRidesBetweenDates(User user, LocalDateTime date1, LocalDateTime date2);
+
+    List<Ride> getDriversRidesBetweenDates(Driver driver, LocalDateTime date1, LocalDateTime date2);
 
     void addRideToFavourites(Integer rideId);
 

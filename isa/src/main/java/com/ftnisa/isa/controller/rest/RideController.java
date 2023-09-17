@@ -3,6 +3,10 @@ package com.ftnisa.isa.controller.rest;
 import com.ftnisa.isa.dto.ride.*;
 import com.ftnisa.isa.mapper.RideMapper;
 import com.ftnisa.isa.model.ride.Ride;
+import com.ftnisa.isa.model.user.Driver;
+import com.ftnisa.isa.model.user.Role;
+import com.ftnisa.isa.model.user.User;
+import com.ftnisa.isa.service.DriverService;
 import com.ftnisa.isa.service.RideService;
 import com.ftnisa.isa.service.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -12,10 +16,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -25,8 +31,9 @@ import java.util.List;
 public class RideController {
     private final RideService rideService;
     private final RideMapper rideMapper;
-    private final UserService userService;
 
+    private final UserService userService;
+    private final DriverService driverService;
     private final SimpMessagingTemplate template;
 
     @PreAuthorize("hasRole('USER')")
@@ -59,10 +66,10 @@ public class RideController {
                                                               @RequestBody RideAcceptanceDto rideAcceptanceDto) {
         try {
             var ride = rideService.finalizeRideBooking(rideAcceptanceDto.isAccepted(), id);
-           if (rideAcceptanceDto.isAccepted()){
-               template.convertAndSendToUser(ride.getPassenger().getUsername(), "/queue/active-ride", id);
-               template.convertAndSendToUser(ride.getDriver().getUsername(), "/queue/assigned-ride", id);
-           }
+            if (rideAcceptanceDto.isAccepted()) {
+                template.convertAndSendToUser(ride.getPassenger().getUsername(), "/queue/active-ride", id);
+                template.convertAndSendToUser(ride.getDriver().getUsername(), "/queue/assigned-ride", id);
+            }
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -119,12 +126,40 @@ public class RideController {
         return ResponseEntity.ok(rideMapper.rideToRideDto(ride));
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'DRIVER')")
     @Transactional
     @GetMapping("/ride-history")
-    public ResponseEntity<List<RideDto>> rideHistory(@RequestParam Integer userId) {
+    public ResponseEntity<List<RideDto>> rideHistory(Principal principal) {
         try {
-            List<Ride> rides = rideService.getUsersWholeRideHistory(userId);
+            var user = userService.findByUsername(principal.getName());
+            List<Ride> rides;
+            if (user.hasRole(Role.DRIVER)) {
+                var driver = driverService.findDriverById(user.getId());
+                rides = rideService.getDriversWholeRideHistory(driver);
+            }
+            else {
+                rides = rideService.getUsersWholeRideHistory(user);
+            }
+            return ResponseEntity.ok(rideMapper.ridesToRidesDto(rides));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    @Transactional
+    @GetMapping("/ride-history/${id}")
+    public ResponseEntity<List<RideDto>> accountRideHistory(@PathVariable Integer id) {
+        try {
+            var user = userService.findById(id);
+            List<Ride> rides = new ArrayList<Ride>();
+            if (user.hasRole(Role.DRIVER)) {
+                var driver = driverService.findDriverById(user.getId());
+                rides = rideService.getDriversWholeRideHistory(driver);
+            }
+            else if (user.hasRole(Role.USER)) {
+                rides = rideService.getUsersWholeRideHistory(user);
+            }
             return ResponseEntity.ok(rideMapper.ridesToRidesDto(rides));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -135,10 +170,11 @@ public class RideController {
     @Transactional
     @PostMapping("/ride-history-by-date")
     public ResponseEntity<List<RideDto>> rideHistoryByDate(
-            @RequestBody RideHistoryByDateRequestDto rideHistoryByDateRequestDto) {
+            @RequestBody RideHistoryByDateRequestDto rideHistoryByDateRequestDto, Principal principal) {
         try {
+            var user = userService.findByUsername(principal.getName());
             List<Ride> rides = rideService.getUsersRidesBetweenDates(
-                    rideHistoryByDateRequestDto.getUserId(),
+                    user,
                     rideHistoryByDateRequestDto.getDate1(),
                     rideHistoryByDateRequestDto.getDate2());
             if (rides == null) {
@@ -153,7 +189,7 @@ public class RideController {
     @PreAuthorize("hasRole('USER')")
     @Transactional
     @PutMapping("/{id}/add-ride-to-favourites")
-    public ResponseEntity<Void> rideHistoryByDate(@PathVariable int id) {
+    public ResponseEntity<Void> makeRideFavourite(@PathVariable int id) {
         try {
             rideService.addRideToFavourites(id);
             return ResponseEntity.ok().build();
