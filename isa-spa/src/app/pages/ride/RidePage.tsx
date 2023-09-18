@@ -166,20 +166,22 @@ export const RidePage = ({ isHistory = false }: RidePageProps) => {
             {isHistory ? (
               <h2 className="h2 mb-4 text-center d-flex justify-content-center align-items-center">
                 Vožnja broj: {ride.id}{' '}
-                <IsaButton
-                  className="mx-3 mt-1"
-                  type="ghost"
-                  onClick={() => handleFavourite(!ride.favourite)}
-                  shape="circle"
-                  size="large"
-                  icon={
-                    ride.favourite ? (
-                      <StarFilled style={{ color: '#d4af37' }} />
-                    ) : (
-                      <StarOutlined style={{ color: '#d4af37' }} />
-                    )
-                  }
-                />
+                {hasAnyRole(['ROLE_USER']) && (
+                  <IsaButton
+                    className="mx-3 mt-1"
+                    type="ghost"
+                    onClick={() => handleFavourite(!ride.favourite)}
+                    shape="circle"
+                    size="large"
+                    icon={
+                      ride.favourite ? (
+                        <StarFilled style={{ color: '#d4af37' }} />
+                      ) : (
+                        <StarOutlined style={{ color: '#d4af37' }} />
+                      )
+                    }
+                  />
+                )}
               </h2>
             ) : (
               <Tooltip title={ride.panicFlag ? 'Panik taster pritisnut!' : ''}>
