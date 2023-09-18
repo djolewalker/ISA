@@ -1,3 +1,3 @@
 import { humanizer } from 'humanize-duration';
 
-export const humanizeMiliseconds = humanizer({ language: 'sr', units: ['h', 'm'] });
+export const humanizeMiliseconds = humanizer({ language: 'sr', units: ['h', 'm'], round: true });

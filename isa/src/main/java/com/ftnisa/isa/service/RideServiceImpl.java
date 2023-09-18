@@ -33,23 +33,14 @@ import java.util.List;
 @Service
 public class RideServiceImpl implements RideService {
     private final RideRepository rideRepository;
-
     private final DriverService driverService;
-
     private final RouteService routeService;
-
     private final UserRepository userRepository;
-
     private final PanicRepository panicRepository;
-
     private final RouteRepository routeRepository;
-
     private final NotificationService notificationService;
-
     private final VehicleTypeRepository vehicleTypeRepository;
-
     private final SimpMessagingTemplate template;
-    private final DriverRepository driverRepository;
 
     @Override
     @Transactional
@@ -141,7 +132,7 @@ public class RideServiceImpl implements RideService {
             }
 
             List<Driver> schedulableAppropriateDrivers = filterDriversBySchedule(appropriateDrivers, ride);
-            if (schedulableAppropriateDrivers.isEmpty()){
+            if (schedulableAppropriateDrivers.isEmpty()) {
                 rejectRide(ride, "Nažalost, trenutno nemamo dostupne vozace sa traženim kriterijumima.");
                 rideRepository.save(ride);
                 return ride;
@@ -165,7 +156,7 @@ public class RideServiceImpl implements RideService {
             }
 
             List<Driver> schedulableAppropriateDrivers = filterDriversBySchedule(appropriateDrivers, ride);
-            if (schedulableAppropriateDrivers.isEmpty()){
+            if (schedulableAppropriateDrivers.isEmpty()) {
                 rejectRide(ride, "Nažalost, trenutno nemamo dostupne vozace sa traženim kriterijumima.");
                 rideRepository.save(ride);
                 return ride;
@@ -238,7 +229,7 @@ public class RideServiceImpl implements RideService {
                 rideDurationMinutes);
 
         List<Driver> schedulableAppropriateDrivers = filterDriversBySchedule(appropriateDrivers, ride);
-        if (schedulableAppropriateDrivers.isEmpty()){
+        if (schedulableAppropriateDrivers.isEmpty()) {
             rejectRide(ride, "Za zadati termin nemamo dostupne vozace sa traženim kriterijumima.");
             rideRepository.save(ride);
             return ride;
@@ -260,12 +251,11 @@ public class RideServiceImpl implements RideService {
         return ride;
     }
 
-    private void rejectRide(Ride ride, String reason){
+    private void rejectRide(Ride ride, String reason) {
         Rejection rejection = new Rejection(reason, LocalDateTime.now());
         ride.setRejection(rejection);
         ride.setRideStatus(RideStatus.REJECTED);
     }
-
 
     @Override
     @Transactional
@@ -376,7 +366,7 @@ public class RideServiceImpl implements RideService {
 
     @Override
     public List<Driver> filterDriversByRideCriteria(List<Driver> drivers, Boolean isPetTransported,
-            Boolean isBabyTransported, VehicleType vehicleType, int numberOfPassengers, float newRideDurationMinutes) {
+                                                    Boolean isBabyTransported, VehicleType vehicleType, int numberOfPassengers, float newRideDurationMinutes) {
 
         if (isPetTransported) {
             drivers = drivers.stream().filter(d -> d.getVehicle().isPetFriendly()).toList();
@@ -401,7 +391,7 @@ public class RideServiceImpl implements RideService {
 
     @Override
 
-    public LocalDateTime estimateDriversTimeOfArrival(Ride ride, Driver driver) throws Exception{
+    public LocalDateTime estimateDriversTimeOfArrival(Ride ride, Driver driver) throws Exception {
 
         if (!driver.isOccupied()) {
             return LocalDateTime.now().plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(
@@ -415,24 +405,24 @@ public class RideServiceImpl implements RideService {
 
     @Override
 
-    public boolean checkIfRidesOverlap(Ride oldRide, Ride newRide, Driver driver) throws Exception{
+    public boolean checkIfRidesOverlap(Ride oldRide, Ride newRide, Driver driver) throws Exception {
 
         var route = newRide.getRoutes().get(0);
         float rideDurationMinutes = routeService.fetchRouteDurationMinutes(route);
 
-        var supposedStartTime = newRide.getStartTime()!=null ? newRide.getStartTime() : estimateDriversTimeOfArrival(newRide, driver);
-        var supposedFinishTime = newRide.getFinishTime() !=null ? newRide.getFinishTime() : supposedStartTime.plusMinutes((long) rideDurationMinutes);
+        var supposedStartTime = newRide.getStartTime() != null ? newRide.getStartTime() : estimateDriversTimeOfArrival(newRide, driver);
+        var supposedFinishTime = newRide.getFinishTime() != null ? newRide.getFinishTime() : supposedStartTime.plusMinutes((long) rideDurationMinutes);
 
         if (
                 (oldRide.getFinishTime()
-                .plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(routeService.getRidesFinishLocation(oldRide),
-                        routeService.getRidesStartLocation(newRide)))
-                .isBefore(supposedStartTime))
-                ||
-                (supposedFinishTime
-                        .plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(
-                                routeService.getRidesFinishLocation(newRide), routeService.getRidesStartLocation(oldRide)))
-                        .isBefore(oldRide.getStartTime()))
+                        .plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(routeService.getRidesFinishLocation(oldRide),
+                                routeService.getRidesStartLocation(newRide)))
+                        .isBefore(supposedStartTime))
+                        ||
+                        (supposedFinishTime
+                                .plusMinutes(routeService.fetchTimeInMinutesBetweenLocations(
+                                        routeService.getRidesFinishLocation(newRide), routeService.getRidesStartLocation(oldRide)))
+                                .isBefore(oldRide.getStartTime()))
         ) {
             return false;
         } else {

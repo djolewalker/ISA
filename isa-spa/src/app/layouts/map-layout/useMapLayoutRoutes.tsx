@@ -18,6 +18,7 @@ import { CreateRidePage } from 'app/pages/create-ride/CreateRidePage';
 import { RidePage } from 'app/pages/ride/RidePage';
 import { DriverProfilePage } from 'app/pages/driver-profile/DriverProfilePage';
 import { HistoryPage } from 'app/pages/history/HistoryPage';
+import { AnalyticsPage } from 'app/pages/analytics/AnalyticsPage';
 
 export const useMapLayoutRoutes = () => {
   const { isAuthorized } = useAuthContext();
@@ -84,6 +85,10 @@ export const useMapLayoutRoutes = () => {
             {
               path: '/admin/ride/history/user/:userId',
               element: <HistoryPage />
+            },
+            {
+              path: '/admin/analytics/:userId',
+              element: <AnalyticsPage />
             }
           ]
         },
@@ -102,6 +107,10 @@ export const useMapLayoutRoutes = () => {
         {
           path: '/ride/history',
           element: <HistoryPage />
+        },
+        {
+          path: '/analytics',
+          element: <AnalyticsPage />
         }
       ]
     }

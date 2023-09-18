@@ -30,7 +30,6 @@ const ActiveRideProvider = ({ children }: ActiveRideProviderProps) => {
   const { client, connected } = useWs();
 
   useEffect(() => {
-    console.log(ride);
     if (ride?.panicFlag) {
       setDriverWithPanicInCar(ride?.driver?.id);
     } else {
@@ -61,8 +60,9 @@ const ActiveRideProvider = ({ children }: ActiveRideProviderProps) => {
 
       if (hasAnyRole(['ROLE_DRIVER', 'ROLE_USER'])) {
         subscriptions.push(
-          client.subscribe('/user/queue/finish-ride', () => {
+          client.subscribe('/user/queue/finish-ride', ({ body }: Message) => {
             setRideId(undefined);
+            navigate(`/ride/${body}`);
           })
         );
 

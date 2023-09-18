@@ -17,11 +17,12 @@ import {
 } from 'app/pages/routes/routes-page.slice';
 import { IsaButton } from 'app/components/isa-button/IsaButton';
 import { useAuthContext } from 'app/contexts/auth/auth-context-provider';
+import { humanizeMiliseconds } from 'app/utils/humanize.utlis';
 
 const routePriorityOptions: DefaultOptionType[] = [
   { label: 'Udaljenost', value: 'BY_LENGTH' },
-  { label: 'Vreme dolaska', value: 'BY_TIME' },
-  { label: 'Cena vožnje', value: 'BY_PRICE' }
+  { label: 'Trajanje', value: 'BY_TIME' },
+  { label: 'Cena', value: 'BY_PRICE' }
 ];
 
 export const RoutesPage = () => {
@@ -72,13 +73,15 @@ export const RoutesPage = () => {
         <div className="w-75 mx-auto">
           <h4 className="my-3 h4">Preporuka:</h4>
           <IsaButton
-            className="w-100 "
+            className="w-100"
             type={selectedRouteId === prioritizedRouteId ? 'primary' : 'link'}
             size="large"
             onClick={() => handleRouteSelected(prioritizedRouteId as string)}
           >
-            Udaljenost: {prioritizedRoute?.properties?.summary.distance} km - Vreme dolaska:{' '}
-            {(prioritizedRoute?.properties?.summary.duration / 60).toFixed(2)} min
+            <span className="text-truncate w-100">
+              Udaljenost: {Math.round(prioritizedRoute?.properties?.summary.distance)} km - Trajanje:{' '}
+              {humanizeMiliseconds((prioritizedRoute?.properties?.summary.duration || 0) * 1000)}
+            </span>
           </IsaButton>
 
           {Boolean(alternativeRoutes?.length) && (
@@ -92,8 +95,10 @@ export const RoutesPage = () => {
                   size="large"
                   onClick={() => handleRouteSelected(alternative.id as string)}
                 >
-                  Udaljenost: {alternative?.properties?.summary.distance} km - Vreme dolaska:{' '}
-                  {(alternative?.properties?.summary.duration / 60).toFixed(2)} min
+                  <span className="text-truncate w-100">
+                    Udaljenost: {Math.round(alternative?.properties?.summary.distance)} km - Trajanje:{' '}
+                    {humanizeMiliseconds((alternative?.properties?.summary.duration || 0) * 1000)}
+                  </span>
                 </IsaButton>
               ))}
             </>

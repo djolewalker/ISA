@@ -31,15 +31,29 @@ const tableColumns = (navigate: any): ColumnsType<User> => [
     dataIndex: 'id',
     key: 'actions',
     render: (id) => (
-      <IsaButton
-        type="primary"
-        onClick={(event) => {
-          navigate(`/admin/ride/history/user/${id}`);
-          event.stopPropagation();
-        }}
-      >
-        Istorija
-      </IsaButton>
+      <>
+        <IsaButton
+          className="mr-2"
+          type="primary"
+          onClick={(event) => {
+            navigate(`/admin/ride/history/user/${id}`);
+            event.stopPropagation();
+          }}
+        >
+          Istorija
+        </IsaButton>
+
+        <IsaButton
+          className="ml-2"
+          type="primary"
+          onClick={(event) => {
+            navigate(`/admin/analytics/${id}`);
+            event.stopPropagation();
+          }}
+        >
+          Analitika
+        </IsaButton>
+      </>
     )
   }
 ];

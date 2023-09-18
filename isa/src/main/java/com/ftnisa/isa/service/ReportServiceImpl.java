@@ -101,14 +101,12 @@ public class ReportServiceImpl implements ReportService {
         if (rides == null){
             return 0;
         }
-        float kilometers = 0;
-        for (Ride r : rides){
-            kilometers = kilometers + r.getRoutes().get(0).getLength();
-        }
-        return kilometers;
+        var total = rides.stream()
+                .filter(ride -> ride.getRoutes().size() > 0)
+                .map(ride -> ride.getRoutes().get(0).getLength())
+                .reduce(Float::sum);
+        return total.isPresent() ? total.get() : 0;
     }
-
-
 
     private int determineUserType(User user){
         var roles= user.getRoles();

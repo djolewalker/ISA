@@ -38,7 +38,7 @@ public class ReportController {
 
 
     @PreAuthorize("hasAnyRole('DRIVER','USER','ADMIN')")
-    @PostMapping("/get")
+    @PostMapping()
     public ResponseEntity<Report> getReport(@RequestBody ReportRequest reportRequest) {
         try {
             Report report = reportService.getReport(reportRequest.getStartDate(), reportRequest.getEndDate());

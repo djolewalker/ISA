@@ -250,8 +250,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public Panic resolvePanic(Integer rideId) {
         var ride = rideRepository.findById(rideId).orElseThrow();
-        Panic panic = panicRepository.findByRide(ride);
-        if (ride == null) return null;
+        var panic = panicRepository.findByRide(ride);
+        if (panic == null) return null;
 
         User admin = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
