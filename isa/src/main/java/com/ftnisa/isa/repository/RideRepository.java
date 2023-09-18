@@ -25,6 +25,8 @@ public interface RideRepository extends JpaRepository<Ride, Integer> {
 
     public List<Ride> findAllByDriverAndRideStatus(Driver driver, RideStatus rideStatus);
 
+    public List<Ride> findAllByDriverAndRideStatusIsNotOrderByIdDesc(Driver driver, RideStatus rideStatus);
+
     public Ride findOneById(Integer id);
 
     public List<Ride> findAllByPassengerAndRideStatus(User passenger, RideStatus rideStatus);
@@ -40,4 +42,6 @@ public interface RideRepository extends JpaRepository<Ride, Integer> {
     public Ride findByDriverAndRideStatusIn(Driver driver, List<RideStatus> statuses);
 
     public Ride findByPassengerAndRideStatusIn(User user, List<RideStatus> statuses);
+
+    public List<Ride> findByPassengerAndRideStatusIsNotOrderByIdDesc(User user, RideStatus rideStatus);
 }

@@ -12,6 +12,8 @@ type ActiveRideType = {
   active: boolean;
   rideId?: number;
   driverWithPanicInCar?: number;
+  shouldRefetch: boolean;
+  refetchFinished: () => void;
 };
 
 const ActiveRideContext = createContext<ActiveRideType>({} as ActiveRideType);
@@ -21,6 +23,7 @@ type ActiveRideProviderProps = {
 };
 
 const ActiveRideProvider = ({ children }: ActiveRideProviderProps) => {
+  const [shouldRefetch, setShouldRefetch] = useState(false);
   const [rideId, setRideId] = useState<number | undefined>();
   const [driverWithPanicInCar, setDriverWithPanicInCar] = useState<number | undefined>();
   const ride = useAppSelector(selectRide);
@@ -45,6 +48,7 @@ const ActiveRideProvider = ({ children }: ActiveRideProviderProps) => {
           client.subscribe('/user/queue/assigned-ride', ({ body }: Message) => {
             setRideId(parseInt(body));
             navigate(`/ride/${body}`);
+            setShouldRefetch(true);
           })
         );
       }
@@ -56,6 +60,13 @@ const ActiveRideProvider = ({ children }: ActiveRideProviderProps) => {
             navigate(`/ride/${body}`);
           })
         );
+
+        subscriptions.push(
+          client.subscribe('/user/queue/start-ride', ({ body }: Message) => {
+            navigate(`/ride/${body}`);
+            setShouldRefetch(true);
+          })
+        );
       }
 
       if (hasAnyRole(['ROLE_DRIVER', 'ROLE_USER'])) {
@@ -63,6 +74,7 @@ const ActiveRideProvider = ({ children }: ActiveRideProviderProps) => {
           client.subscribe('/user/queue/finish-ride', ({ body }: Message) => {
             setRideId(undefined);
             navigate(`/ride/${body}`);
+            setShouldRefetch(true);
           })
         );
 
@@ -107,9 +119,11 @@ const ActiveRideProvider = ({ children }: ActiveRideProviderProps) => {
     () => ({
       active: !!rideId,
       rideId,
-      driverWithPanicInCar
+      driverWithPanicInCar,
+      shouldRefetch,
+      refetchFinished: () => setShouldRefetch(false)
     }),
-    [driverWithPanicInCar, rideId]
+    [driverWithPanicInCar, rideId, shouldRefetch]
   );
 
   return (

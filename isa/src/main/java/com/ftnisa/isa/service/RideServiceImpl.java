@@ -241,6 +241,7 @@ public class RideServiceImpl implements RideService {
 
         ride.setTotalPrice(calculateRidePrice(rideLengthMeters, ride.getVehicleType()));
         ride.setRideStatus(RideStatus.PENDING);
+        ride.setScheduled(true);
 
         // save and return
         rideRepository.save(ride);
@@ -275,9 +276,12 @@ public class RideServiceImpl implements RideService {
         rideBookingRequestDto.setBabyTransportFlag(oldRide.getBabyTransportFlag());
         rideBookingRequestDto.setVehicleTypeId(oldRide.getVehicleType().getId());
         rideBookingRequestDto.setScheduled(recreateRideDto.getScheduled());
-        rideBookingRequestDto.setScheduledStartTime(recreateRideDto.getScheduledStartTime().atOffset(ZoneOffset.of(ZoneId.systemDefault().getId())));
 
-        Ride newRide = bookARide(rideBookingRequestDto);
+        if (recreateRideDto.getScheduled()) {
+            rideBookingRequestDto.setScheduledStartTime(recreateRideDto.getScheduledStartTime().atOffset(ZoneOffset.of(ZoneId.systemDefault().getId())));
+        }
+
+            Ride newRide = bookARide(rideBookingRequestDto);
 
         return newRide;
 
@@ -314,12 +318,13 @@ public class RideServiceImpl implements RideService {
 
     @Override
     @Transactional
-    public void startRideByDriver(Integer rideId) {
+    public Ride startRideByDriver(Integer rideId) {
         Ride ride = rideRepository.findOneById(rideId);
         ride.setRideStatus(RideStatus.ACTIVE);
         ride.getDriver().setOccupied(true);
         rideRepository.save(ride);
         notificationService.createInstantNotification(ride.getPassenger(), "Vaša vožnja je započeta.");
+        return ride;
     }
 
     @Override
@@ -458,12 +463,12 @@ public class RideServiceImpl implements RideService {
 
     @Override
     public List<Ride> getUsersWholeRideHistory(User user) {
-        return rideRepository.findByPassenger(user);
+        return rideRepository.findByPassengerAndRideStatusIsNotOrderByIdDesc(user, RideStatus.REJECTED);
     }
 
     @Override
     public List<Ride> getDriversWholeRideHistory(Driver driver) {
-        return rideRepository.findByDriver(driver);
+        return rideRepository.findAllByDriverAndRideStatusIsNotOrderByIdDesc(driver, RideStatus.REJECTED);
     }
 
     @Override
@@ -482,7 +487,18 @@ public class RideServiceImpl implements RideService {
         if (ride != null) {
             ride.setFavourite(true);
         }
+        rideRepository.save(ride);
     }
+
+    @Override
+    public void removeFromFavourites(Integer rideId) {
+        Ride ride = rideRepository.findById(rideId).orElse(null);
+        if (ride != null) {
+            ride.setFavourite(false);
+        }
+        rideRepository.save(ride);
+    }
+
 
     @Override
     public Ride findRideById(int id) {

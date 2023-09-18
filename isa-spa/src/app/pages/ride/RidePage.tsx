@@ -1,18 +1,30 @@
 import { useEffect, useState } from 'react';
-import { redirect, useNavigate, useParams } from 'react-router-dom';
-import { Button, Form, Input, Popconfirm, Tooltip } from 'antd';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Form, Input, Popconfirm, Tooltip } from 'antd';
 
 import { useLoader } from 'app/contexts/loader/loader-context-provider';
 import { MainHeader } from 'app/components/main-header/MainHeader';
 import { HeaderActions } from 'app/components/header-actions/HeaderActions';
 import { useAppDispatch, useAppSelector } from 'app/hooks/common';
-import { fetchRide, selectIsLoadingRide, selectRide } from 'app/pages/ride/ride-page.slice';
+import { fetchRide, selectIsLoadingRide, selectRide, setRide } from 'app/pages/ride/ride-page.slice';
 import { humanizeMiliseconds } from 'app/utils/humanize.utlis';
 import { IsaButton } from 'app/components/isa-button/IsaButton';
 import { setRoutes } from 'app/pages/routes/routes-page.slice';
-import { acceptRide, finishRide, rejectRide, ridePanic, startRide, resolvePanic } from 'app/service/ride.service';
+import {
+  acceptRide,
+  finishRide,
+  rejectRide,
+  ridePanic,
+  startRide,
+  resolvePanic,
+  addToFavourites,
+  removeFromFavourites,
+  cloneRide
+} from 'app/service/ride.service';
 import { useAuthContext } from 'app/contexts/auth/auth-context-provider';
+import { StarOutlined, StarFilled } from '@ant-design/icons';
 import { useActiveRideContext } from 'app/contexts/active-ride/active-ride-provider';
+import { Ride } from 'app/model/Ride';
 
 type RidePageProps = {
   isHistory?: boolean;
@@ -24,7 +36,7 @@ export const RidePage = ({ isHistory = false }: RidePageProps) => {
   const { rideId } = useParams();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { driverWithPanicInCar } = useActiveRideContext();
+  const { driverWithPanicInCar, shouldRefetch, refetchFinished } = useActiveRideContext();
 
   const isDriver = hasAnyRole(['ROLE_DRIVER']);
   const isLoading = useAppSelector(selectIsLoadingRide);
@@ -40,6 +52,13 @@ export const RidePage = ({ isHistory = false }: RidePageProps) => {
     if (!rideId) navigate('/');
     else dispatch(fetchRide(parseInt(rideId)));
   }, [dispatch, navigate, rideId]);
+
+  useEffect(() => {
+    if (rideId && shouldRefetch) {
+      dispatch(fetchRide(parseInt(rideId)));
+      refetchFinished();
+    }
+  }, [dispatch, rideId, shouldRefetch, refetchFinished]);
 
   useEffect(() => {
     if (isLoading) activateLoader();
@@ -94,6 +113,15 @@ export const RidePage = ({ isHistory = false }: RidePageProps) => {
       .catch(deactivateLoader);
   };
 
+  const handleCloneRide = () => {
+    if (!rideId) return;
+
+    activateLoader();
+    cloneRide(parseInt(rideId))
+      .then(({ id }) => navigate(`/ride/${id}`))
+      .catch(deactivateLoader);
+  };
+
   const hanldeStartRide = () => {
     if (!rideId) return;
 
@@ -116,6 +144,15 @@ export const RidePage = ({ isHistory = false }: RidePageProps) => {
       .catch(deactivateLoader);
   };
 
+  const handleFavourite = (state: boolean) => {
+    if (!rideId) return;
+
+    const request = state ? addToFavourites : removeFromFavourites;
+    request(parseInt(rideId))
+      .then(() => dispatch(setRide({ ...(ride as Ride), favourite: state })))
+      .catch(console.error);
+  };
+
   return (
     <div className="d-flex flex-column flex-grow-1">
       <MainHeader>
@@ -127,14 +164,31 @@ export const RidePage = ({ isHistory = false }: RidePageProps) => {
         ) : (
           <>
             {isHistory ? (
-              <h2 className="h2 mb-4 text-center">Vožnja broj: {ride.id}</h2>
+              <h2 className="h2 mb-4 text-center d-flex justify-content-center align-items-center">
+                Vožnja broj: {ride.id}{' '}
+                <IsaButton
+                  className="mx-3 mt-1"
+                  type="ghost"
+                  onClick={() => handleFavourite(!ride.favourite)}
+                  shape="circle"
+                  size="large"
+                  icon={
+                    ride.favourite ? (
+                      <StarFilled style={{ color: '#d4af37' }} />
+                    ) : (
+                      <StarOutlined style={{ color: '#d4af37' }} />
+                    )
+                  }
+                />
+              </h2>
             ) : (
               <Tooltip title={ride.panicFlag ? 'Panik taster pritisnut!' : ''}>
                 <h2 className={'h2 mb-4 text-center' + (ride.panicFlag ? ' text-danger' : '')}>
                   {ride?.rideStatus === 'PENDING' && !isDriver && 'Potvrdite vožnju:'}
                   {ride?.rideStatus === 'PENDING' && isDriver && 'Vožnja ponuđena korisniku:'}
                   {ride?.rideStatus === 'REJECTED' && 'Odbijena vožnja:'}
-                  {ride?.rideStatus === 'ACCEPTED' && !isDriver && 'Započeta vožnja:'}
+                  {ride?.rideStatus === 'ACCEPTED' && !isDriver && !ride?.scheduled && 'Započeta vožnja:'}
+                  {ride?.rideStatus === 'ACCEPTED' && !isDriver && ride?.scheduled && 'Zakazana vožnja:'}
                   {ride?.rideStatus === 'ACCEPTED' && isDriver && 'Pokrenuta vožnja:'}
                   {ride?.rideStatus === 'ACTIVE' && 'Vožnja u toku:'}
                   {ride?.rideStatus === 'FINISHED' && 'Završena vožnja:'}
@@ -146,6 +200,12 @@ export const RidePage = ({ isHistory = false }: RidePageProps) => {
               {ride?.rideStatus === 'REJECTED' && (
                 <Form.Item label="Razlog odbijanja:">
                   <Input value={ride.rejection?.rejectionReason ?? 'Razlog nije naveden'} readOnly />
+                </Form.Item>
+              )}
+
+              {ride?.scheduled && ride?.startTime && ride?.rideStatus === 'ACCEPTED' && !isHistory && (
+                <Form.Item label="Zakazano vreme početka:">
+                  <Input value={new Date(ride?.startTime).toLocaleString()} readOnly />
                 </Form.Item>
               )}
 
@@ -204,6 +264,14 @@ export const RidePage = ({ isHistory = false }: RidePageProps) => {
                     </Form.Item>
                   )}
                 </>
+              )}
+
+              {isHistory && ride?.rideStatus === 'FINISHED' && hasAnyRole(['ROLE_USER']) && (
+                <div className="d-flex justify-content-center">
+                  <IsaButton className="w-100 my-3" type="primary" size="large" onClick={handleCloneRide}>
+                    Zatraži ovu vožnju ponovo
+                  </IsaButton>
+                </div>
               )}
 
               {!isHistory && (
@@ -271,9 +339,10 @@ export const RidePage = ({ isHistory = false }: RidePageProps) => {
                           </IsaButton>
                         </Popconfirm>
                       )}
+
                       <div />
 
-                      {hasAnyRole(['ROLE_DRIVER', 'ROLE_USER']) ? (
+                      {hasAnyRole(['ROLE_DRIVER', 'ROLE_USER']) && ride.rideStatus === 'ACTIVE' ? (
                         <Popconfirm
                           placement="topLeft"
                           icon=""
