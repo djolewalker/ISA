@@ -48,7 +48,12 @@ export const HeaderActions = () => {
     {
       label: 'Istorija vožnji',
       key: 'history',
-      onClick: () => (hasAnyRole(['ROLE_ADMIN']) ? navigate('/admin/ride/history') : navigate('/ride/history'))
+      onClick: () => navigate('/ride/history')
+    },
+    {
+      label: 'Analitika',
+      key: 'analytics',
+      onClick: () => navigate('/analytics')
     }
   ];
 

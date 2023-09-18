@@ -39,7 +39,10 @@ const UserNotificationsProvider = ({ children }: UserNotificationsProviderProps)
   const handleNewNotification = useCallback(
     (notification: UserNotification) => {
       info({ message: notification.description });
-      setUserNotifications((state) => [notification, ...state]);
+      setUserNotifications((state) => [
+        { ...notification, activationTime: new Date(notification.activationTime) },
+        ...state
+      ]);
     },
     [info]
   );
@@ -47,7 +50,10 @@ const UserNotificationsProvider = ({ children }: UserNotificationsProviderProps)
   const handleNewAdminNotification = useCallback(
     (notification: AdminNotification) => {
       info({ message: notification.description });
-      setAdminNotifications((state) => [notification, ...state]);
+      setAdminNotifications((state) => [
+        { ...notification, creationTime: new Date(notification.creationTime) },
+        ...state
+      ]);
     },
     [info]
   );

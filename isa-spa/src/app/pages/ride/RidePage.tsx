@@ -29,7 +29,7 @@ export const RidePage = ({ isHistory = false }: RidePageProps) => {
   const isDriver = hasAnyRole(['ROLE_DRIVER']);
   const isLoading = useAppSelector(selectIsLoadingRide);
   const ride = useAppSelector(selectRide);
-  const durationInMiliSecods = (ride?.estimatedDuration || 0) * 60000;
+  const durationInMiliSecods = (ride?.estimatedDuration || 0) * 1000;
   const route = ride?.routes[0];
   const stops = route?.stops.slice().sort((a, b) => a.order - b.order);
 

@@ -100,7 +100,7 @@ public class RouteServiceImpl implements RouteService {
 
     @Override
     public float fetchRouteDurationMinutes(Route route) {
-        return (float) route.getEstimatedDuration().toMinutes();
+        return route.getEstimatedDuration().toMinutes();
     }
 
     @Override
@@ -220,7 +220,7 @@ public class RouteServiceImpl implements RouteService {
 
             route.setEstimatedDuration(
                     Duration.of(geoJSONIndividualRouteResponse.getProperties().getSummary().getDuration().longValue(),
-                            ChronoUnit.MINUTES));
+                            ChronoUnit.SECONDS));
             route.setLength(geoJSONIndividualRouteResponse.getProperties().getSummary().getDistance().floatValue());
 
             geoJSONIndividualRouteResponse.clearSegments();
