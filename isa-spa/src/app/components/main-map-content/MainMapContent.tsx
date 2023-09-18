@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { LatLngTuple, geoJson, GeoJSON, icon, marker, Marker, Point, Icon } from 'leaflet';
+import { LatLngTuple, geoJson, GeoJSON, icon, marker, Marker } from 'leaflet';
 import { useMap } from 'react-leaflet';
+import { LineString } from 'geojson';
 
 import { useAppSelector } from 'app/hooks/common';
 import { selectRoutes, selectSelectedRouteId } from 'app/pages/routes/routes-page.slice';
@@ -10,19 +11,22 @@ import { useDriverStatusContext } from 'app/contexts/driver-status/driver-status
 import { useAuthContext } from 'app/contexts/auth/auth-context-provider';
 import { useActiveRideContext } from 'app/contexts/active-ride/active-ride-provider';
 
-import redIcon from 'assets/car-red.png';
-import greenIcon from 'assets/car-green.png';
-import exclamationIcon from 'assets/exclamation-mark.png';
+import redIconResource from 'assets/car-red.png';
+import greenIconResource from 'assets/car-green.png';
+import exclamationIconResource from 'assets/exclamation-mark.png';
+import startIconResource from 'assets/start.png';
+import finishIconResource from 'assets/finish.png';
+
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
 const redCarIcon = icon({
-  iconUrl: redIcon,
+  iconUrl: redIconResource,
   iconSize: [25, 25]
 });
 
 const greenCarIcon = icon({
-  iconUrl: greenIcon,
+  iconUrl: greenIconResource,
   iconSize: [25, 25]
 });
 
@@ -32,7 +36,17 @@ const locationIcon = icon({
 });
 
 const exclamationMarkIcon = icon({
-  iconUrl: exclamationIcon,
+  iconUrl: exclamationIconResource,
+  iconSize: [25, 25]
+});
+
+const startMarkIcon = icon({
+  iconUrl: startIconResource,
+  iconSize: [25, 25]
+});
+
+const finishMarkIcon = icon({
+  iconUrl: finishIconResource,
   iconSize: [25, 25]
 });
 
@@ -110,6 +124,26 @@ export const MainMapContent = () => {
       markers.forEach((m) => m.remove());
     };
   }, [map, locations, isDriverActive, user?.id, driverWithPanicInCar]);
+
+  useEffect(() => {
+    const markers: Marker[] = [];
+    if (routes?.features?.length === 1) {
+      const route = routes.features[0];
+      const geo = route.geometry as LineString;
+      const start = geo.coordinates[0];
+      if (start?.length) {
+        markers.push(marker([start[1], start[0]], { icon: startMarkIcon }));
+      }
+      const finish = geo.coordinates[geo.coordinates.length - 1];
+      if (finish?.length) {
+        markers.push(marker([finish[1], finish[0]], { icon: finishMarkIcon }));
+      }
+      markers.forEach((m) => m.addTo(map));
+    }
+    return () => {
+      markers.forEach((m) => m.remove());
+    };
+  }, [routes, map]);
 
   return <></>;
 };

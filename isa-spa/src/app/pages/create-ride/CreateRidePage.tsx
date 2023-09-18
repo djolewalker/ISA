@@ -14,7 +14,6 @@ import { bookRide } from 'app/service/ride.service';
 import { useLoader } from 'app/contexts/loader/loader-context-provider';
 import { useNotifications } from 'app/contexts/notifications/notifications-provider';
 import { AxiosError } from 'axios';
-import { resetSearch } from 'app/pages/search/search-page.slice';
 import { VehicleType } from 'app/model/User';
 import { useAuthContext } from 'app/contexts/auth/auth-context-provider';
 

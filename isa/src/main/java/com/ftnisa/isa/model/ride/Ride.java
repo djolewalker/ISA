@@ -80,4 +80,7 @@ public class Ride {
 
     @Column(name = "favourite_flag")
     private Boolean favourite;
+
+    @Column(name = "scheduled_flag")
+    private Boolean scheduled;
 }

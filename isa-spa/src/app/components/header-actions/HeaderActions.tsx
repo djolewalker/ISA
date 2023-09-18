@@ -80,7 +80,7 @@ export const HeaderActions = () => {
 
   const notifications = hasAnyRole(['ROLE_ADMIN']) ? adminNotifications : userNotifications;
   const notificationsMenu: MenuProps = {
-    style: { maxHeight: '500px', overflow: 'scroll' },
+    style: { maxHeight: '500px', overflowY: 'auto' },
     items: notifications.length
       ? notifications.map((notification) => ({
           key: notification.id,

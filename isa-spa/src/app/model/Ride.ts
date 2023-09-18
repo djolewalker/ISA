@@ -36,4 +36,6 @@ export type Ride = {
   routes: Route[];
   rejection?: Rejection;
   vehicleType: VehicleType;
+  scheduled: boolean;
+  favourite: boolean;
 };

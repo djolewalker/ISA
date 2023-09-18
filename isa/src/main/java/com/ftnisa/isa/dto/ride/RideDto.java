@@ -29,4 +29,6 @@ public class RideDto {
     private List<RouteDto> routes;
     private RejectionDto rejection;
     private VehicleTypeResponse vehicleType;
+    private Boolean scheduled;
+    private Boolean favourite;
 }

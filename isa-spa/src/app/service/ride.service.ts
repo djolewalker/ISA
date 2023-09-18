@@ -26,3 +26,12 @@ export const accountRideHistory = async (id: string) =>
   getRequest(`${CONTROLLER}/ride-history/${id}`).then(({ data }) => data as Ride[]);
 
 export const resolvePanic = async (id: number) => putRequest(`${CONTROLLER}/${id}/panic/resolve`);
+
+export const addToFavourites = async (id: number) => putRequest(`${CONTROLLER}/${id}/favourite/add`);
+
+export const removeFromFavourites = async (id: number) => putRequest(`${CONTROLLER}/${id}/favourite/remove`);
+
+export const cloneRide = async (id: number) =>
+  postRequest(`${CONTROLLER}/${id}/clone`, { scheduled: false, scheduledStartTime: null }).then(
+    ({ data }) => data as Ride
+  );

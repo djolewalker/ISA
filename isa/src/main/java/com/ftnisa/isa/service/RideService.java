@@ -20,7 +20,7 @@ public interface RideService {
 
     Ride finalizeRideBooking(boolean isRideAccepted, int rideId);
 
-    void startRideByDriver(Integer rideId);
+    Ride startRideByDriver(Integer rideId);
 
     Ride finishRideByDriver(Integer rideId);
 
@@ -56,6 +56,8 @@ public interface RideService {
     List<Ride> getDriversRidesBetweenDates(Driver driver, LocalDateTime date1, LocalDateTime date2);
 
     void addRideToFavourites(Integer rideId);
+
+    void removeFromFavourites(Integer rideId);
 
     Ride findRideById(int id);
 

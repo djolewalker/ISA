@@ -85,7 +85,8 @@ public class RideController {
     @PreAuthorize("hasRole('DRIVER')")
     @PutMapping("/{id}/start")
     public ResponseEntity<Void> startRideByDriver(@PathVariable int id) {
-        rideService.startRideByDriver(id);
+        var ride = rideService.startRideByDriver(id);
+        template.convertAndSendToUser(ride.getPassenger().getUsername(), "/queue/start-ride", ride.getId());
         return ResponseEntity.ok().build();
     }
 
@@ -205,10 +206,22 @@ public class RideController {
 
     @PreAuthorize("hasRole('USER')")
     @Transactional
-    @PutMapping("/{id}/add-ride-to-favourites")
+    @PutMapping("/{id}/favourite/add")
     public ResponseEntity<Void> makeRideFavourite(@PathVariable int id) {
         try {
             rideService.addRideToFavourites(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @Transactional
+    @PutMapping("/{id}/favourite/remove")
+    public ResponseEntity<Void> removeFromFavourite(@PathVariable int id) {
+        try {
+            rideService.removeFromFavourites(id);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
