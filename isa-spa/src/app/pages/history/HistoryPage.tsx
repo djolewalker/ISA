@@ -8,9 +8,11 @@ import { accountRideHistory, addToFavourites, removeFromFavourites, rideHistory 
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { StarOutlined, StarFilled } from '@ant-design/icons';
+import { useAuthContext } from 'app/contexts/auth/auth-context-provider';
 
-const tableColumns: (handleFavourite: (id: number, state: boolean) => void) => ColumnsType<Ride> = (
-  handleFavourite
+const tableColumns: (handleFavourite: (id: number, state: boolean) => void, isUser: boolean) => ColumnsType<Ride> = (
+  handleFavourite,
+  isUser
 ) => [
   {
     title: 'Vreme starta',
@@ -30,28 +32,39 @@ const tableColumns: (handleFavourite: (id: number, state: boolean) => void) => C
     key: 'totalPrice',
     render: (value) => `${value} RSD`
   },
-  {
-    dataIndex: 'favourite',
-    key: 'actions',
-    render: (favourite, record) => (
-      <>
-        <IsaButton
-          className="mr-2"
-          type="ghost"
-          onClick={(event) => {
-            handleFavourite(record.id, !favourite);
-            event.stopPropagation();
-          }}
-          shape="circle"
-          icon={favourite ? <StarFilled style={{ color: '#d4af37' }} /> : <StarOutlined style={{ color: '#d4af37' }} />}
-        />
-      </>
-    )
-  }
+  ...(isUser
+    ? [
+        {
+          dataIndex: 'favourite',
+          key: 'actions',
+          render: (favourite: boolean, record: Ride) => (
+            <>
+              <IsaButton
+                className="mr-2"
+                type="ghost"
+                onClick={(event) => {
+                  handleFavourite(record.id, !favourite);
+                  event.stopPropagation();
+                }}
+                shape="circle"
+                icon={
+                  favourite ? (
+                    <StarFilled style={{ color: '#d4af37' }} />
+                  ) : (
+                    <StarOutlined style={{ color: '#d4af37' }} />
+                  )
+                }
+              />
+            </>
+          )
+        }
+      ]
+    : [])
 ];
 
 export const HistoryPage = () => {
   const navigate = useNavigate();
+  const { hasAnyRole } = useAuthContext();
   const { activateLoader, deactivateLoader } = useLoader();
   const { userId } = useParams();
   const [rides, setRides] = useState<Ride[]>([]);
@@ -91,6 +104,8 @@ export const HistoryPage = () => {
 
   const ridesToDisplay = showOnlyFavourites ? rides.filter(({ favourite }) => favourite) : rides;
 
+  const isUser = hasAnyRole(['ROLE_USER']);
+
   return (
     <div className="d-flex flex-column flex-grow-1">
       <MainHeader>
@@ -100,25 +115,27 @@ export const HistoryPage = () => {
         <>
           <div className="mb-4 d-flex justify-content-between align-items-center">
             <h3 className="h3 m-0">Istorija vožnji: {userId ? `korisnik sa id-jem ${userId}` : ''} </h3>
-            <IsaButton
-              className="mx-4"
-              type="ghost"
-              onClick={handleShowOnlyFavourites}
-              shape="circle"
-              icon={
-                showOnlyFavourites ? (
-                  <StarFilled style={{ color: '#d4af37' }} />
-                ) : (
-                  <StarOutlined style={{ color: '#d4af37' }} />
-                )
-              }
-            />
+            {isUser && (
+              <IsaButton
+                className="mx-4"
+                type="ghost"
+                onClick={handleShowOnlyFavourites}
+                shape="circle"
+                icon={
+                  showOnlyFavourites ? (
+                    <StarFilled style={{ color: '#d4af37' }} />
+                  ) : (
+                    <StarOutlined style={{ color: '#d4af37' }} />
+                  )
+                }
+              />
+            )}
           </div>
           {rides?.length ? (
             <Table<Ride>
               rowKey={({ id }) => id}
               dataSource={ridesToDisplay}
-              columns={tableColumns(handleFavourite)}
+              columns={tableColumns(handleFavourite, isUser)}
               pagination={false}
               onRow={({ id }) => ({ onClick: () => handleRideSelected(id) })}
             />
